@@ -1,1 +1,1 @@
-Please check out the [wiki](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference) for the goodies.
+Please check out the [wiki](https://github.com/Grislow/KnowledgeBase/wiki) for the goodies.
