@@ -1,0 +1,1 @@
+Please checkout the [wiki](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference) for the goodies.
