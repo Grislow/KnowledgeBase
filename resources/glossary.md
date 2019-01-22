@@ -4,6 +4,7 @@ Glossary describing core concepts and phrases regarding software development and
 [K](#k)  [L](#l)  [M](#m)  [N](#n)  [O](#o)  [P](#p)  [Q](#Q)  [R](#r)  [S](#s)  [T](#t)
 [U](#u)  [V](#v)  [W](#w)  [X](#x)  [Y](#y)  [Z](#z)
 
+&nbsp;
 # A
 
 ## Argument
@@ -19,14 +20,17 @@ __Javascript__: Arrays are dynamic, which means they are not limited to one type
 ## Assignment
 Assigning a specific value to a variable.
 
-
+&nbsp;
 # B
 
 
+&nbsp;
 # C
 
 
+&nbsp;
 # D
+
 
 ## Declaration
 Registering a variable in its corresponding scope.
@@ -34,6 +38,7 @@ Registering a variable in its corresponding scope.
 ## Dynamic typing
 This means that a variables type is determined during runtime.
 
+&nbsp;
 # E
 
 ## Escape sequence
@@ -42,13 +47,13 @@ A sequence of characters that begins with an escape character and has a differen
 ## Expression
 A combination of elements(including other expressions) that produce a single value.
 
-
+&nbsp;
 # F
 
 ## Function
 A block of code that performs a task.
 
-
+&nbsp;
 # G
 
 ## Garbage Collection
@@ -59,10 +64,11 @@ __Javascript__: This happens automatically.
 ## Global properties
 Properties accessible in the global scope.
 
-
+&nbsp;
 # H
 
 
+&nbsp;
 # I
 
 ## Immutable
@@ -73,13 +79,15 @@ __Javascript__: All primitive types are immutable.
 ## Initialization
 Allocation of memory for a variable.
 
-
+&nbsp;
 # J
 
 
+&nbsp;
 # K
 
 
+&nbsp;
 # L
 
 ## Literal
@@ -89,6 +97,7 @@ A value which is expressed as itself. For example:
 * `true` boolean literal 
 * `[1, 2, 3]` array literal containing 3 numeric literals
 
+&nbsp;
 # M
 
 ## Method
@@ -102,19 +111,21 @@ Meaning its state can be changed. Immutable variable types are usually assigned 
 
 __Javascript__: Object and arrays are mutable data types.
 
-
+&nbsp;
 # N
 
 ## Naming conflict
 Also called a naming collision is when two identifiers within a given scope are identical.
 
-
+&nbsp;
 # O
 
 ## Object
 A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method.
 
+__Javascript__: Object variables actually contain references to where the object is stored in memory. 
 
+&nbsp;
 # P
 
 ## Parameter
@@ -123,19 +134,19 @@ A variable in a function declaration.
 ## Primitive
 Any data type that is not an object and has no methods. 
 
-__Javacript__: These are `string`, `number`, `boolean`, `null`, `undefined` and `symbol`.
+__Javacript__: These are `string`, `number`, `boolean`, `null`, `undefined` and `symbol`. A primitive variable stores its actual value.
 
-
+&nbsp;
 # Q
 
 
-
+&nbsp;
 # R
 
 ## RFC
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
 
-
+&nbsp;
 # S
 
 ## Statement
@@ -143,6 +154,7 @@ Expresses some action to be executed.
 
 __Javascript__: A statement cannot be used where a value is expected(even though in javascript statements produce a value).
 
+&nbsp;
 # T
 
 ## Type coercion
@@ -150,7 +162,7 @@ Converting a value of one type to another. This can happen automatically, which 
 
 __Javascript__: You can only convert to __string__, __boolean__ or __number__. For a more in depth explanation check out [this article](https://medium.freecodecamp.org/js-type-coercion-explained-27ba3d9a2839).
 
-
+&nbsp;
 # U
 
 ## Unicode
@@ -191,18 +203,22 @@ A Uniform Resource Locator is a string that identifies a web resource. A URL spe
 `http://www.somewebpage.com/search?q=example+search`
 
 
+&nbsp;
 # V
 
 
+&nbsp;
 # W
 
 
-
+&nbsp;
 # X
 
 
+&nbsp;
 # Y
 
 
+&nbsp;
 # Z
 

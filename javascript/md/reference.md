@@ -3,21 +3,29 @@ Reference for javascript features grouped by Ecmascript specification.
 #### Table of contents
 * [ES5](#es5)
     * [Variables and data types](#variables-and-data-types)
-	* [Global Functions][global-functions]
+	* [Operators](#Operators)
+	* [Control Flow](#Control-Flow)
+	* [Loops](#Loops)
+	* [Text](#Text)
+	* [Arrays](#Arrays)
+	* [Objects](#Objects)
+	* [Global Objects](#Global-Objects)
+	* [Functions](#Functions)
+	* [Global Functions](#Global-Functions)
+	* [Asynchronicity](#asynchronicity)
 * [ES6](#es6)
 * [ES7](#es7)
 * [ES8](#es8)
 
 &nbsp;
 # ES5
-
 This includes features available in ES5 from previous specifications.
 
 &nbsp;
 ## Variables and data types
 
 ### Terminology
-* Array
+* [Array](/resources/glossary.md#Array)
 * Assignment
 * Declaration
 * Dynamic typing
@@ -212,9 +220,21 @@ console.log(str);                    // prints 'A different string'
 console.log(str2);                   // prints 'Some string'
 ```
 
+&nbsp;
+## Operators
+
 
 &nbsp;
-## Strings
+## Control Flow
+
+
+
+&nbsp;
+## Loops
+
+
+&nbsp;
+## Text
 
 ### Terminology
 * Escape sequence
@@ -234,7 +254,7 @@ A sequence of characters that begins with an escape character and has a differen
 ```
 
 
-
+&nbsp;
 ## Arrays
 
 ### Type coercion for arrays
@@ -242,14 +262,27 @@ A sequence of characters that begins with an escape character and has a differen
 ### Array Methods
 
 
+&nbsp;
+## Objects
 
-### Objects
+### Object methods
 
-## Object methods
-
-## Type coercion for objects
+### Type coercion for objects
 
 
+&nbsp;
+## Global Objects
+
+
+
+&nbsp;
+## Functions
+
+### Terminology
+* Functions
+
+
+&nbsp;
 ## Global Functions
 Functions that are called globally without specifying an object.
 
@@ -360,10 +393,8 @@ String(true);                        // "true"
 ```
 
 
-## Global Objects
-
-## Operators
-
+&nbsp;
+## Asynchronicity
 
 
 # ES6
