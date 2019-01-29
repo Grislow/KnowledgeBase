@@ -7,6 +7,9 @@ Glossary describing core concepts and phrases regarding software development and
 &nbsp;
 # A
 
+## Accessor
+Also called an _Accessor Method_ or _Getter_ are methods that allow accessing an objects state data without changing it.
+
 ## Argument
 Value that is passed to a function. 
 
@@ -27,25 +30,47 @@ Assigning a specific value to a variable.
 &nbsp;
 # C
 
+## Clause
+An incomplete fragment of a statement.
 
 &nbsp;
 # D
 
 
+## Debugging
+Finding and fixing errors in source code.
+
 ## Declaration
 Registering a variable in its corresponding scope.
 
+## DRY
+"Don't Repeat Yourself" is a coding principle which states that if you catch yourself writing the same code over and over again then you are probably doing something wrong. Try to group repeated logic into a seperate function.
+
 ## Dynamic typing
-This means that a variables type is determined during runtime.
+Variables type is determined during runtime. This means any variable can be assigned and re-assigned values of any type.
 
 &nbsp;
 # E
 
+## Error
+Faults in an application. Can be grouped as:
+* __Syntax errors__ - incorrect usage of a programming languages grammar, like missing brackets or semicolons. Can be easilly spotted with the right tools like automatic compilation(for compiled languages) or linters(for interpreted languages).
+* __Runtime errors__ - errors that occur during execution, like trying to open a non-existant file. These are often called __Exceptions__ and can be handled programmatically.
+* __Logical errors__ - mistakes made in designing the logic within your application, like using the wrong operator or variable. Fixing these errors require understanding of business logic which is beyond a computers capacity. Debugging these is often tedious and requires close inspection of the state of the application at the moment the error occured.
+
 ## Escape sequence
 A sequence of characters that begins with an escape character and has a different meaning then its literal representation. In most programming languages the escape character is a backslash `\`. 
 
+## Exception
+A runtime error that disrupts a programs flow.
+
+## Execution Phase
+Or runtime is the process of executing a program on a computer or virtual machine. This usually involves a [runtime environment](#runtime-environment) which is responsible for supplying all the resources a program needs to properly execute. 
+
+
 ## Expression
-A combination of elements(including other expressions) that produce a single value.
+A unit of code that produces a single value.
+
 
 &nbsp;
 # F
@@ -53,13 +78,16 @@ A combination of elements(including other expressions) that produce a single val
 ## Function
 A block of code that performs a task.
 
+__Javascript__: A callable object.
+
 &nbsp;
 # G
 
 ## Garbage Collection
-The process of freeing memory allocated to unused variables. 
+An automated process that frees memory allocated to unused variables. 
 
-__Javascript__: This happens automatically.
+## Getter
+See [Accessor](#accessor).
 
 ## Global properties
 Properties accessible in the global scope.
@@ -67,6 +95,8 @@ Properties accessible in the global scope.
 &nbsp;
 # H
 
+## Hoisting
+The act of loading some resources to memory prior to code execution irrespective of those resources physical location in the source code. 
 
 &nbsp;
 # I
@@ -97,6 +127,9 @@ A value which is expressed as itself. For example:
 * `true` boolean literal 
 * `[1, 2, 3]` array literal containing 3 numeric literals
 
+## Locale
+An object containing a regional settings like a region, language code or currency.
+
 &nbsp;
 # M
 
@@ -105,11 +138,16 @@ Is a function that describes a verb of a class or an object.
 
 If we had a class called `Horse` it could have a method called `run`.
 
+## Method Overriding
+Changing the definition of a method inherited from a superclass to provide a subclass specific implementation.
 
 ## Mutable
 Meaning its state can be changed. Immutable variable types are usually assigned values which represent a reference to a space in memory. This means that any changes made to what the reference points at effects all other variables that share the same reference.
 
 __Javascript__: Object and arrays are mutable data types.
+
+## Mutator
+Also called a _Mutator Method_ or _Setter_ are methods that allow changing an objects state data.
 
 &nbsp;
 # N
@@ -121,15 +159,20 @@ Also called a naming collision is when two identifiers within a given scope are 
 # O
 
 ## Object
-A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method.
+A value in memory that can be referenced through an identifier.
 
-__Javascript__: Object variables actually contain references to where the object is stored in memory. 
+__Javascript__: A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method. Properties keys can be of type String or Symbol.
+
+## Operand
+The object of an operation.
 
 &nbsp;
 # P
 
 ## Parameter
-A variable in a function declaration. 
+A variable in a function declaration.
+
+Do not confuse with an [argument](#argument) which is the actual value assigned to a parameter.
 
 ## Primitive
 Any data type that is not an object and has no methods. 
@@ -143,14 +186,23 @@ __Javacript__: These are `string`, `number`, `boolean`, `null`, `undefined` and 
 &nbsp;
 # R
 
+## Regular Expression
+A sequence of symbols and characters expressing a pattern.
+
 ## RFC
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
+
+## Runtime
+See [Execution Phase](#execution-phase).
+
+## Runtime Environment
+Environment in which a program is executed. Think of it as a layer between written code and the machine on which it runs. This often includes the operating system, any libraries the program uses and an interpreter that translates the program into something a machine can understand.  
 
 &nbsp;
 # S
 
 ## Statement
-Expresses some action to be executed.
+An action to be executed.
 
 __Javascript__: A statement cannot be used where a value is expected(even though in javascript statements produce a value).
 

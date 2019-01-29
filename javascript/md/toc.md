@@ -1,10 +1,15 @@
-Reference for javascript features grouped by Ecmascript specification.
+Reference for Javascript features grouped by Ecmascript specification.
 
-ES5 includes features from eariler specifications.
+Most IT specific terminology used in the refrences is linked to a description in the Glossary.
+
+Miscellaneous includes useful code snippets or broader definitions of various javascript-related topics.
 
 #### Table of contents
-* [ES5](#es5)
-* [ES6](#es6)
-* [ES7](#es7)
-* [ES8](#es8)
-* [Glossary](#glossary)
+* [ES5](/javascript/md/es5.md)
+* [ES6](/javascript/md/es6.md)
+* [ES7](/javascript/md/es7.md)
+* [ES8](/javascript/md/es8.md)
+* [ES9](/javascript/md/es9.md)
+* [APIs](/javascript/md/apis.md)
+* [Miscellaneous](/javascript/md/misc.md)
+* [Glossary](/resources/glossary.md)

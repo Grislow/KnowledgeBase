@@ -1,3 +1,6 @@
+// THIS IS A DOCUMENT I MADE DURING MY BEGINNING WITH JS - ITS FULL OF MISTAKES
+// I WILL REFACTOR THIS BUT IT IS NOT A TOP PRIORITY 
+
 /*==========================================================================
 	VARIABLES AND DATA TYPES
 ==========================================================================*/
