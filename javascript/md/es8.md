@@ -2,7 +2,61 @@ Reference for Javascript as of the ECMAScript version 8 specification.
 
 #### Table of contents
 
-* [Variables and data types](#variables-and-data-types)
+* [Async-Await](#async-await)
+* [Enhanced Concurrency](#enhanced-concurrency)
+    * [Shared Memory](#shared-memory)
+    * [Atomics](#atomics)
+* [Object Methods](#object-methods)
+* [String Padding](#string-padding)
+* [Trailing Commas](#trailing-commas)
+
 
 &nbsp;
-## Variables and data types
+## Async-Await
+
+
+&nbsp;
+## Enhanced Concurrency
+
+### Shared Memory
+
+### Atomics
+
+
+
+&nbsp;
+## Object Methods
+
+`Object.entries()` - 
+`Object.getOwnPropertyDescriptors()` - 
+`Object.values()` - 
+
+``` javascript
+
+```
+
+&nbsp;
+## String Padding
+`String.prototype.padEnd(length[, str])` - appends a string to the end of another string until it is of a set length.
+
+`String.prototype.padStart(length[, str])` - appends a string to the beginning of another string until it is of a set length.
+
+``` javascript
+let str = 'Hello';
+
+str.padEnd(10);                      // "Hello     "
+str.padEnd(10, '.');                 // "Hello....."
+str.padEnd(str.length + 6, '~@');    // "Hello~@~@~@"
+
+str.padStart(10);                      // "     Hello"
+str.padStart(10, '.');                 // ".....Hello"
+str.padStart(str.length + 6, '~@');    // "~@~@~@Hello"
+
+```
+
+&nbsp;
+## Trailing Commas
+
+``` javascript
+
+```
