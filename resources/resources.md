@@ -7,15 +7,17 @@ Interesting and useful resources regarding mostly software development and desig
 * [Web Development](#web-development)
 
 # General
+* [Google on PWA's](https://developers.google.com/web/progressive-web-apps/)
 * Terminology
     * [CS and Programming terms](http://www.labautopedia.org/mw/List_of_programming_and_computer_science_terms)
 * Unicode
     * [List of unicode characters](https://unicode-table.com/en/)
 	* [Great read on Unicode](https://dmitripavlutin.com/what-every-javascript-developer-should-know-about-unicode/#4finalwords)
 # Javascript
-* Books
+* Free Learning Material
     * [Speaking Javascript](http://speakingjs.com/es5/index.html#toc_ch01)
 	* [You Don't Know JS](https://github.com/getify/You-Dont-Know-JS)
+	* [Guides on intermediate to advanced JS topics](https://javascriptissexy.com/javascript-apply-call-and-bind-methods-are-essential-for-javascript-professionals/)
 * Good practices:
     * [Douglas Crockford's JS Code Conventions](http://crockford.com/javascript/code.html)
 * References:
@@ -33,6 +35,10 @@ Interesting and useful resources regarding mostly software development and desig
 * Icons
     * [Flat icon](https://www.flaticon.com/)
         * Largest database of free icons, but you need to give credit to the authors unless you buy the premium version
+    * [Font Awesome](https://fontawesome.com/)
+        * Huge database of free and payed icons
+* Mockups
+    * [draw.io](https://www.draw.io/)
 
 
 # Web Development

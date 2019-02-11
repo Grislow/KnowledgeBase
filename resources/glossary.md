@@ -9,8 +9,8 @@ I provide credit where its do. This provides you with an alternative formulation
 [U](#u)  [V](#v)  [W](#w)  [X](#x)  [Y](#y)  [Z](#z)
 
 Lexical Scope, ASI(http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
-hoisting jshttps://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
-
+https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
+https://developer.mozilla.org/en-US/docs/Glossary/Call_stack
 singleton
 
 &nbsp;
@@ -74,8 +74,17 @@ Automatic conversion between a primitive type and a wrapper type.
 &nbsp;
 # C
 
+## Call Stack
+Also called and Execution Stack, Program Stack or Run-time Stack. It is a LIFO data structure containing all routines that are currently being executed or are awaiting execution. The position of subroutines on the stack determines their order of execution. 
+
+## Callback Function
+A function passed as an argument.
+
 ## Clause
 An incomplete fragment of a statement.
+
+## Closure
+A function that has its own lexical environment.
 
 ## Code point
 A unique number assigned to each Unicode character.
@@ -101,7 +110,6 @@ For a full list vist [wikipedia](https://en.wikipedia.org/wiki/C0_and_C1_control
 
 &nbsp;
 # D
-
 
 ## Debugging
 Finding and fixing errors in source code.
@@ -143,6 +151,15 @@ A unit of code that produces a single value.
 &nbsp;
 # F
 
+## First Class Citizen
+An entity that supports basic operations such as being: 
+* passed as an argument
+* returned by a function
+* assigned as a value
+
+## First Class Functions
+Functions that are treated as any other variable. Meaning they can be passed as an argument, returned by a function and assigned as a value.
+
 ## Function
 A block of code that performs a task.
 
@@ -166,7 +183,7 @@ See [Accessor](#accessor).
 Properties accessible in the global scope.
 
 ## Graceful Degradation
-A methodology for building web applications that focuses on providing a specific viewing experience and makeing a less appealing, degraded version for user agents that don't support that experience.
+A methodology for building web applications that focuses on providing a specific viewing experience and makeing a less appealing, degraded version for [user agents](#user-agent) that don't support that experience.
 
 ## Grapheme
 1 or more [code points](#code-point) as a single graphical unit.
@@ -178,8 +195,14 @@ A good example is the letter `ą` which is a grapheme that could be represented 
 &nbsp;
 # H
 
+## Higher Order Function
+A function that returns another function.
+
 ## Hoisting
 The act of loading some resources to memory prior to code execution irrespective of those resources physical location in the source code. 
+
+## Horizontal Scaling
+Adding more machines into the pool of resources available to a system.
 
 &nbsp;
 # I
@@ -211,6 +234,9 @@ A word that has a predefined meaning in a programming language.
 &nbsp;
 # L
 
+## Lexical Scope
+Or static scope means the availability of an element is determined by where it was created in the source code.
+
 ## Literal
 A value which is expressed as itself. For example:
 * `'Dog'` string literal
@@ -237,6 +263,14 @@ If we had a class called `Horse` it could have a method called `run`.
 ## Method Overriding
 Changing the definition of a method inherited from a superclass to provide a subclass specific implementation.
 
+## Module
+An independent software component designed to group features performing a given task. An application is usually composed of many components.
+
+Modules are very powerful because they provide:
+* reusability - are a standalone part which you can easily include in other applications. 
+* readability - only deal with a single feature making it easier to understand and debug.
+* security - only exposes what is needed and hides its inner working making it safe from external influences(other programs, an inexperienced developer).
+
 ## Mutable
 Meaning its state can be changed. Immutable variable types are usually assigned values which represent a reference to a space in memory. This means that any changes made to what the reference points at effects all other variables that share the same reference.
 
@@ -247,6 +281,9 @@ Also called a _Mutator Method_ or _Setter_ are methods that allow changing an ob
 
 &nbsp;
 # N
+
+## Namespacing
+Various techniques used to organize code so that it doesn't polute the global namespace.
 
 ## Naming conflict
 Also called a naming collision is when two identifiers within a given scope are identical.
@@ -261,6 +298,13 @@ Something designed to work with a particular system, meaning it can use that sys
 A value in memory that can be referenced through an identifier.
 
 __Javascript__: A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method. Properties keys can be of type String or Symbol.
+
+## Object Oriented Programming
+A programming paradigm that involves:
+* Abstraction - hiding complexities of a system and only exposing what is needed to the users.   
+* Encapsulation - grouping related properties and methods under a single entity.
+* Inheritance - passing down properties and methods between objects or classes creating a hirarchical dependency between them.
+* Polymorphism - creating a method or function that works differentely depending on context of execution.
 
 ## Operand
 The object of an operation.
@@ -302,6 +346,16 @@ A methodology for building web applications that focus on providing basic conten
 
 This ensures a good experience for users with a poor internet connection, legacy browsers or old devices and a great experience for everyone else.
 
+## Progressive Web Apps(PWA)
+Web applications that work like [native](#native) applications. They:
+* are responsive and work cross-browser
+* present content even when offline
+* can be added to the home screen of a device
+* load fast even on a poor internet connection
+* offer fluid page transition and scrolling
+
+For a thorough explanation checkout what [Google](https://developers.google.com/web/progressive-web-apps/) has to say on the subject.
+
 &nbsp;
 # Q
 
@@ -329,6 +383,9 @@ Rule of thumb:
 * use [parsers](#parser) for complex data with a clear syntax(source code, urls, etc.)
 * if the regular expression is too long think of a different approach
 * don't try to solve all cases in a single regular expression(all valid emails could take a reg exp of over 1000 characters)
+
+## Responsive Design
+A design practice when creating websites. A responsive website appropriately resizes, repositions, shows or hides elements to provide a great user experience on any device.
 
 ## RFC
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
@@ -453,6 +510,8 @@ Software used by a user. For example:
 &nbsp;
 # V
 
+## Vertical Scaling
+Adding more power to a resource available to a system.
 
 &nbsp;
 # W

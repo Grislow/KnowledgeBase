@@ -1,6 +1,6 @@
 Reference for Javascript features grouped by ECMAScript specification. The [ES5](/javascript/md/es5.md) section includes ES1-ES4 and definitions of essential Javacript concepts. Most IT specific terminology used in the refrences is linked to a description in the [Glossary](/resources/glossary.md). You can find useful or interesting code snippets in [Miscellaneous](/javascript/md/misc.md).
 
-If you want an in-depth understanding of Javascript I would recommend thoroughly going through everything [Mozilla Develper Center](https://developer.mozilla.org) has to offer. Its packed with guides, references, examples and even polyfills for newer features.
+If you want an in-depth understanding of Javascript I would recommend thoroughly going through everything [Mozilla Developer Center](https://developer.mozilla.org) has to offer. Its packed with guides, references, examples and even polyfills for newer features.
 
 __Extra Special Credits__ to:
 * [MDN](https://developer.mozilla.org) - for providing such a huge amount of knowledge on Javascript and Web Development in general.

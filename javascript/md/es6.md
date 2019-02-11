@@ -24,6 +24,7 @@ Reference for Javascript features introduced in the ECMAScript 2015(ES6) specifi
 * [Promises](#promises)
 * [Spread Operator](#spread-operator)
 * [Symbol Variable Type](#symbol-variable-type)
+* [Tail Call Optimization](#tail-call-optimization)
 * [Template Literals](#template-literals)
     * [Interpolation](#interpolation)
     * [Raw String content](#raw-string-content)
@@ -31,31 +32,35 @@ Reference for Javascript features introduced in the ECMAScript 2015(ES6) specifi
 
 
 &nbsp;
-## Arrow Functions
+# Arrow Functions
 
 
 &nbsp;
-## Block Scoped Declarations
+# Block Scoped Declarations
 
 
 &nbsp;
-## Classes
+# Classes
 
 
 &nbsp;
-## Default Parameters
+# Default Parameters
 
 
 &nbsp;
-## Destructuring Assignments
+# Destructuring Assignments
 
 
 &nbsp;
-## Enhanced Object Literals
+# Enhanced Object Literals
 
 
 &nbsp;
-## Enhanced Regular Expressions
+# Enhanced Regular Expressions
+New properties:
+* `sticky` - boolean value indicating whether the _sticky_ flag is set
+* `unicode` - boolean value indicating whether the _unicode_ flag is set
+
 New flags:
 * `y` - sticky matching. The search is performed only from an index of the String. This index is specified in the `lastIndex` property of the regular expression. This flag overwrites the `g` flag.
 * `u` - unicode aware matching. Treats the regular expression as a sequence of code points.
@@ -68,36 +73,36 @@ New special character:
 
 
 &nbsp;
-## Generators
+# Generators
 
 
 &nbsp;
-## Iteration Protocols
+# Iteration Protocols
 Protocols that allow specifying how an object handles iteration.
 
-### Iterable
+## Iterable
 
-### Iterator
+## Iterator
 
-### For-of Loop
-
-
-&nbsp;
-## Lexical 'this'
+## For-of Loop
 
 
 &nbsp;
-## Map and Set
+# Lexical 'this'
 
 
 &nbsp;
-## Modules
+# Map and Set
 
 
 &nbsp;
-## New Methods
+# Modules
 
-### Array Methods
+
+&nbsp;
+# New Methods
+
+## Array Methods
 `Array.from(obj)` - create an array instance from any object that contains a length property.
 
 `Array.prototype.copyWithin(target[,start][,end])` - copies part of the array into the same array at a given index. This is a [mutator method](/resources/glossary.md#mutator).
@@ -137,7 +142,7 @@ arr.copyWithin(4);                   // [1, 2, 3, 'one', 1, 2]
 arr.copyWithin(1, 3, 5);             // [1, "one", 1, "one", 1, 2]
 ```
 
-### String Methods
+## String Methods
 
 `String.fromCodePoint(code1[, ... , codeN])` - generates a string from 0 or more Unicode [code points](/resources/glossary.md#code-point).
 
@@ -196,7 +201,7 @@ cTail1 === cTail2.normalize()        // true
 
 
 &nbsp;
-## New Numeric Literals
+# New Numeric Literals
 Binary literals start with `0b` or `0B` followed by a sequence of 1 or more binary digits.
 
 Octal literals start with  `0o` or `0O` followed by a sequence of 1 or more octal digits.
@@ -209,24 +214,29 @@ Octal literals start with  `0o` or `0O` followed by a sequence of 1 or more octa
 
 
 &nbsp;
-## Promises
+# Promises
 
 
 &nbsp;
-## Spread Operator
+# Spread Operator
 
 
 &nbsp;
-## Symbol Variable Type
+# Symbol Variable Type
 
+
+# Tail Call Optimization
+https://stackoverflow.com/questions/25228871/how-to-understand-trampoline-in-javascript
+http://pages.cs.wisc.edu/~vernon/cs367/notes/6.RECURSION.html#iter
+https://www.sitepoint.com/recursion-functional-javascript/
 
 &nbsp;
-## Template Literals
+# Template Literals
 Template literals are strings wrapped in 
 
-### Interpolation
+## Interpolation
 
-### Raw String content
+## Raw String content
 
 
 

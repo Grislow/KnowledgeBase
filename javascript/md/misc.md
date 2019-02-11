@@ -3,6 +3,7 @@ Various Javascript-related things I think are worth knowing or having available 
 
 
 #### Table of contents
+* [JSDocs](#JSDocs)
 * [Performance](#performance)
 * [Regular Expressions](#regular-expressions)
     * [Digits](#digits)
@@ -12,6 +13,11 @@ Various Javascript-related things I think are worth knowing or having available 
     * [IP](#ip)
     * [Dates and Time](#dates-and-time)
     * [Credit Cards](#credit-cards)
+
+## JSDocs
+JSDocs is a documentation generator. It uses tags to describe characteristics of functions, modules and classes.
+
+You can find its full documentation [here](http://usejsdoc.org/).
 
 ## Performance
 Avoid using the `new` operator whenever possible.
