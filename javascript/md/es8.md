@@ -27,12 +27,24 @@ Reference for Javascript as of the ECMAScript version 8 specification.
 &nbsp;
 ## Object Methods
 
-`Object.entries()` - 
-`Object.getOwnPropertyDescriptors()` - 
-`Object.values()` - 
+`Object.entries(obj)` - returns an array of all the objects enumerable properties. Includes keys and values.
+`Object.getOwnPropertyDescriptors(obj)` - returns all own properties property descriptors
+`Object.values()` - returns an array of all the objects enumerable properties values. 
 
 ``` javascript
+/*
+    Object.entries()
+*/
 
+
+/*
+    Object.getOwnPropertyDescriptors()
+*/
+
+
+/*
+    Object.values()
+*/
 ```
 
 &nbsp;

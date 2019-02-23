@@ -1,9 +1,14 @@
 Various Javascript-related things I think are worth knowing or having available for quick reference when needed.
 
-
-
 #### Table of contents
+* [Algorithms](#algorithms)
+* [Data Structures](#data-structures)
+* [Design Patterns](#design-patterns)
+* [Function Decorators](#function-decorators)
+* [Functional Composition](#functional-composition)
+* [Good Practice](#good-practice)
 * [JSDocs](#JSDocs)
+* [Node Package Manager(npm)](#node-package-manager(npm))
 * [Performance](#performance)
 * [Regular Expressions](#regular-expressions)
     * [Digits](#digits)
@@ -13,16 +18,233 @@ Various Javascript-related things I think are worth knowing or having available 
     * [IP](#ip)
     * [Dates and Time](#dates-and-time)
     * [Credit Cards](#credit-cards)
+* [Types of Prototypal Inheritance](#types-of-prototypal-inheritance)
+* [V8](#V8)
 
-## JSDocs
+&nbsp;
+# Algorithms
+
+Credit to:
+* [Algorithms + Data Structures + Explanations](https://github.com/trekhleb/javascript-algorithms)
+
+## Search
+
+
+## Sort
+
+
+
+
+&nbsp;
+# Data Structures
+Credit to:
+* [Algorithms + Data Structures + Explanations](https://github.com/trekhleb/javascript-algorithms)
+
+https://medium.com/@felipernb/algorithms-data-structures-and-web-development-7772e088f1d3
+https://medium.com/siliconwat/data-structures-in-javascript-1b9aed0ea17c
+
+Data structures are ways of grouping data which define how this data is related and how you you can work with it. 
+
+## Linked Lists
+A linear collection of nodes. Each node contains some data and a reference to the next node creating a sequence.
+
+``` javascript
+
+```
+
+## Doubly Linked Lists
+A collection of linked __nodes__. Each node contains some data, a reference to the previous element and a reference to the next element. At the end and beginning of the collection there are __sentinel nodes__ which enables travesal of the list.
+
+If there is only _one sentinel node_ it contains a reference to the beginning and end of the collection and makes the data structure a __circularly linked list__
+
+``` javascript
+
+```
+
+## Queue
+
+
+## Priority Queue
+
+
+## Stack
+
+
+
+## Hash Table
+
+
+## Heap
+
+
+
+## Trie
+
+
+
+## Tree
+
+
+
+## Binary Search Tree
+
+
+
+## Graph
+Can be directed and undirected
+
+
+## Disjoint Set
+
+
+
+## Bloom Filter
+
+
+
+&nbsp;
+# Design Patterns
+-http://sd.blackball.lv/library/JavaScript_Patterns_%282010%29.pdf
+-https://addyosmani.com/resources/essentialjsdesignpatterns/book/
+
+## Singleton Pattern
+https://codeburst.io/javascript-global-variables-vs-singletons-d825fcab75f9 
+
+
+&nbsp;
+# Function Decorators
+A higher order function that returns an enhanced version of its argument function.
+
+Good exmaple is a timing decorator function that could be used for profiling.
+
+Credits: [Cristi Salcescu](https://medium.freecodecamp.org/how-to-use-decorators-with-factory-functions-373fb972b6d4)
+
+``` javascript
+function logExecDuration(fn) {
+    return function decorator(...args){
+        let start = Date.now();
+        let result = fn.apply(this, args);
+        let duration = Date.now() - start;
+        console.log(fn.name + "() duration : " + duration);
+        return result;
+    }
+}
+```
+
+&nbsp;
+# Functional Composition
+Combining simple composable functions into one more complex function. This can be achieved by passing the result of one function as an argument to another function(over and over if needed). Composable functions should only take one argument and output one value.
+
+This makes your code more readable, simplifies testing and simplifies debugging.
+
+Credit for the compose and pipe functions: [Joel Thoms](https://hackernoon.com/javascript-functional-composition-for-every-day-use-22421ef65a10)
+
+In ES5 syntax.
+``` javascript
+var compose = function compose() {
+    for (var _len = arguments.length, functions = new Array(_len), _key = 0; _key < _len; _key++) {
+        functions[_key] = arguments[_key];
+    }
+
+    return function (data) {
+        return functions.reduceRight(function (value, func) {
+            return func(value);
+        }, data);
+    };
+};
+
+var pipe = function pipe() {
+    for (var _len2 = arguments.length, functions = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        functions[_key2] = arguments[_key2];
+    }
+
+    return function (data) {
+        return functions.reduce(function (value, func) {
+            return func(value);
+        }, data);
+    };
+};
+```
+
+This is much cleaner with ES6 syntax.
+
+``` javascript
+const compose = (...functions) => data =>
+    functions.reduceRight((value, func) => func(value), data)
+
+const pipe = (...functions) => data =>
+    functions.reduce((value, func) => func(value), data)
+```
+
+&nbsp;
+# Good Practice
+Credits to:
+* [An article by Eric Elliot's](#https://medium.com/javascript-scene/the-single-biggest-mistake-programmers-make-every-day-62366b432308) on a good approach to implementing software
+
+## Plan then execute
+Before development plan out the minimalistic version of your product. Get a piece of paper and draw a __block scheme__. Include only the essentials. 
+* Don't make it perfect
+* Don't make it handle every edge case
+* Don't focus on one component for too long
+
+Make sure it's the __absolute minimum__ and than remove some more. Once your out of ideas - start writing tests.
+
+## Test Driven
+Before you start implementing the bare bone solution - write tests. These test should cover only the basics. Next start developing against these test, not the other way around.
+
+## KISS
+Keep It Simple, Stupid meaning you should focus on making your code:
+* easy to understand
+* easily used and reused
+* easily extended
+
+Following this principle keep the following in mind: 
+* each variable should represent only one thing
+* each function should do only one thing
+* use options objects over argument lists as function parameters
+* dont make a function cover lots of cases - create a seperate one for each case
+* avoid side-effects - be extra careful with mutable datatypes
+* comment any complex logic
+* write code that a junior developer could understand
+* create modules that you can cut and paste without breaking anything
+
+&nbsp;
+# JSDocs
 JSDocs is a documentation generator. It uses tags to describe characteristics of functions, modules and classes.
 
 You can find its full documentation [here](http://usejsdoc.org/).
 
-## Performance
+&nbsp;
+# Node Package Manager(npm)
+
+## Semantic Versioning
+The following is the standard for [versioning node packages](https://docs.npmjs.com/about-semantic-versioning). 
+
+|Code Description|Stage|Rule|Example Version|
+|----|----|----|:----:|
+|Initial Release|New release|Start with 1.0.0|1.0.0|
+|Bug fixes|Patch release|Increment third digit|1.0.1|
+|New features|Minor release|Increment middle digit, reset last digit|1.1.0|
+|Non-backward compatible changes|Major release|Increment first digit, reset other digits|2.0.0|
+
+In a __package.json__ to specify acceptable version ranges:
+|Concerns|Syntax|Example|Example Range|
+|----|:----:|:----:|:----:|
+|Patch releases|n.n|1.1|**1.1.0** - 1.1.20|
+|Patch releases|n.n.x|2.2.x|**2.2.0** - 2.2.14|
+|Patch releases|~n.n.n|~3.0.4|**3.0.4** - 3.0.20|
+|Minor releases|n|1|**1.0.0** - 1.6.4|
+|Minor releases|n.x|1.x|**1.0.0** - 1.6.4|
+|Minor releases|^n.n.n|^1.11.1|**1.11.1** - 1.20.10|
+|Major releases|*|*|**any version**|
+|Major releases|x|x|**any version**|
+
+&nbsp;
+# Performance
 Avoid using the `new` operator whenever possible.
 
-## Regular Expressions
+&nbsp;
+# Regular Expressions
 More on regular expressions in [Javascript](/javascript/md/es5.md#regular-expressions).
 
 Credits to: 
@@ -31,12 +253,12 @@ Credits to:
 
 A `^` at the beginning together with `$` at the end of any regular expression searches for an exact match(for example no trailing whitespace). Otherwise it will search it as a substring meaning it can be preceeded or followed by any characters.
 
-Keep in mind some of these are just fun examples - if a regular expression is too long you should think of a different approach:
-* [parsers](/resources/glossary.md#accessor)
+Some of these are just fun examples - if a regular expression is too long you should think of a different approach:
+* [parsers](/resources/glossary.md#parser)
 * extract atomic parts(subexpressions) and check them individually
 * use control flow and string properties/methods that don't involve regular expressions
 
-#### Digits
+## Digits
 ``` javascript
 // whole numbers
 var whole = /^\d+$/;
@@ -50,7 +272,7 @@ var negPosWholeDecimal = /^-?\d*\.?\d+$/;
 var wholeDecFrac = /^[-]?\d?[,.]?\d+([\/]\d+[,.]?\d*)*$/;
 ```
 
-#### Alphanumeric
+## Alphanumeric
 ``` javascript
 // alphanumeric excluding whitespaces
 var ANnoWhiteSpace = /^[a-zA-Z0-9]+$/;
@@ -58,7 +280,7 @@ var ANnoWhiteSpace = /^[a-zA-Z0-9]+$/;
 var ANwithWhiteSpace = /^[a-zA-Z0-9 ]+$/;
 ```
 
-### Login
+## Login
 ``` javascript
 // username of 3-16 characters
 var username = /^[a-zA-Z0-9_-]{3,16}$/;
@@ -76,7 +298,7 @@ var moderate = /(?=.*\d)(?=.*[A-Z])(?=.*[a-z])^.{8,}$/
 var strong = /(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[\!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])^.{8,}$/;
 ```
 
-### URL
+## URL
 ``` javascript
 // slug
 var slug = /[a-z0-9]+(?:-[a-z0-9]+)*/;
@@ -100,7 +322,7 @@ var ftp = /^ftp:\/\/[\!#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?a-zA-Z0-9]{2,}(:[\!#$%^&
 var ftpBetter = /^ftp:\/\/[a-zA-Z0-9._]{2,}(:[\!#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?a-zA-Z0-9]+)?@[-a-zA-Z0-9@:%._\+~#=]{2,250}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#()?&//=]*)$/;
 ```
 
-### IP
+## IP
 ``` javascript
 // IP4 address
 var ip4 = /^((2[0-5]{2}|1\d{2}|0?\d{1,2})\.){3}(2[0-5]{2}|1\d{2}|0?\d{1,2})$/;
@@ -109,7 +331,7 @@ var ip4 = /^((2[0-5]{2}|1\d{2}|0?\d{1,2})\.){3}(2[0-5]{2}|1\d{2}|0?\d{1,2})$/;
 var ip6 = /^([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}$/;
 ```
 
-### Dates and Time
+## Dates and Time
 Components of a __date__(year, month, day, seperator) and __time__(hours, minutes, seconds, milliseconds, seperator) in various formats.
 
 These are pieces out of which you can create a regular expression matching any date/time/datetime format.
@@ -191,7 +413,7 @@ Connect date and time using `T` or space.
 var datetime = /(0[1-9]|[12]\d|3[01])\.(0[1-9]|1[0-2])\.([12]\d{3})T(0\d|1\d|2[0-3]):([1-5]\d|0\d):([1-5]\d|0\d)/;
 ```
 
-### Credit Cards
+## Credit Cards
 ``` javascript
 var visa = /^4[0-9]{12}(?:[0-9]{3})?$/;
 var mastercard = /^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$/;
@@ -202,7 +424,7 @@ var jcb = /^(?:2131|1800|35\d{3})\d{11}$/;
 ```
 
 
-### Prep string literal
+## Prep string literal
 Credits to: 
 * [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#special-unicode-escape)
 ``` javascript
@@ -218,3 +440,13 @@ var str = 'A course cost 100.5$ which is way too much';
 str.match(wrongRegExp);                 // null
 str.match(rightRegExp)[0];              // "100.5$"
 ```
+
+&nbsp;
+# Types of Prototypal Inheritance
+https://medium.com/javascript-scene/3-different-kinds-of-prototypal-inheritance-es6-edition-32d777fa16c9
+
+&nbsp;
+# V8
+A popular open-source JavaScript Engine written in C++. Used in Node and Chrome. A JavaScript engine is what translates JavaScript code into [machine code](/resources/glossary.md#machine-code).
+
+You can embed V8 in a C++ program and modify it to add features to JavaScript.

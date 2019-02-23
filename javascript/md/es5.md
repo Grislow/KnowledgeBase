@@ -64,7 +64,7 @@ If the description is not enough make sure to check out the examples and try it 
         * [Unicode](#unicode)
         * [Lexicographical Comparison](#lexicographical-comparison)
     * [Regular Expressions](#regular-expressions)
-        * [Initialization](#initialization)
+        * [Instantiation](#instantiation)
         * [Properties](#properties)
         * [Patterns](#patterns)
         * [Flags](#flags)
@@ -74,7 +74,7 @@ If the description is not enough make sure to check out the examples and try it 
         * [Split](#split)
         * [Replace](#replace)
 * [Arrays](#Arrays)
-    * [Array Initialization](#array-initialization)
+    * [Array Instantiation](#array-instantiation)
     * [Array Indexes](#array-indexes)
     * [Array Properties](#array-properties)
     * [Array Methods](#array-methods)
@@ -82,6 +82,7 @@ If the description is not enough make sure to check out the examples and try it 
         * [Prototype Methods](#prototype-methods)
     * [Array type coercion](#array-type-coercion)
 * [Functions](#Functions)
+    * [arguments](#arguments)
     * [Function Methods](#function-methods)
     * [Function Declaration](#function-declaration)
     * [Function Expression](#function-expression)
@@ -90,11 +91,32 @@ If the description is not enough make sure to check out the examples and try it 
     * [IIFE](#iife)
     * [Closures](#closures)
     * [Currying](#currying)
-    * [Pure functions](#pure-functions)
+    * [Pure Functions](#pure-functions)
     * [Global Functions](#global-functions)
 * [Objects](#Objects)
-* [Global Objects](#Global-Objects)
+    * [Instantiation](#instantiation-1)
+    * [Properties](#properties-1)
+    * [Methods](#methods)
+    * [Cascading Methods](#cascading-methods)
+    * [Global Object](#global-object)
+    * [this Keyword](#this-keyword)
+    * [Constructor Function](#constructor-function)
+    * [Factory Function](#factory-function)
+    * [Prototype](#prototype)
+    * [Prototype Chain](#prototype-chain)
+    * [Inheritance](#inheritance)
+        * [Differential Inheritance](#differential-inheritance)
+        * [Class Inheritance](#class-inheritance)
+        * [Concatenative Inheritance](#concatenative-inheritance)
+        * [Functional Inheritance](#functional-inheritance)
+    * [Property Descriptor](#property-descriptor)
+    * [Object Methods](#object-methods)
+* [Native Objects](#native-objects)
+    * [Date](#date)
     * [Error](#error)
+    * [JSON](#json)
+    * [Math](#math)
+    * [Number](#number-2)
 * [Asynchronicity](#asynchronicity)
 * [Strict mode](#strict-mode)
 
@@ -125,7 +147,7 @@ To fully utilize the power of comments check out a documentation generator like 
 ```
 
 ## Data types
-As of ES5 Javascript consists of five primitive and one non-primitive data type.
+As of ES5 JavaScript consists of five primitive and one non-primitive data type.
 
 You can also store multiple values of any data type in a single container called an array.
 
@@ -137,8 +159,6 @@ var height = 1.87;
 var posInf = 1/0;                       // Infinity
 var negInf = 1/-0;                      // -Infinity
 var notANumber = 1/'text';              // NaN
-Number.MAX_VALUE                        // 1.7976931348623157e+308
-Number.MIN_VALUE                        // 5e-324
 ```
 
 ### String
@@ -196,7 +216,7 @@ var nestedArrays = [
 ## Expressions
 A unit of code that produces a single value. An expression can consist of 0 or more literals, operators, variables or expressions.
 
-Expressions can be used anywhere javascript expects a value.
+Expressions can be used anywhere a value is expected.
 
 If an expression ends with a semicolon it becomes an expression statement. An expression statement cannot be used as a value - `console.log(2 + 2;)` would result in an error.
 
@@ -212,7 +232,7 @@ undefined == console.log()              // true
 ## Statements
 Express an action to be executed. A statement cannot be used where a value is expected.
 
-The following are statements in Javascript:\
+The following are statements in JavaScript:\
 `if`, `else`, `do`, `while`, `for`, `switch`, `for`, `in`, `try`, `catch`, `throw`, `function`, `return`, `debugger`, variable declaration, function declaration, value assignment.
 
 Check out the [statements section](#statements-1) for more on the topic.
@@ -239,12 +259,19 @@ var c,
     d = 10,
     e;                                  // chained variable declarations
 function funcName(param1, param2) { }   // function declaration
+
+/*
+    Below is an undeclared global variable.
+    This won't generate an error but it
+    IS BAD PRACTICE
+*/
+x = 10;                                 
 ```
 
 ## Naming Convention
 Most online resources state that variables can start with `$`, `_` and any letter followed by any alphanumeric characters. While this is what you will usually see it is not the entire truth. Check out this [stackoverflow post](https://stackoverflow.com/a/9337047/10851837) for more. 
 
-Keywords are reserved phrases used internally by Javascript. These are not allowed as variable names. The following phrases are keywords:\
+Keywords are reserved phrases used internally by JavaScript. These are not allowed as variable names. The following phrases are keywords:\
 `break`, `case`, `catch`, `class`, `const`, `continue`, `debugger`, `default`, `delete`, `do`, `else`, `enum`, `export`, `extends`, `false`, `finally`, `for`, `function`, `if`, `import`, `in`, `instanceof`, `new`, `null`, `return`, `super`, `switch`, `this`, `throw`, `try`, `true`, `typeof`, `var`, `void`, `while`, `with`, 'yield'.
 
 In [strict mode](#strict-mode) the following are also reserved phrases:\
@@ -382,7 +409,7 @@ Each execution context consists of two stages:
         * Parameters without assigned argument values are set to `undefined`.
         * Inner functions are instantiated and assigned as properties to the VO.
         * Any local variables declared within the function are stored as properties in the VO.
-    * __this keyword__ - a value is assigned to the `this` keyword. 
+    * [this keyword](#this-keyword) - a value is assigned to the `this` keyword.
 1. __Execution phase__
     * the code is executed
     * instantiated functions and variables are assigned values as the code runs
@@ -394,7 +421,7 @@ There are slight differences for the global execution context:
 * the __this keyword__ is assigned the global object
 
 ## Execution Stack
-Or call stack is a collection of execution contexts, which are removed and added to the stack in a LIFO order(Last In First Out). The execution stack at the top(most recently added) is the one that is currently being executed.
+Or call stack is a collection of execution contexts, which are removed and added in a LIFO order(Last In First Out). The execution context at the top(most recently added) is the one that is currently being executed.
 
 ``` javascript
 /* 
@@ -429,7 +456,7 @@ Variables and functions can be in one of two scopes:
 * __Global Scope__: when declared outside a function it is accessible in every context of the application.
 * __Function Scope__: when declared inside a function it can only be referenced within that function and its nested functions.
 
-You might also encounter the terms __lexical scope__ or __static scope__ in regards to Javascript. This means you can figure out what the scope of a variable or function is just by looking at where it was declared in the source code.
+You might also encounter the terms __lexical scope__ or __static scope__ in regards to JavaScript. This means you can figure out what the scope of a variable or function is just by looking at where it was declared in the source code.
 
 ``` javascript
 var globalVar = 'global variable';
@@ -532,7 +559,7 @@ Arithmetic operations follow the PEMDAS rule, which extends to - Paranthesis, Ex
 
 Exponents aren't introduced until ES7.
 
-A full description of operator precedence in Javascript can be found on the [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
+A full description of operator precedence in JavaScript can be found on the [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
 
 ``` javascript
 (2 + 2) * 2                             // 8  - paranthesis precedence
@@ -911,6 +938,11 @@ var user = {
 for(var prop in user){
     console.log(prop + ': ' + user[prop]);
 }
+/*
+    id: 12345678
+    firstName: John
+    surName: Smith
+*/
 ```
 
 ## debugger
@@ -942,7 +974,7 @@ The `function` and `return` statement are covered in the [function section](#fun
 ## Strings
 A sequence of 0 or more characters. 
 
-A String can either be a primitive value or a String object. The String object is what we call a [wrapper type](/resources/glossary.md#wrapper), since it wraps the primitive value in an object providing it with additional functionality(like methods).
+A String can either be a primitive value or a String object. The String object is what we call a [wrapper type](/resources/glossary.md#wrapper-type), since it wraps the primitive value in an object providing it with additional functionality(like methods).
 
 When invoking a method with a primitive type:
 * it is converted to an object type
@@ -951,7 +983,7 @@ When invoking a method with a primitive type:
 
 This mechanism is called [auto-boxing](/resources/glossary.md#autoboxing).
 
-Always work with string primitives and let the Javascript engine handle the conversion.
+Always work with string primitives and let the JavaScript engine handle the conversion.
 
 ``` javascript
 var str = 'string primitive';
@@ -993,7 +1025,7 @@ Strings are array-like constructs meaning they have a length and indexed element
 
 ``` javascript
 var str = 'Hello';
-var withSuroggate = 'In love with Javascript 💘';
+var withSuroggate = 'In love with JavaScript 💘';
 
 str.length                              // 5
 'abcdef'[1]                             // "b"
@@ -1015,7 +1047,7 @@ withSurrogate.hasSurrogate()            // true
 ### String Methods
 Keep in mind that strings are immutable. None of the below methods modifies the referenced String.
 
-* Global Object Methods
+* Constructor Methods
     * `String.fromCharCode(code1[, ... , codeN])` - generates a string from 0 or more UTF-16 [code units](/resources/glossary.md#code-unit).
 * Prototype Methods
     * `String.prototype.charAt(ind)` - returns the character at the specified index.
@@ -1094,7 +1126,8 @@ str.substring(-7, -5);                  // ""
 str.split(' ');                         // ["🍕", "+", "💻", "=", "😄"]
 str.split(' ', 2);                      // ["🍕", "+"]
 meow.split('o');                        // ["", "n", "mat", "p", "eia"]
-str.split('');                          // ["�", "�", " ", "+", " ", "�", "�", " ", "=", " ", "�", "�"]
+str.split('');                          // ["�", "�", " ", "+", " ", "�", "�", " ",
+                                        // "=", " ", "�", "�"]
 
 
 'Hello'.toLowerCase();                  // "hello"
@@ -1134,7 +1167,7 @@ Comments contain results of executing the expressions __in a browser__.
 ```
 
 ### Unicode
-The Javascript [RTE](/resources/glossary.md#runtime-environment) translates all strings to UTF-16 [code units](/resources/glossary.md#code-unit). What appears to be a single character can be comprised of several code units. 
+The JavaScript [RTE](/resources/glossary.md#runtime-environment) translates all strings to UTF-16 [code units](/resources/glossary.md#code-unit). What appears to be a single character can be comprised of several code units. 
 
 This is important to remember when working with: 
 * [regular expressions](#regular-expressions)
@@ -1177,8 +1210,8 @@ If at any point the code units are not equal the result is returned and the rema
 ## Regular Expressions
 Or regexp are objects containing a pattern that is searched for in strings. A regexp can either return the first match or it can search the whole string if a _global_ flag is set.
 
-### Initialization
-A regular expression can be initialized through a literal or a constructor function:
+### Instantiation
+A regular expression can be instantiated through a literal or a constructor function:
 * __literal__ is better if the reg exp is a constant
 * __constructor function__ is better if the reg exp may change
 
@@ -1198,7 +1231,7 @@ regConstructor instanceof RegExp        // true
 ```
 
 ### Properties
-A RegExp object has various properties of which most are read-only. Read only properties can be configured during initialization, but not after.
+A RegExp object has various properties of which most are read-only. Read only properties can be configured during instantiation, but not after.
 
 __Read-only__:
 * `source` - the source string of the regular expression.
@@ -1521,11 +1554,11 @@ prices.replace(re, function(match, s1){
 
 &nbsp;
 # Arrays
-Array is a [global object](#global-objects) used in the creation of arrays.
+Array is a constructor function used in the creation of arrays.
 
 Instances of Array store multiple values of various types in one variable.
 
-## Array Initialization
+## Array Instantiation
 ``` javascript
 var emptyArray = [];
 var multitypeArray = [
@@ -1587,8 +1620,8 @@ arr.sumNums();                          // 15
 
 ## Array Methods
 
-### Global Object Methods
-Methods callable through the Array [global object](#global-objects).
+### Constructor Methods
+Methods callable through the `Array` constructor function.
 
 `Array.isArray(arg)` - return boolean value indicating if passed argument is an Array instance.
 
@@ -1790,39 +1823,94 @@ Number(nestedArr);                      // NaN
 
 &nbsp;
 # Functions
-A block of code that performs a task. Can take values as arguments and return a single value. Functions in Javascript are objects with built-in properties and methods.
+A block of code that performs a task. Can take values as arguments and return a single value. Functions in JavaScript are objects with properties and methods.
+
+## arguments
+An array-like object that contains the values of arguments passed to a function. 
+
+``` javascript
+function example(num, str, bool) {
+    var msg = '';
+    for(var i = 0; i < arguments.length; i++) {
+        msg += '[' + i + ']: ' + arguments[i] + '\n';
+    }
+    console.log(msg);
+}
+
+example(123, 'some text', false);
+/*
+    [0]: 123
+    [1]: some text
+    [2]: false
+*/
+```
 
 ## Function Methods
-`Function.prototype.apply(this[, argList])` - calls a function with a specific `this` value. Function arguments can be passed within a single array. Returns the result of the function execution.
-`Function.prototype.call(this[, arg1 ... argN])` - calls a function with a specific `this` value. Accepts an argument list. Returns the result of the function execution.
-`Function.prototype.bind(this)` - returns a function with a preset `this` value.
-`Function.prototype.toString()` - returns a string containing the functions source code.
+* `Function.prototype.apply(this[, argList])` - calls a function with a specific `this` value. Function arguments can be passed within a single array. Returns the result of the function execution.
+* `Function.prototype.call(this[, arg1 ... argN])` - calls a function with a specific `this` value. Accepts an argument list. Returns the result of the function execution.
+* `Function.prototype.bind(this)` - returns a function with a preset `this` value.
+* `Function.prototype.toString()` - returns a string containing the functions source code.
 
 Most of these methods concern setting the context in which a function is called. More on `this` can be found in the [Object section](#this-keyword).
 
 ``` javascript
-// apply()
+/* 
+    sums up the values of an objects properties
+        -can set to concatenate the values as strings
+        -can set a start value to which the rest are added/concatenated
+*/
+function totalProps(startVal, hasStrings) {
+    var total = hasStrings ? '' : 0;
+    if(startVal) {
+        total += startVal;
+    }
+    var propsAmount = Object.keys(this).length;
+    for(var i = 0; i < propsAmount; i++) {
+        total += this[i];
+    }
+    return total;
+}
 
+totalProps();                       // NaN
+
+var obj = {
+    0: 1,
+    1: 2,
+    2: 3
+}
+
+// apply()
+totalProps.apply(obj);              // 6
+totalProps.apply(obj, [null, true]);
+                                    // "123"
+totalProps.apply(obj, ['String: ', true]);
+                                    // "String: 123"
 
 // call()
-
+totalProps.call(obj);               // 6
+totalProps.call(obj, null, true);
+                                    // "123"
+totalProps.call(obj, 'String: ', true);
+                                    // "String: 123"
 
 // bind()
-var bmw = 
+var totalObj = totalProps.bind(obj);
 
-function drive() {
-    this.speed;
-    this.state = '';
-}
+totalObj();                         // 6
+obj[3] = 5;
+totalObj();                         // 11
 
 // toString()
 function example(str) {
     console.log('some example logic ' + str);
 }
 
-example.toString()                      // "function example(str) {
-                                        //    console.log('some example logic ' + str);
-                                        // }"
+example.toString()                      
+/* 
+    "function example(str) {
+        console.log('some example logic ' + str);
+    }"
+*/
 
 ```
 
@@ -1897,7 +1985,7 @@ var fibonacci = function fibo(n){
 ```
 
 ## First Class Functions
-In Javascript functions are __first class citizens__ meaning they can be assigned as a value, passed as an argument and returned by a function - just like a variable.
+In JavaScript functions are __first class citizens__ meaning they can be assigned as a value, passed as an argument and returned by a function - just like a variable.
 
 __Callback function__:\
 A function passed as an argument. Callback functions are run [asynchronously](#asynchronicity).
@@ -1945,7 +2033,7 @@ Recursion can result in a cleaner solution when solving certain types of problem
 
 Be careful when using recursion:
 * just like an infinite loop you can cause __infinite recursion__
-* nested recursions build up on the call stack and too many can cause a stack overflow error
+* nested recursions build up on the [call stack](/resources/glossary.md#call-stack) and too many can cause a stack overflow error
 ``` javascript
 function factorial(n) {
     if (n === 0 || n === 1)
@@ -2048,12 +2136,12 @@ The enclosing functions scope chain is preserved 'as is' at the time of assignme
     As seen below the closure assigned to globVar1 
     and globVar2 are two seperate environments
 */
-globVar1();                         // 30
-globVar1();                         // 90
-globVar1();                         // 270
-globVar2();                         // 50
-globVar2();                         // 250
-globVar2();                         // 1250
+globVar1();                             // 30
+globVar1();                             // 90
+globVar1();                             // 270
+globVar2();                             // 50
+globVar2();                             // 250
+globVar2();                             // 1250
 ```
 
 This is an extremely powerful technique. It enables:
@@ -2061,24 +2149,136 @@ This is an extremely powerful technique. It enables:
 * __Abstraction__: selectively exposing that data.
 
 ``` javascript
+/*
+    Encapsulation - Data regarding a user(name, age) is grouped in the closure
+    Absaction - access to name and age only through the setter and getter methods. They cannot be referenced directly.
+*/
+var createUser = function(name, birth) {
 
+    function dateCheck(birth) {
+        if(isNaN(new Date(birth).getDay())) {
+            throw new TypeError('invalid date string');
+        }
+        if(new Date(birth) > Date.now()) {
+            throw new RangeError('date of birth greater than current date');
+        }
+    }
+
+    function nameCheck(name) {
+        if(typeof name != 'string') {
+            throw new TypeError('name must be of type string');
+        }
+    }
+
+    nameCheck(name);
+    dateCheck(birth);
+
+    return {
+        getName: function() {
+            return name;
+        },
+        setName: function(newName) {
+            try {
+                nameCheck(newName);
+                name = newName;
+            }  catch(e) {
+                console.log(e.name + ': ' + e.message);
+            }
+        },
+        getAge: function() {
+            var curDate = new Date();
+            var birthDate = new Date(birth);
+            var yearsDif = curDate.getFullYear() - birthDate.getFullYear();
+            var monthDif = curDate.getMonth() - birthDate.getMonth();
+            var daysDif = curDate.getDay() - birthDate.getDay();
+            if(monthDif < 0 || (monthDif === 0 && daysDif < 0)) {
+                yearsDif--;
+            }
+            return yearsDif;
+        },
+        setAge: function(birthDate) {
+            try {
+                dateCheck(birthDate);
+                birth = birthDate;
+            } catch(e) {
+                console.log(e.name + ': ' + e.message);
+            }
+        }
+    }
+}
+
+var greg = createUser('Greg', '10 oct 1989');
+
+greg.getAge();                          // 29
+greg.getName();                         // "Greg"
+greg.setAge('twenty');                  // TypeError: invalid date string
+greg.setAge('2100 oct 10');             // RangeError: date of birth greater than current date
+greg.setAge('1989/01/01');
+greg.getAge();                          // 30
+greg.setName(123)                       // TypeError: name must be of type string
+greg.name = 123;
+greg.getName();                         // "Greg"
 ```
-
 
 ## Currying
+Seperating a function that takes more than one argument into a several functions that take part of those arguments.
+
+Currying is a very important tool for [functional composition](/javascript/md/misc.md#functional-composition) and [memoization](/resources/glossary.md#memoization)
 
 ``` javascript
+var media = document.querySelector('.media__grid');
 
+function addTag(appendTo) {
+    return function(element) {
+        var el = document.createElement(element);
+        return function(addClass, src) {
+            el.classList.add(addClass);
+            el.src = src;
+            appendTo.appendChild(el);
+        }
+    }
+}
+
+// Function is executed 1 by 1
+var toMedia = addTag(media);
+
+var addImg = toMedia('img');
+var addVid = toMedia('video');
+
+addImg('media__image--small', 'https://awesomeimages.com/image1');
+addImg('media__image--large', 'https://awesomeimages.com/image2');
+addVideo('media__video', 'https://awesomevideos.com/video1');
+
+// Or in one go
+addTag(media)('img')('media__image--tiny', 'https://awesomeimages.com/image3');
 ```
 
-## Pure functions
+## Pure Functions
+Functions that cause no side effects(don't mutate non-local variables and I/O streams) and given the same input always provides the same output.
 
 ``` javascript
+/* 
+    Checks if password contains:
+        -1 uppercase
+        -1 lowercase
+        -1 number
+        -8+ characters
+    Does not mutate any non-local variables.
+    Given the same input always produces the same output.
+*/
+function validatePassword(password) {
+    var testRegExp = /(?=.*\d)(?=.*[A-Z])(?=.*[a-z])^.{8,}$/;
+    return testRegExp.test(password);
+}
 
+validatePassword('Mypass123')           // true
+validatePassword('Mylongpass')          // false
+validatePassword('noupper123')          // false
+validatePassword('12Short')             // false
 ```
 
 ## Global Functions
-Functions that are built into Javascript and are available in the global scope.
+Utility functions that are built into JavaScript and are available as properties of the [global object](#global-object).
 
 ### decodeURI
 Decodes escape sequences in a Uniform Resource Identifier, but ommits `,` `/` `?` `:` `@` `&` `=` `+` `$` `#`.
@@ -2179,27 +2379,1010 @@ String(true);                           // "true"
 
 &nbsp;
 # Objects
+0 or more key-value pairs wrapped in curly brackets.
 
-## Object instantiation
+## Instantiation
+Objects can be instantiated through:
+* `{ key: value }` - an object literal
+* `new Object(values)` - through a constructor function. Creates an object based on the passed value
+* `Object.create()` - the [create method](#builin-object-methods)
 
-## Constructor Function
-
-### new operator
 ``` javascript
+var objLit = { a: 'a', b: 121232, property: 'value' };
+var emptyObj = {};
 
+var consObj = new Object(12345);        // creates a Number object
+
+var objCreate = Object.create(objLit);
+objCreate.property                      // 'value'
 ```
 
 ## Properties
+Key value pairs. 
+
+Keys are always implicitly converted to strings.
+
+Values can be of any data type. 
+
+Properties can be accessed through:
+* `obj.propName` - dot notation
+* `obj.[['propName']] - bracket notation
+
 ``` javascript
+var obj = {a: '1', b: 2};
+
+obj.a                                   // 1
+obj['b']                                // 2
+
+var complexObj = {
+    array: [1, 2, 3, 4, 5],
+    arrayLike: {
+        0: 'zero',
+        1: 'one',
+        2: 'two',
+        3: 'three'
+    }
+}
+
+complexObj.array[1];                    // 2
+complexObj.arrayLike[1];                // "one"
+complexObj.arrayLike['3'];              // "three"
+```
+
+## Methods
+A method is an object property containing a function reference, setter `set` or getter `get`. A method is bound to its containing object - meaning the context of its execution(value of `this`) is that object.
+
+__set__: binds a function to an object property. This function is called whenever a value is assigned to that property.
+
+__get__: binds a function to an object property. This function is called whenever the property is looked up.
+
+``` javascript
+var vehicle = {
+    speed: 0,
+    // method
+    accelerate: function(kmPerH) {    
+        this.speed += kmPerH;
+    },
+    // method
+    decelerate: function(kmPerH) {    
+        this.speed -= kmPerH;
+        if(this.speed < 0 ) {
+            this.speed = 0;
+        }
+    },
+    // method
+    gauge: function() {
+        var info = ( this.speed === 0 ) ? 
+            'Vehicle is at a standstill' : 
+            'Vehicle is moving at ' + this.speed + 'kms per hour';
+        console.log(info);
+    }
+}
+
+vehicle.accelerate(100);
+vehicle.decelerate(50);
+vehicle.gauge(50);                      //> Vehicle is moving at 50kms per hour
+
+
+
+var car = {
+    get speed() {                       // getter
+        if(this._speed == null) {
+            this._speed = 0;
+        }
+        console.log('Car is moving at ' + this._speed + 'kms per hour');
+    },
+    set speed(value) {                  // setter
+        try {
+            if(this._speed == null) {
+                this._speed = 0;
+            }
+            if(value > 300) {
+                throw new Error('Beyond the cars maximum speed');
+            }
+            if(value < 0) {
+                throw new Error('Speed cannot be below 0km/h');
+            }
+            this._speed = value;
+            console.log('Speed set successfully')
+        } catch(e) {
+            console.log(e.name + ': ' + e.message);
+        }
+    }
+}
+
+car.speed                               // Car is moving at 0kms per hour
+car.speed = -10                         // Error: Speed cannot be below 0km/h
+car.speed = 310                         // Error: Beyond the cars maximum speed
+car.speed = 100                         // Speed set successfully
+car.speed                               // Car is moving at 100kms per hour
+```
+
+## Cascading Methods
+When methods return an object they can be chained together.
+
+``` javascript
+/*
+    vehicle object example with methods
+    refactored to cascade
+*/
+var vehicle = {
+    speed: 0,
+    accelerate: function(kmPerH) {    
+        this.speed += kmPerH;
+        return this;
+    },
+    decelerate: function(kmPerH) {    
+        this.speed -= kmPerH;
+        if(this.speed < 0 ) {
+            this.speed = 0;
+        }
+        return this;
+    },
+    gauge: function() {
+        var info = ( this.speed === 0 ) ? 
+            'Vehicle is at a standstill' : 
+            'Vehicle is moving at ' + this.speed + 'kms per hour';
+        console.log(info);
+    }
+}
+
+vehicle.accelerate(50).decelerate(40).gauge();
+    //> Vehicle is moving at 10kms per hour
+```
+
+## Global Object
+A top level object that is always available in the global scope. What it is depends on the environment.
+* __Browser__ - the `window` object is the global object. All built-in functions and objects are stored as properties of the global object.
+* __Node__ - `global` object is the global object.
+* __strict mode__ - the global object is undefined.
+
+The [this keyword](#this-keyword) used in the global scope or non-method functions references the global object.
+
+``` javascript
+/*
+    In Chrome
+*/
+console.log(this);
+//> Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, parent: Window, …}
+
+/*
+    In Node
+*/
+console.log(this);
+/*
+    Object [global] {
+        DTRACE_NET_SERVER_CONNECTION: [Function],
+        DTRACE_NET_STREAM_END: [Function],
+        DTRACE_HTTP_SERVER_REQUEST: [Function],
+        DTRACE_HTTP_SERVER_RESPONSE: [Function],
+        ...a lot more...
+    }
+*/
+```
+
+## this Keyword
+The context of an [execution context](#execution-context).
+
+The context is an object on behalf of which the program or a function is being executed. It's value depends on where it is used:
+* [__global context__](#execution-context) - `this` is a reference to the global object
+* [__function context__](#execution-context) - `this` is a reference to the global object except in [strict mode](#strict-mode) where its undefined
+* [__methods__](#methods) - `this` is a reference to the object on behalf of which the method was called
+* [__constructor function__](#constructor-function) - `this` is a reference to the object that is being instantiated
+
+__GOTCHA!__
+* `this` in a function nested within a method will reference the global object
+
+``` javascript
+/*
+    In Chrome
+*/
+
+// Global context
+this
+    //> Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, parent: Window, …}
+
+// Function context
+function test() {
+    console.log(this);
+        //> Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, parent: Window, …}
+}
+
+// Strict mode
+(function() {
+    'use strict';
+    return this;
+})();                                   //> undefined
+
+// Methods
+var obj = {
+    checkThis: function() {
+        console.log(this);              //> { checkThis: ƒ }
+    }
+}
+
+// Constructor Function
+function Example() {
+    this.prop = 'Whatever';
+    console.log(this);                  //> Example {prop: "Whatever"}
+}
+
+// Gotcha
+var obj = {
+    objMethod: function() {
+        (function() {
+            console.log(this);
+                //> Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, parent: Window, …}
+        })();
+    }
+}
+```
+
+## Constructor Function
+A function that is used to create an object. Called when instantiating an object with the `new` operator. 
+
+`Object.prototype.constructor` - a reference to the constructor function that created an object. Through it you can reference the objects prototype.
+
+__Convention__\
+Constructor function names _should_ start with a capital letter.
+
+``` javascript
+function Person(name, nationality){
+	this.name = name;
+    this.nationality = nationality;
+    this.toString = function() {
+        return this.name + ' is from ' + this.nationality
+    }
+}
+
+var me = new Person('Gregory Maj', 'Poland');
+console.log(me + '');
+    //> Gregory Maj is from Poland
+
+console.log(me.constructor)
+/*
+    ƒ Person(name, nationality){
+        this.name = name;
+        this.nationality = nationality;
+        this.toString = function() {
+            return this.name + ' is from ' + this.nationality
+        }
+    }
+*/
+
+console.log(me.constructor.name);
+    //> Person
+
+console.log(me.constructor.prototype);
+/*
+    {
+        constructor: ƒ Person(name, nationality)
+        __proto__: Object
+    }
+*/
+```
+
+__Careful__\
+Every object created with a constructor function gets its own copy of the specified properties. In the below example this would mean every `Person` object has its own `toWork()` function.
+
+A better approach would be setting the `toWork()` property on the [objects prototype](#prototype). This would result in one instance of the method that is shared by all `Person` objects. This approach is called [Differential Inheritance](#inheritance). 
+
+``` javascript
+// WRONG - MULTIPLE INSTANCES OF THE METHOD
+function Person(name) {
+    this.name = name;
+    this.toWork = function() {
+        console.log(this.name + ' is going to work');
+    }
+}
+
+var john = new Person('John');
+var mary = new Person('Mary');
+
+john.toWork === mary.toWork             //> false
+
+// CORRECT - ONE INSTANCE OF THE METHOD
+function Person2(name) {
+    this.name = name;
+}
+
+Person2.prototype.toWork = function() {
+    console.log(this.name + ' is going to work');
+}
+
+var sam = new Person2('Sam');
+var jane = new Person2('Jane');
+
+sam.toWork === jane.toWork              //> true
+
+console.log(sam.constructor.prototype);
+/*
+    {
+        toWork: ƒ ()
+        constructor: ƒ Person2(name)
+        __proto__: Object
+    }
+*/
+```
+
+__Warning__\
+Always use the `new` operator when creating an object through a constructor function. Forgetting will not throw an exception, but will result in the new object being `undefined`. This is a popular and hard to catch bug.
+
+``` javascript
+function Person(name) {
+    this.name = name;
+}
+
+var melanie = Person('Melanie');
+console.log(melanie);                   //> undefined
+```
+__Warning__\
+Constructor functions violate the [Open-Closed Principle](/resources/glossary.md#open-closed-principle). In order to add new features you have to modify the constructor function or its prototype.
+
+__Warning__\
+[Refactoring](/resources/glossary.md#refactor) a constructor function to a factory function is a breaking change. Imagine others are using your code. They instantiate objects using the `new` keyword. After you switch from a constructor function to a factory function objects instantiated with `new` might bring unexpected results.
+
+```  javascript
+// FIRST IMPLEMENTATION
+function User(name) {
+    this.name = name;
+}
+
+var CreateUser = { User };
+
+var newUser = new CreateUser.User('John Doe');
+                                        // works as expected
+
+// TO FACTORY FUNCTION
+var CreateUser = {
+    User: function(name, role) {
+        var propDesc = {
+            name: {
+                value: name,
+                writable: true    
+            }
+        }
+        return Object.create(this.role[role], propDesc);
+    },
+
+    role: {
+        student: {
+            dashboard: function() {
+                console.log('Opening student dashboard');
+            }
+        },
+        business: {
+            dashboard: function() {
+                console.log('Opening company dashboard');
+            }
+        }
+    }
+}
+
+var johnSmith = CreateUser.User('John Smith', 'student');
+                                        // works as expected
+
+var johnDoe = new CreateUser.User('John Doe');
+/*
+    Uncaught TypeError: Cannot read property 'undefined' of undefined
+*/
+```
+
+## Factory Function
+A function that returns an object but is not a constructor function(or a class as of ES6). 
+
+It is better practice to use a factory function then a constructor. It can be easily extended and omits the faulty `new` keyword.
+
+``` javascript
+var toyProto = {
+    play: function() {
+        console.log('playing with toy');
+    }
+}
+
+function toyFactory() {
+    return Object.create(toyProto);
+}
+
+var barbi = toyFactory();
+barbi.play();                           //> playing with toy
+```
+
+## Prototype
+A prototype is an object from which other object inherit properties.
+
+All objects in JavaScript have a prototype. 
+
+Do not confuse an objects Prototype with the inaccessible [[prototype]] property which is responsible for determining the [prototype chain](#prototype-chain). Only functions have an accessible prototype property.
+
+An objects prototype can be accessed through its constructor - `Object.constructor.prototype`
+
+
+``` javascript
+function Person(name) {
+    this.name = name;
+}
+
+Person.prototype.myName = function() {
+    console.log('My name is ' + this.name);
+}
+
+var me = new Person('Greg');
+
+console.log(me.constructor.prototype);
+/*
+    {
+        myName: ƒ ()
+        constructor: ƒ Person(name)
+        __proto__: Object
+    }
+*/
+
+me.constructor.prototype === Person.prototype
+                                        //> true
+```
+
+## Prototype Chain
+All objects in JavaScript have a prototype. That means a prototype object also has a prototype in effect creating what is called the __Prototype Chain__. This mechanism enables [inheritance](#inheritance) in JavaScript.
+
+The final prototype in a prototype chain is of `null` value.
+
+When accessing an objects property their prototype chain is traversed starting from the object's direct prototype. If the property is not found and the `null` prototype is reached an `undefined` value is returned.
+
+``` javascript
+var proto = {
+    a: 'a'
+}
+
+var propDesc = {
+    someVal: {
+        value: 'someVal'  
+    }
+}
+
+var objA = Object.create(proto, propDesc);
+
+var objB = Object.create(objA);
+
+/*
+    For presentational purposes I use the __proto__
+    property to traverse the prototype chain but 
+    never do this in production code
+*/
+
+// Direct prototype
+console.log(objB.__proto__);
+    //> {someVal: "someVal"}
+console.log(objB.__proto__ === objA)
+    //> true
+
+// After direct
+console.log(objB.__proto__.__proto__);
+    //> {a: "a"}
+console.log(objB.__proto__.__proto__.__proto__);
+    //> Object constructor
+console.log(objB.__proto__.__proto__.__proto__.__proto__);
+    //> null
+
+/*
+    Calling valueOf() on objB will go through each of the above
+    prototypes until it is found in the Object constructor
+*/
+objB.valueOf();
+    //> {}
 
 ```
 
-### Property accessors
+## Inheritance
+JavaScript has a prototype based object model. This means inheritance is determined dynamically. Objects inherit from other objects - not from classes. This mechanism is called __Prototypal Inheritence__ or __OLOO__(Objects Linking to Other Objects).
+
+JavaScript is a very flexible language and supports 3 types of prototypal inheritance. You can also emulate class inheritance although it is considered bad practice by experienced JS developers.
+
+Prototypal Inheritance enforces a __has-a__, __uses-a__ or __can-do__ relationship.
+
+Class Inheritance enforces a __is-a__ relationship.
+
+Credits: [Eric Elliott on types of prototypal inheritance](https://medium.com/javascript-scene/3-different-kinds-of-prototypal-inheritance-es6-edition-32d777fa16c9)
+
+### __Differential Inheritance__
+Also called __Delegation__ is when an object serves as a base for another object. This approach is memory efficient, you can store common methods in one prototype object which is referenced by the inheriting objects.
 ``` javascript
+// CONSTRUCTOR FUNCTION VERSION
+function User(name, userName, id) {
+    this.name = name;
+    this.userName = userName;
+    this.id = id;
+}
+
+User.prototype.dashboard = function() {
+    return 'Hi ' + this.name + '. Please select a product.';
+}
+
+// FACTORY FUNCTION VERSION
+var proto = {
+    dashboard: function() {
+        return 'Hi ' + this.name + '. Please select a product.';
+    }
+}
+
+function createUser(name, userName, id) {
+    var user = Object.create(proto);
+    user.name = name;
+    user.userName = userName;
+    user.id = id;
+    return user; 
+}
+```
+
+### __Class Inheritance__
+When two classes are coupled in a parent-child relationship. The child class extends the parent class by inheriting all of its properties and adding its own. Not supported natively in JavaScript but can be emulated.
+
+This is achieved through a 2-step process:
+1. __Link constructors__ - calling the base class constructor in the subclass constructor
+1. __Link prototypes__ - connecting the base class prototype to the subclass prototype.
+
+``` javascript
+function User(name, userName, id) {
+    this.name = name;
+    this.userName = userName;
+    this.id = id;
+}
+
+User.prototype.dashboard = function() {
+    console.log('Hi ' + this.name + '. Please select a product.')
+}
+
+/* STEP 1
+    call base class constructor in subclass
+*/
+function Student(name, userName, id, products) {
+    User.call(this, name, userName, id);
+
+    this.products = products;
+}
+
+//! dashboard is not linked to Student at this point
+
+/* STEP 2
+    set the subclass prototype as an object that
+    inherits from the base class prototype
+*/
+Student.prototype = Object.create(User.prototype);
+
+/* EXAMPLE
+    -adding a new method on the Student.prototype
+    -overriding the dashboard method
+*/
+
+var bob = new User('Bob', 'Bobby007', 100233);
+var john = new Student('John Doe', 'Anon123', 100234, ['book', 'pen']);
+
+Student.prototype.listProducts = function() {
+    console.log('Shopping Cart:')
+    this.products.forEach(function(el, i) {
+        console.log((i + 1) + '. ' + el);
+    });
+}
+
+Student.prototype.dashboard = function() {
+    console.log('Welcome ' + this.userName);
+}
+
+bob.dashboard();
+    //> Hi Bob. Please select a product.
+bob.listProducts();
+    //> TypeError: bob.listProducts is not a function
+
+john.dashboard();
+    //> Welcome Anon123
+john.listProducts();
+/*
+    Shopping Cart:
+    1. book
+    2. pen
+*/
+```
+
+### __Concatenative Inheritance__
+Also called __Cloning__ or __Mixins__ is when you copy properties from one object to another without storing a reference between the two objects. 
+
+This can be easily done in ES6 using the `Object.assign()` method. In ES5 you have to use a workaround function available in many popular libraries(like extend() in jQuery).
+
+``` javascript
+// Workaround Function
+function extend(){
+    for(var i = 1; i < arguments.length; i++) {
+        for(var key in arguments[i]) {
+            if(arguments[i].hasOwnProperty(key)) { 
+                if (typeof arguments[0][key] === 'object'
+                    && typeof arguments[i][key] === 'object') {
+                        extend(arguments[0][key], arguments[i][key]);
+                    }
+                else {
+                    arguments[0][key] = arguments[i][key];
+                }
+            }
+        }
+    }
+    return arguments[0];
+}
+
+var monkey = {
+    jump: function() {
+        console.log(this.name + ' jumped to a new tree');
+    }
+}
+
+var banana = {
+    eat: function() {
+        console.log(this.name + ' is eating a banana');
+    }
+}
+
+var georgeTheMonkey = extend(monkey, banana, { name: 'George'})
+
+georgeTheMonkey.jump();
+    //> George jumped to a new tree
+georgeTheMonkey.eat();
+    //> George is eating a banana
+```
+
+### __Functional Inheritance__
+A combination of creating an object through a [factory function](#factory-function) and adding properties to it through concatenative inheritance. 
+
+A function created for extending objects is called a __functional mixin__. This approach allows for data encapsulation through closures.
+
+Credits: [Douglas Crockford](http://shop.oreilly.com/product/9780596517748.do) 
+``` javascript
+/* Simplified Extend
+    -non-recursive
+*/
+function extend(){
+    for(var i = 1; i < arguments.length; i++) {
+        for(var key in arguments[i]) {
+            if(arguments[i].hasOwnProperty(key)) {
+                arguments[0][key] = arguments[i][key];
+            }
+        }
+    }
+    return arguments[0];
+}
+
+/* Concatenative Inheritance
+    -object 'mixed in' through factory funtion
+*/
+var monkey = {
+    jump: function() {
+        console.log(this.name + ' jumped to a new tree');
+    }
+}
+
+/* Factory Function
+    -attr is private due to closures
+*/
+var monkeyMixin = function() {
+    var attr = {};
+
+    var propsDesc = {
+        set: function(name, value) {
+            attr[name] = value;
+        },
+        get: function(name) {
+            return attr[name];
+        }
+    }
+
+    return extend(this, propsDesc, monkey);
+}
+
+var george = { name: 'George' }
+
+var georgeTheMonkey = monkeyMixin.call(george);
+
+georgeTheMonkey.set('race', 'chimpanzee');
+georgeTheMonkey.get('race');
+    //> 'chimpanzee'
+
+/*
+    NO new operator
+    Private properties
+    Composable
+    Reusable
+    MIND BLOWN
+*/
+```
+
+## Property Descriptor
+An object that describes a property. This enables setting extra options on properties like making them read-only.
+
+They are divided into two types:
+* __data descriptor__ - key-value pair. Can have the following options:
+    * _configurable_ - boolean value indicating if the property can be modified or deleted. Default = `false`
+    * _enumerable_ - boolean value inditcating if the property can be iterated over. Default = `false`
+    * _value_ - value assigned to the property. Default = `undefined`
+    * _writable_ - boolean value indicating if the value can be changed with an assignment operator. Default = `false`
+* __accessor descriptor__ - getter or setter function
+    * _configurable_ - boolean value indicating if the property can be modified or deleted. Default = `false`
+    * _enumerable_ - boolean value inditcating if the property can be iterated over. Default = `false`
+    * _get_ - getter function for the property. Default = `undefined`
+    * _set_ - setter function for the property. Default = `undefined`
+
+``` javascript
+function setProps(name) {
+    var name = name;
+    return {
+        name: {
+            get: function() {
+                return name;
+            },
+            set: function(newName) {
+                if(typeof newName === 'string'){
+                    name = newName
+                }
+            },
+            enumerable: true,
+            configurable: true
+        },
+        id: {
+            value: 100123,
+            enumerable: true
+        }
+    }
+}
+
+var me = Object.create(null, setProps('Greg'));
+
+me.id = 12312313;
+me.name = 123131;
+
+for(prop in me) {
+    console.log(prop + ': ' + me[prop]);
+}
+/*
+    name: Greg
+    id: 100123
+*/
+```
+
+## Object Methods
+
+* Constructor Methods 
+    * `Object.create(proto[, propDesc])` - creates a new object using an existing object as the prototype. Can optionally pass a property descriptor.
+    * `Object.defineProperties(obj, desc)` - adds or modifies multiple object properties using a property descriptor.
+    * `Object.defineProperty(targetObj, prop, desc)` - adds or modifies an object property using a property descriptor.
+    * `Object.freeze(obj)` - freezes an object meaning:
+        * new properties cannot be added
+        * existing properties cannot be deleted
+        * existing properties cannot be assigned new values
+        * existing properties descriptors cannot be changed
+        * its prototype cannot be changed
+        * __Careful__: its object properties can still be mutated
+    * `Object.getOwnPropertyDescriptor(obj, prop)` - returns a properties property descriptor. 
+    * `Object.getOwnPropertyNames(obj)` - returns an array containing all own property keys of an object.
+    * `Object.getPrototypeOf(obj)` - returns an objects prototype 
+    * `Object.isExtensible(obj)` - returns boolean value indicating if the object can have new properties added to it.
+    * `Object.isFrozen(obj)` - returns boolean value indicating if the object is frozen or not.
+    * `Object.isSealed(obj)` - returns boolean value indicating if the object is sealed.
+    * `Object.keys(obj)` - returns an array containing all own enumerable property keys of an object.
+    * `Object.preventExtensions(obj)` -  disables adding new properties to an object
+    * `Object.seal(obj)` - seals an object meaning:
+        * new properties cannot be added
+        * existing properties become non-configurable
+        * existing properties cannot be deleted
+
+* Instance Methods
+    * `Object.prototype.hasOwnProperty(prop)` - returns boolean value indicating if property exists in object.
+    * `Object.prototype.isPrototypeOf(obj)` - returns boolean value indicating if the reference object exists in the passed objects prototype chain.
+    * `Object.prototype.propertyIsEnumerable()` - 
+
+``` javascript
+/*
+    Object.create()
+*/
+var proto = {
+    drive: function() {
+        console.log('**tires screeching**');
+    }
+}
+
+var car = Object.create(proto);         //> **tires screeching**
+
+car.drive();
+
+/* 
+    Object.defineProperties()
+    Object.defineProperty()
+*/
+var obj = {};
+
+Object.defineProperties(obj, {
+    name: {
+        value: 'John',
+        writable: true,
+        enumerable: true,
+        configurable: true
+    },
+    printName: {
+        value: function() {
+            console.log('My name is ' + this.name);
+        }
+    }
+});
+
+console.log(obj);                       //> {name: "John", printName: ƒ}
+
+Object.defineProperty(obj, 'name', {
+    value: 'Tom'
+});
+
+console.log(obj);                       //> {name: "Tom", printName: ƒ}
+
+/* 
+    Object.freeze()
+    Object.isFrozen()
+*/
+var obj = {
+    prop: 100,
+    setProp: function(val) {
+        this.prop = val;
+    },
+    arrProp: [1, 2, 3, 4]
+}
+
+Object.freeze(obj);
+
+obj.newProp = 1;                        // newProp not added
+delete obj.prop;                        // prop is not deleted
+
+obj.prop = 101;                         // prop same value
+obj.setProp(101);                       // prop same value
+obj.arrProp = [1, 2];                   // arrProp same value
+
+obj.arrProp.pop();                      // arrProp mutated
+console.log(obj.arrProp);               // [1, 2, 3]
+
+Object.isFrozen(obj);                   //> true
+
+/* 
+    Object.getOwnPropertyDescriptor()
+*/
+var obj = { prop: 100 };
+
+var propDesc = Object.getOwnPropertyDescriptor(obj, 'prop');
+
+console.log(propDesc);
+    //> {value: 100, writable: true, enumerable: true, configurable: true}
+
+/* 
+    Object.getOwnPropertyNames()
+    Object.keys(obj)
+*/
+
+var propDesc = { 
+    a: {
+        value: 1,
+        enumerable: true
+    }, 
+    b: {
+        value: 2,
+        enumerable: true
+    }, 
+    c: {
+        value: 1,
+        enumerable: false
+    }
+};
+
+var obj = Object.create({}, propDesc);
+
+var propNames = Object.getOwnPropertyNames(obj);
+var keys = Object.keys(obj);
+
+console.log(propNames);                 //> ["a", "b", "c"]
+console.log(keys);                      //> ["a", "b"]
+
+/* 
+    Object.getPrototypeOf()
+*/
+
+var proto = {
+    example: function() {
+        console.log('This is an example method');
+    }
+}
+
+var obj = Object.create(proto);
+
+var objProto = Object.getPrototypeOf(obj);
+
+console.log(objProto);                  //> {example: ƒ}
+
+/* 
+    Object.preventExtensions(obj)
+    Object.isExtensible()
+*/
+
+var obj = {};
+
+Object.isExtensible(obj);               //> true
+
+Object.preventExtensions(obj);
+obj.prop = 5;                           // property not added
+
+Object.isExtensible(obj);               //> false
+
+
+/* 
+    Object.seal(obj)
+    Object.isSealed(obj)
+*/
+var obj = { prop: 100 }
+
+Object.seal(obj);
+
+obj.newProp = 1;                        // newProp not added
+delete obj.prop;                        // prop is not deleted
+
+obj.prop = 101;                         
+console.log(obj.prop);                  // 101
+
+Object.isSealed(obj);                   //> true
+
+/* 
+    Object.prototype.hasOwnProperty(prop)
+*/
+
+var obj = Object.create({ a: 1 }, {
+    b: {
+        value: 2
+    }
+});
+
+obj.hasOwnProperty('a');                //> false - belongs to prototype
+obj.hasOwnProperty('b');                //> true
+
+/* 
+    Object.prototype.isPrototypeOf()
+*/
+var proto = {
+    example: function() {
+        console.log('An example function');
+    }
+}
+
+var obj = Object.create(proto);
+
+proto.isPrototypeOf(obj);               //> true
+
 
 ```
 
-### this keyword
+## Object related operators
+
+### new operator
+Enables creating an instance of an object.
+
+Does the following:
+1. creates an object of type `object`
+1. sets the objects prototype to its constructor functions prototype
+1. replaces the `this` keyword in the constructor properties with the newly created object
+1. executes the function constructor
+1. returns the object unless the constructor function returns a different object
+
+``` javascript
+function Example(prop) {
+    this.prop = prop;
+}
+
+var exp = new Example('hello');
+/*
+    1. exp = {}
+    2. exp.__proto__ = Example.prototype
+    3. Example(prop) { exp.prop = prop }
+    4. Example('hello');
+    5. exp = Example('hello');
+*/
+```
 
 ### in operator
 ``` javascript
@@ -2211,10 +3394,36 @@ String(true);                           // "true"
 
 ```
 
-## instanceof operator
+### instanceof operator
+Checks whether a prototype exists in an objects prototype chain.
 
+Careful:
+* prototypes can be changed
+* primitive data types have an undefined prototype
 
-## Object methods
+The instanceof operator has more gotchas - make sure to read what mdn has to say on the [topic](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof).
+
+``` javascript
+function Person(name) {
+    this.name = name;
+}
+
+var me = new Person('Greg');
+
+console.log(me instanceof Person);      //> true
+console.log(me.constructor === Person)  //> true
+console.log(me instanceof Object);      //> true
+
+// Change of prototype
+Person.prototype = {};
+
+console.log(me instanceof Person);      //> false
+
+// Primitive data types
+console.log(5 instanceof Number);       //> false
+console.log(true instanceof Boolean);   //> false
+console.log('str' instanceof String);   //> false
+```
 
 ## Object type coercion
 __Boolean__: all objects are converted to `true`.
@@ -2241,10 +3450,211 @@ Number(John);                           // 123456
 
 
 &nbsp;
-# Global Objects
-Built-in objects that are available in the global scope.
+# Native Objects
+Built-in objects that are always available in the global scope.
+
+All built-in objects except `Math` and `JSON` are constructor functions.
+
+``` javascript
+Array instanceof Function               // true
+Date instanceof Function                // true
+Error instanceof Function               // true
+Object instanceof Function              // true
+
+Math instanceof Function                // false
+JSON instanceof Function                // false
+```
+
+The following are built-in objects:
+* [Array](#arrays)
+* [Boolean](#boolean)
+* [Date](#date)
+* [Error](#error)
+* [Function](#functions)
+* [JSON](#json)
+* [Math](#math)
+* [Number](#number-2)
+* [Object](#objects)
+* [RegExp](#regular-expressions)
+* [String](#strings)
+
+## Date
+Represents a moment in time based on the number of milliseconds starting from __1 Jan 1970__ - this specific date is called the __UNIX Epoch__ and enables standardizing the representation of time across computer systems.
+
+Always needs to be instantiated using the `new` operator. Has various valid constructors:
+* `new Date()` - returns current date
+* `new Date(string)` - transforms a string into a date object
+* `new Date(year, mon[, day, hrs, min, sec, mlsec])` - create date object by specifying each component separately. Months are indexed from 0.
+``` javascript
+var now = new Date();
+var fromString = new Date('Feb 14 2018, 20:00');
+var comp = new Date(2018, 0, 1, 18, 58, 0, 900);
+```
+
+### Methods
+Each date component has a respective [getter](/resources/glossary.md#mutator) and [setter](/resources/glossary.md#accessor) method.
+
+Methods parse according to local time unless specified otherwise or contain UTC in method identifier.
+
+Parsing according to a `locale` object is platform specific and might work inconsistently across different browsers, operating systems or JavaScript engines.
+
+Constructor Methods:
+* `Date.UTC(year, mon[, day, hrs, min, sec, mlsec])` - takes date component arguments and returns a UTC date.
+* `Date.now()` - returns the amount of milliseconds since the UNIX Epoch.
+* `Date.parse(string)` - parses the passed date string and returns the amount of milliseconds between it and the UNIX Epoch 
+
+Prototype Methods:
+* Time
+    * `Date.prototype.getMilliseconds() | setMilliseconds(val)` - returns the milliseconds component | sets the milliseconds component value
+        * UTC : `getUTCMilliseconds()` | `setUTCMilliseconds()`    
+    * `Date.prototype.getSeconds() | setSeconds(val)` - returns the seconds component | sets the seconds component value
+        * UTC : `getUTCSeconds()` | `setUTCSeconds()`    
+    * `Date.prototype.getMinutes() | setMinutes(val)` - returns the minutes component | sets the minutes component value
+        * UTC : `getUTCMinutes()` | `setUTCMinutes()`
+    * `Date.prototype.getHours() | setHours(val)` - returns the hour component | sets the hours component value
+        * UTC : `getUTCHours()` | `setUTCHours()`    
+* Date
+    * `Date.prototype.getDay()` - returns the day of the week with 0 being Sunday and 6 being Saturday
+        * UTC : `getUTCDay()`
+    * `Date.prototype.getDate() | setDate(val)` - returns the day component as 1 - 31 | sets the date component value
+        * UTC : `getUTCDate()` | `setUTCDate()`
+    * `Date.prototype.getMonth() | setMonth(val)` - returns the month components as 0 - 11 | sets the month component value
+        * UTC : `getUTCMonth()` | `setUTCMonth()`    
+    * `Date.prototype.getFullYear() | setFullYear(val)` - returns the year component | sets the year component value
+        * UTC : `getUTCFullYear()` | `setUTCFullYear()`    
+* Difference
+    * `Date.prototype.getTime()` - returns the difference between the referenced date and UNIX Epoch in milliseconds. Uses UTC standard.
+    * `Date.prototype.getTimezoneOffset()` - returns the difference between locale timezone and UTC time in minutes.
+* Format
+    * `Date.prototype.toTimeString()` - returns time in human-readable format.
+    * `Date.prototype.toLocaleTimeString(locale)` - returns time in format specific to passed locale.
+    * `Date.prototype.toDateString()` - returns date in human-readable format.
+    * `Date.prototype.toLocaleDateString(locale)` - returns date in format specific to passed locale.
+    * `Date.prototype.toString()` - returns datetime in human-readable format.
+    * `Date.prototype.toUTCString()` - formats datetime to UTC timezone and returns it in human-readable format.
+    * `Date.prototype.toLocaleString(locale)` - returns datetime in format specific to passed locale.
+    * `Date.prototype.toISOString()` - returns datetime in ISO format.
+    * `Date.prototype.toJSON()` - returns datetime in ISO format. Uses the `toISOString()` method and throws an error if that is not available.
+
+``` javascript
+// My local timezone is GMT+2 in Polish datetime format
+// User agent: Google Chrome v71, macOS Mojave 10.14
+
+// Constructor Methods
+var googleUTC = Date.UTC(98, 8, 4, 12, 30, 45);
+                                        // 904912245000
+var now1 = Date.now(), now2 = Date.parse(new Date());
+now1 === now2                           // false
+                                        // now2 computed milliseconds before now1
+
+Date.now() === new Date()
+
+// Date google was founded
+var google = new Date(1998, 8, 4, 12, 30, 45, 900);
+
+// FORMAT
+google.toTimeString();                  // "12:30:45 GMT+0200"
+google.toLocaleTimeString('ko-KR');     // "오후 12:30:45"
+google.toDateString();                  // "Fri Sep 04 1998"
+google.toLocaleDateString('ko-KR');     // "1998. 9. 4."
+google.toString();                      // "Fri Sep 04 1998 12:30:45 GMT+0200"
+google.toUTCString();                   // "Fri, 04 Sep 1998 10:30:45 GMT"
+google.toLocaleString('ko-KR');         // "1998. 9. 4. 오후 12:30:45"
+google.toISOString();                   // "1998-09-04T10:30:45.900Z"
+google.toJSON();                        // "1998-09-04T10:30:45.900Z"
+
+// TIME
+google.getMilliseconds();               // 900
+google.setMilliseconds(500);
+google.getSeconds();                    // 45
+google.setSeconds(0);                    
+google.getMinutes();                    // 30
+google.setMinutes(59);
+google.getHours();                      // 12
+google.setHours(23);   
+
+google.toTimeString();                  // "23:59:00 GMT+0200"
+
+// DATE
+google.getDay();                        // 4
+google.getDate();                       // 3
+google.setDate(10);
+google.getMonth();                      // 8
+google.setMonth(0);
+google.getFullYear();                   // 1998
+google.setFullYear(2006);
+
+var apple = google;                     // Original 15-inch MacBook Pro release date announcement
+apple.toDateString();                   // "Tue Jan 10 2006"
+
+// DIFFERENCE
+google.getTime();                       // 904905045900
+google.getTimezoneOffset();             // -120
+```
+
+### Elapsed time
+Operations on date objects are performed on their millisecond representations. Using this property by subtracting the current time at one point from another you can calculate elapsed time.
+
+``` javascript
+var start = new Date();
+
+// Do something you want to measure
+for(var x = 0, i = 0; i < 1000000; i++){
+    x = Math.random();
+}
+
+var end = new Date();
+var elapsed = end - start;
+```
 
 ## Error
+Built-in Error objects:
+* `Error` - used to create runtime errors. User defined errors should inherit this object
+* `RangeError` - invalid value is passed to a function.
+* `ReferenceError` - referencing a non-existant variable.
+* `SyntaxError` - intrpreter evaluates syntactically incorrect code.
+* `TypeError` - value is of an unexpected type.
+* `URIError` - incorrect usage of URI function
+
+All built-in errors inherit from the Error object.
+
+All Error constructors have a optional message argument. This message is shown when the error is thrown.
+
+``` javascript
+try {
+    throw new Error('Custom error message');
+} catch(e) {
+    console.log(e.message + ' - ' + e.name);
+                                        // Custom error message - Error
+}
+```
+
+### Properties
+* `message` - description of the error
+* `name` - the type of the error
+* `stack` - trace of execution up until the error. This is not standard and could work differently across browsers.
+
+``` javascript
+function test() {
+    try {
+        throw new SyntaxError('Please use linter');
+    } catch(e) {
+        console.log('Message: ' + e.message);
+        console.log('Name: ' + e.name);
+        console.log(e.stack);
+    }
+}
+
+test();
+/*
+    Message: Please use linter
+    Name: SyntaxError
+    SyntaxError: Please use linter
+        at test (<anonymous>:3:15)
+        at <anonymous>:11:1
+*/
+
+```
 
 ### User Defined Errors
 You can create your own error objects.
@@ -2253,20 +3663,185 @@ Most Error properties are platform specific with `message` being the only standa
 
 The below example is a minimalistic approach. You can access other properties through the stack field. Assign the `Error.prototype` to your user defined error so that it can be identified as an error object.
 ``` javascript
-function MyError(message) { 
+function MyError(message) {
+    this.name = 'MyError';
     this.message = message; 
-    this.stack = Error().stack; 
+    this.stack = (new Error()).stack;
+    this.stack.replace()
 } 
 MyError.prototype = Object.create(Error.prototype); 
-MyError.prototype.name = "ErrorName";
 
-try {
-    throw new MyError('Testing user defined error');
-} catch(e) {
-    for (var key in errorObject) {
-
+function test() {
+    try {
+        throw new MyError('Testing user defined error');
+    } catch(e) {
+        console.log('Message: ' + e.message);
+        console.log('Name: ' + e.name);
+        console.log(e.stack);
     }
 }
+
+test();
+/*
+    Message: Testing user defined error
+    Name: MyError
+    Error
+        at new MyError (<anonymous>:4:19)
+        at test (<anonymous>:11:15)
+        at <anonymous>:19:1
+*/
+```
+
+## JSON
+Object used to work with [JSON](/resources/glossary.md#json) data.
+
+Methods:
+* `JSON.parse(jsonString)` - parses the JSON string and returns a value or object.
+* `JSON.stringify(obj | val)` - tranforms a JavaScript value or object into a JSON string.
+
+``` javascript
+var json = '{"key1" : "value","key2" : 2}';
+var obj = { a: 'a', b: true, c: undefined, d: [1, 2, 3, 4]};
+
+JSON.parse(json);                       // {key1: "value", key2: 2}
+JSON.stringify(obj);                    // "{"a":"a","b":true,"d":[1,2,3,4]}"
+                                        // omits c because 'undefined' is not valid JSON
+```
+
+## Math
+Object used for mathematical constants and functions.
+
+Math methods are platform specific and might work inconsistently across different browsers, operating systems or JavaScript engines.
+
+Trigonometric functions work with radians.
+
+Properties:
+* `Math.E` - euler's number
+* `Math.LN2` - natural logarithm of 2
+* `Math.LN10` - natural logarithm of 10
+* `Math.LOG2E` - base 2 logarithm of E
+* `Math.LOG10E` - base 10 logarithm of E
+* `Math.PI` - pi constant
+* `Math.SQRT1_2` - 1 over the square root of 2
+* `Math.SQRT2` - square root of 2
+
+Methods:
+* Exponentiation
+    * `Math.exp(x)` - euler's constant to the power of x
+    * `Math.log(x)` - natural logarithm of x
+    * `Math.pow(x, y)` - x to the power of y
+    * `Math.sqrt(x)` - square root of x
+* Miscellaneous
+    * `Math.abs(x)` - absolute value of x
+    * `Math.max([x, ..., n])` - largest of a series of numbers
+    * `Math.min([x, ..., n])` - smallest of a series of numbers
+    * `Math.random()` - random number between 0 and 1
+* Rounding
+    * `Math.ceil(x)` - smallest integer greater or equal x
+    * `Math.floor(x)` - largest integer less then or equal x
+    * `Math.round(x)` - x rounded to the nearest integer
+* Trigonometry
+    * `Math.acos(x)` - arccosine of x
+    * `Math.asin(x)` - arcsine of x
+    * `Math.atan(x)` - arctangent of x
+    * `Math.atan2(x, y)` - arctangent of the quotient of x and y
+    * `Math.cos(x)` - cosine of x
+    * `Math.sin(x)` - sine of x 
+    * `Math.tan(x)` - tangent of x
+
+``` javascript
+// User agent: Google Chrome v71, macOS Mojave 10.14
+
+Math.E                                  // 2.718281828459045
+Math.LN2                                // 0.6931471805599453
+Math.LN10                               // 2.302585092994046
+Math.LOG2E                              // 1.4426950408889634
+Math.LOG10E                             // 0.4342944819032518
+Math.PI                                 // 3.141592653589793
+Math.SQRT1_2                            // 0.7071067811865476
+Math.SQRT2                              // 1.4142135623730951
+
+// Converts degress to rad
+function toRad(x) {
+    return x * (Math.PI / 180);
+}
+
+// Round to nth decimal digit
+function roundTo(x, n) {
+    return Math.round(x * Math.pow(10, n)) / Math.pow(10, n);
+}
+
+// Exponentiation
+Math.exp(1);                            // 2.718281828459045
+Math.log(2.718281828459045);            // 1
+Math.pow(2, 4);                         // 16
+Math.sqrt(16);                          // 4
+
+// Miscellaneous
+Math.abs(-10);                          // 10
+Math.max(1, 2, 3, 6, 7);                // 7
+Math.min(1, 2, 3, -6, 7);               // -6
+Math.random();                          // 0.019366580087217145
+
+// Rounding
+Math.ceil(1.01);                        // 2
+Math.floor(1.99);                       // 1
+Math.round(1.01);                       // 1
+Math.round(1.99);                       // 2
+Math.round(1.5);                        // 2
+
+// Trigonometry
+var deg0 = toRad(0);                    // 0
+var deg30 = toRad(30);                  // 0.5235987755982988
+var deg45 = toRad(45);                  // 0.7853981633974483
+var deg60 = toRad(60);                  // 1.0471975511965976
+var deg90 = toRad(90);                  // 1.5707963267948966
+
+Math.sin(deg0);                         // 0
+Math.sin(deg30);                        // 0.49999999999999994 - 0.5 rounded
+Math.sin(deg45);                        // 0.7071067811865475  - 1 / √2
+Math.sin(deg60);                        // 0.8660254037844386  - √3 / 2
+Math.sin(deg90);                        // 1
+
+Math.cos(deg0);                         // 1
+Math.cos(deg30);                        // 0.8660254037844386  - √3 / 2
+Math.cos(deg45);                        // 0.7071067811865475  - 1 / √2
+Math.cos(deg60);                        // 0.5000000000000001  - 0.5 rounded
+Math.cos(deg90);                        // 0
+
+Math.tan(deg0);                         // 0
+Math.tan(deg30);                        // 0.5773502691896257  - 1 / √3
+Math.tan(deg45);                        // 0.9999999999999999  - 1 rounded
+Math.tan(deg60);                        // 1.7320508075688767  - √3
+Math.tan(deg90);                        // 16331239353195370
+
+Math.asin(deg45);                       // 0.9033391107665127 
+Math.acos(deg45);                       // 0.6674572160283838
+Math.atan(deg45);                       // 0.6657737500283538
+
+Math.atan2(deg45, deg90);               // 0.4636476090008061
+```
+
+## Number
+This is the [wrapper type](/resources/glossary.md#wrapper-type) for numeric primitve values.
+
+### Properties and Methods
+Properties:
+* `Number.MAX_VALUE` - the largest non-infinite value.
+* `Number.MIN_VALUE` - the smallest non-infinite value.
+
+Methods:
+* `Number.prototype.toExponential([decimalNum])` - returns a string of the number in exponential notation. Can specify number of digits after decimal point
+* `Number.prototype.toFixed(n)` - returns number with specified number of digits after decimal point
+
+``` javascript
+Number.MAX_VALUE                        // 1.7976931348623157e+308
+Number.MIN_VALUE                        // 5e-324
+
+var num = 1234.5678;
+
+num.toExponential(1);                   // "1.2e+3"
+num.toFixed(2);                         // "1234.57"
 ```
 
 &nbsp;

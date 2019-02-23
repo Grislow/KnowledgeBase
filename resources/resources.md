@@ -8,12 +8,18 @@ Interesting and useful resources regarding mostly software development and desig
 
 # General
 * [Google on PWA's](https://developers.google.com/web/progressive-web-apps/)
+* [JSON Guide](https://json.org/)
+* [Reference to Software Licenses](https://tldrlegal.com/)
 * Terminology
     * [CS and Programming terms](http://www.labautopedia.org/mw/List_of_programming_and_computer_science_terms)
 * Unicode
     * [List of unicode characters](https://unicode-table.com/en/)
 	* [Great read on Unicode](https://dmitripavlutin.com/what-every-javascript-developer-should-know-about-unicode/#4finalwords)
+
 # Javascript
+* Algorithms and Data Structures
+    * [algorithms.js](https://github.com/felipernb/algorithms.js)
+    * [Algorithms + Data Structures + Explanations](https://github.com/trekhleb/javascript-algorithms)
 * Free Learning Material
     * [Speaking Javascript](http://speakingjs.com/es5/index.html#toc_ch01)
 	* [You Don't Know JS](https://github.com/getify/You-Dont-Know-JS)

@@ -8,10 +8,22 @@ I provide credit where its do. This provides you with an alternative formulation
 [K](#k)  [L](#l)  [M](#m)  [N](#n)  [O](#o)  [P](#p)  [Q](#Q)  [R](#r)  [S](#s)  [T](#t)
 [U](#u)  [V](#v)  [W](#w)  [X](#x)  [Y](#y)  [Z](#z)
 
-Lexical Scope, ASI(http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
-https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
-https://developer.mozilla.org/en-US/docs/Glossary/Call_stack
-singleton
+Lexical Scope
+ASI
+    (http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
+TDZ
+    https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
+
+
+http request
+route
+functional programming in js
+    https://medium.com/javascript-scene/master-the-javascript-interview-what-is-functional-programming-7f218c68b3a0
+peer-to-peer architecture
+    https://www.techrepublic.com/article/understanding-the-differences-between-client-server-and-peer-to-peer-networks/
+software architecture
+    https://www.tutorialspoint.com/software_architecture_design/introduction.htm
+
 
 &nbsp;
 # A
@@ -56,7 +68,7 @@ Do not confuse with a [parameter](#parameter) which could colloquially be called
 ## Array
 0 or more values stored in a single variable. 
 
-__Javascript__: Arrays are dynamic, which means they are not limited to one type of data and their size is not predetermined.
+__JavaScript__: Arrays are dynamic, which means they are not limited to one type of data and their size is not predetermined.
 
 ## ASCII
 American Standard Code for Information Interchange is a 7-bit character encoding scheme. The character set consists of 128 different symbols covering special characters, upper and lower case english letters, numbers and [control characters](#control-character).
@@ -70,6 +82,8 @@ Automatic conversion between a primitive type and a wrapper type.
 &nbsp;
 # B
 
+## Breakpoint
+A moment that pauses the execution of a progra for inspection by a debugger tool.
 
 &nbsp;
 # C
@@ -82,6 +96,14 @@ A function passed as an argument.
 
 ## Clause
 An incomplete fragment of a statement.
+
+## Client
+In [Client-Server Architecture](#client-server-architecture) it is the consumer of services. It sends requests which are realized by a [server](#server).
+
+## Client-Server Architecture
+A [network architecture](#network-architecture) in which [clients](#client) communicate with a central [server](#server) in order to consume resources and make use of services. A client sends __requests__ to the server, the server performs tasks in order to meet these requests and finally sends back an appropriate __response__. 
+
+For example a browser could be a client. You type in a url and hit enter. This sends an http request to a web server. The web server then fetches the requested files and sends them back to the browser in an http response.
 
 ## Closure
 A function that has its own lexical environment.
@@ -100,6 +122,9 @@ Lets take this burger &#127828; Unicode character as an example:
 
 If a code point can't be encoded in one UTF-16 code unite it is store in a [surrogate pair](#surrogate-pair).
 
+## Comman Line Interface(CLI)
+A program in which you type commands for the operating system to execute.
+
 ## Control character
 A character that is used to perform an action and has no literal meaning. Some popular examples are:
 * `^@` - __Null__ is used as a string terminator in the C programming language
@@ -108,14 +133,40 @@ A character that is used to perform an action and has no literal meaning. Some p
 
 For a full list vist [wikipedia](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C0_controls)
 
+## Currying
+Seperating a function that takes multiple arguments into several functions that take a part of those arguments.
+
 &nbsp;
 # D
+
+## Data Binding and Flow
+Connecting state with sources of its change. State can usually be changed externally for example by user input, or internally by mechanisms in the application.
+
+__Two Way Data Binding__
+State can be changed both by the user and internal mechanism. This makes it hard to track and control what the source of change is.
+
+__One Way Data Flow__
+When data is only changed by an internal mechanism. User input is sent through to the model of the application which in turn updates a components state.
+
+An example is a UI Form that is controlled by state.
+
+## Data Structures
+Data structures are ways of grouping data which define how this data is related and how you you can work with it.
+
+Knowing Data Structures is important because they are proven and tested ways of solving certain types of problems.
+
+![Data Structure Choice Graph](data_structures.png)
 
 ## Debugging
 Finding and fixing errors in source code.
 
 ## Declaration
 Registering a variable in its corresponding scope.
+
+## Declarative Programming
+A programming paradigm that focuses on describing what needs to be done over how its done. It does not consider the sequence in which something should be executed.
+
+__Examples__: SQL, Prolog
 
 ## DRY
 "Don't Repeat Yourself" is a coding principle which states that if you catch yourself writing the same code over and over again then you are probably doing something wrong. Try to group repeated logic into a seperate function.
@@ -125,6 +176,11 @@ Variables type is determined during runtime. This means any variable can be assi
 
 &nbsp;
 # E
+
+## ECMAScript
+The core standard of JavaScript. Not to be confused with JavaScript which is the actual language built according to the standard.
+
+Official Webpage: http://ecma-international.org/
 
 ## Encapsulation
 Grouping data and into a single unit(like an object). Allows restricting access to the state of that unit.
@@ -168,13 +224,47 @@ Functions __can__, but don't have to:
 * return values
 * be named
 
-__Javascript__: A callable object.
+__JavaScript__: A callable object.
+
+## Function Composition
+Combining simple composable functions into one more complex function. This can be achieved by passing the result of one function as an argument to another function(over and over if needed). Composable functions should only take one argument and output one value.
+
+## Function Decorator
+A [higher order function](#higher-order-function) that returns an enhanced version of its argument function.
+
+## Functional Programming
+A programming paradigm where programs are created using functions and state, and data types are immutable.
+
+The core of functional programming involves:
+* [Higher Order Functions](#higher-order-function)
+* [Pure Functions](#pure-function)
+* [Immutability](#immutable)
+* [Function Composition](#function-composition)
+* [Generic Programming](#generic-programming)
+
+Pros:\
+* simply
+* easy to test
+* flexible
+* no shared state
+* no side effects
+* scales well
+
+Cons:\
+* if done wrong reduces readability
+* hard to grasp for junior devs
+* not as popular as OOP
+
+__Examples__: Python, Lisp, Haskell
 
 &nbsp;
 # G
 
 ## Garbage Collection
 An automated process that frees memory allocated to unused variables. 
+
+## Generic Programming
+A programming technique that defines a construct as a template. The data types used within the construct are evaluated at runtime.
 
 ## Getter
 See [Accessor](#accessor).
@@ -213,7 +303,17 @@ Names that identify different elements of a program like variables, functions or
 ## Immutable
 Meaning its state cannot be changed. Any attempts at changing an immutable variable result in creation of a new variable and allocating it new memory space. 
 
-__Javascript__: All primitive types are immutable.
+__JavaScript__: All primitive types are immutable.
+
+## Imperative Programming Paradigm
+A programming paradigm focused on changing a programs state by executing a series of statements.
+
+Think of telling someone step-by-step how to do something. The 'someone' is a computer and the 'step-by-step' is a program following the imperative programming paradigm.
+
+[Procedural Programming](#procedural-programming) or [Object-Oriented Programming](#object-oriented-programming) follow the Imperative Programming Paradigm.
+
+## Inheritance
+Passing down properties and methods between objects or classes creating a hirarchical dependency between them.
 
 ## Initialization
 Allocation of memory for a variable.
@@ -224,6 +324,29 @@ A program that directly executes instructions written in a programming language 
 &nbsp;
 # J
 
+## JSON
+JavaScript Object Notation is a language independent data-interchange format based on object syntax in JavaScript.
+
+JSON files are constructed of key-value pairs and arrays. Square brackets denote an array and curly brackets denote an object.
+
+A key is always a string in double quotes followed by a colon. Key-value pairs and array values are seperated using commas.
+
+``` json
+{
+    "key1" : "value",
+    "key2" : 2,
+    "key3" : true,
+    "key4" : null,
+    "key5" : {
+        "key 5.1" : [
+            1, 2 , "one"
+        ]
+    },
+    "key6" : "unicode characters 🍔",
+    "key7" : "escape reserved characters \b \f \n \r \t \" \\",
+    "key8" : "JSON strings can be huge, so you shouldnt worry about putting too much in here. The maximum length is 4MB which is 2,097,152 characters. A 250 page book has around 500,000 characters spaces included"
+}
+```
 
 &nbsp;
 # K
@@ -231,11 +354,38 @@ A program that directly executes instructions written in a programming language 
 ## Keyword 
 A word that has a predefined meaning in a programming language.
 
+## KISS
+> Keep it simple, stupid
+
+A software design principal stating that it's always a good idea to keep your code simple. Make sure it can be easily understood, reused and extended.
+
 &nbsp;
 # L
 
+## Lazy Evaluation
+The act of deferring the evaluation of an expression until that expression is needed.
+
+__Example__\
+Imagine you have a program where someone can borrow money based on his 'Credibility Index'. The 'Credibility Index' is based on various information from the users profile. Calculating it is a complex operation and takes up a lot of resources. 
+
+Instead of calculating it every time changes to the profile are made, you can make the program remember that you need to calculate it with the current profile data. Then perform the actual calculations only when the user attempts to actually borrow money.
+
 ## Lexical Scope
 Or static scope means the availability of an element is determined by where it was created in the source code.
+
+## Licenses
+A legal instrument that determines how and whether software can be used, modified and/or sold. 
+
+There are various types of licenses:
+* __Public Domain__ - no restrictions on how the software is used. You can use it, modify it, sell it in any way you like. 
+* __Creative Commons(CC0)__ - simplifies making your software available to the public domain. A straightforward way of specifying what rights are waived and which are reserved in situations where waiving all rights is not possible.
+* __Permissive__ - allows the usage, modification and redistribution under certain rules. For example including the license in the copied code, or waiving your right to hold the author accountable.  
+* __Copyleft__ - any work derivitive of copyleft licensed software must also be under that same license.
+* __Proprietary__ - the software belongs to a legal entity that permits its use under an __EULA__(end-user license agreement). The EULA determines exactly what you can do with the software.
+
+It might seem like using software you can freely modify and redistribute is the way to go, but this introduces __security vulnerabilities__ - whose to say a malicious party hasn't made modifications. There are various tools for checking the security risks of open-source dependencies.
+
+You can find a list of popular licenses and what they entail - [__here__](https://tldrlegal.com/)
 
 ## Literal
 A value which is expressed as itself. For example:
@@ -255,6 +405,14 @@ An algorithm that checks the validity of various identification numbers like a c
 &nbsp;
 # M
 
+## Machine Code
+A programming language that can be directly translated to processor instructions. All applications are finally compiled to some form of machine code.
+
+## Memoization
+Storing the result of a function call. When the function is called again with the same input the cached result is returned instead of calling the function again.
+
+This is an important technique for optimization.
+
 ## Method
 Is a function that describes a verb of a class or an object. 
 
@@ -263,18 +421,48 @@ If we had a class called `Horse` it could have a method called `run`.
 ## Method Overriding
 Changing the definition of a method inherited from a superclass to provide a subclass specific implementation.
 
+## Microservice Architecture
+A software design model where an application is built using many independent, self-contained components that run on their own resources. 
+
+Credits: [Eric Elliot](https://medium.com/javascript-scene/10-interview-questions-every-javascript-developer-should-know-6fa6bdf5ad95)
+
+__Pros__
+* __more readable__ - each component can be understood on its own
+* __better organized__ - components dont depend on each other
+* __reusable__ - components can easily be adjusted to work with other apps
+* __scalable__ - hot services can be isolated and scaled independent of the rest of the app
+
+__Cons__
+* __complex shared functionilty__ - cross-cutting concers will need to either be handled in seperate modules or in a service layer that all traffic is routed through
+* __more expensive__ - microservices are frequently on seperate VMs requiring configuration and maintenance overhead - this can be automated with container fleet management tools.
+
 ## Module
 An independent software component designed to group features performing a given task. An application is usually composed of many components.
 
 Modules are very powerful because they provide:
 * reusability - are a standalone part which you can easily include in other applications. 
 * readability - only deal with a single feature making it easier to understand and debug.
-* security - only exposes what is needed and hides its inner working making it safe from external influences(other programs, an inexperienced developer).
+* security - only exposes what is needed and hides its inner working making it safe from external influences(other programs, an inexperienced developer, namespace pollution).
+
+## Monolithic Architecture
+A software design model where an application is built using tightly coupled components that work as a single unit sharing the same memory space and resources.
+
+Credits: [Eric Elliot](https://medium.com/javascript-scene/10-interview-questions-every-javascript-developer-should-know-6fa6bdf5ad95)
+
+__Pros__
+* __shared functionalities__ - ease of connecting components to shared functionality(logging, rate limiting, audit trails, DOS protection)
+* possible __performance boost__
+
+__Cons__
+* __dont scale well__ - hard to decouple resource hungry components
+* __harder to understand__ - often have to understand the whole to understand a piece of it
+
+Also check-out [Microservice Architecture](#microservice-architecture).
 
 ## Mutable
 Meaning its state can be changed. Immutable variable types are usually assigned values which represent a reference to a space in memory. This means that any changes made to what the reference points at effects all other variables that share the same reference.
 
-__Javascript__: Object and arrays are mutable data types.
+__JavaScript__: Object and arrays are mutable data types.
 
 ## Mutator
 Also called a _Mutator Method_ or _Setter_ are methods that allow changing an objects state data.
@@ -291,13 +479,23 @@ Also called a naming collision is when two identifiers within a given scope are 
 ## Native
 Something designed to work with a particular system, meaning it can use that systems resources with minimal overhead.
 
+## Network Architecture
+The framework of a computer network. A diagram consisting of all resources and how they are connected. 
+
+This includes:
+* cabling
+* connections and their types(wireless, LAN etc.)
+* physical layout of the network
+* protocols
+* various hardware devices
+
 &nbsp;
 # O
 
 ## Object
 A value in memory that can be referenced through an identifier.
 
-__Javascript__: A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method. Properties keys can be of type String or Symbol.
+__JavaScript__: A wrapper that contains 0 or more key-value pairs which are called properties. Properties values can be of any data type. If a value is not assigned to a property it is automatically set to `undefined`. If a value is a function then it represents a method. Properties keys can be of type String or Symbol.
 
 ## Object Oriented Programming
 A programming paradigm that involves:
@@ -305,6 +503,46 @@ A programming paradigm that involves:
 * Encapsulation - grouping related properties and methods under a single entity.
 * Inheritance - passing down properties and methods between objects or classes creating a hirarchical dependency between them.
 * Polymorphism - creating a method or function that works differentely depending on context of execution.
+
+OOP focuses on data over algorithms. 
+
+__Pros__:\
+* Easy to understand
+* Popular
+* Readable if done right
+
+__Cons__:\
+* depends on shared state
+* race conditions
+* easy to mess up with multi-level inheritance
+* hard to debug when messed up
+* not future-proof
+
+__Examples__: C++, C#, Java
+
+## Object Oriented Design Problems
+Object oriented programming can be very problematic in large and lengthy projects - especially when dealing with inheritance. Below are some issues that are so frequent they where given names.
+
+### __Fragile Base Class Problem__
+Classic inheritance means tight coupling means any changes in a base class must be handled appropriatly in any derivitive classes. Base class modification can essentially break any classes that inherit from it.
+
+### __Gorilla Banana Problem__
+In classical inheritance when you want to extend some class your new subclass adopts all the base class properties. And the base class could also be inheriting so you have to adopt its base class properties as well. And this goes on all the way up to the top level class. 
+
+This way you could end up with a massive amount of unneeded properites on your newly created class. 
+
+The name of the problem comes from a famous quote by Joe Armstrong:
+> I think the lack of reusability comes in object-oriented languages, not functional languages. Because the problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle.
+
+You wanted to create a Banana class that inherits form the Gorilla class which in turn inherits from the Jungle class and in the end you got a 'gorilla holding the banana and the entire jungle'.
+
+
+### __Duplication By Necessity Problem__
+To fix a problem or introduce a new feature in a series of classes coupled by inheritance you start from the top level class and build your way down. In effect you end up duplicating your code along the way - that is not [DRY](#DRY) code.
+
+
+### __Tight Coupling Problem__
+A parent and child class are tightly coupled. Any changes made to one of these classes could in effect break the other class.
 
 ## Operand
 The object of an operation.
@@ -329,9 +567,12 @@ A program that takes complex input(source code, markup, JSON, URI, etc.) and per
 1. __Syntactic Analysis__: groups the tokens into [expressions](#expression).
 1. __Semantic Parsing__: determines the meaning of the expressions and passes it on to any programs that would make use of the parsed data.
 
-Parsers are often components of compilers and interpreters(Javascript, Java, HTML) but can also be stand-alone libraries(URI parsers, email parsers).
+Parsers are often components of compilers and interpreters(JavaScript, Java, HTML) but can also be stand-alone libraries(URI parsers, email parsers).
 
 Credit: https://www.techopedia.com/definition/3854/parser
+
+## Point-free Style
+A function that does not reference its arguments. Usually achieved by composing simple functions that only take one argument and return one value.
 
 ## Polyfill
 A [shim](#shim) specific to browsers. Used to introduce newer features to a browser that doesn't support them by combining features it does support.
@@ -340,6 +581,13 @@ A [shim](#shim) specific to browsers. Used to introduce newer features to a brow
 Any data type that is not an object and has no methods. 
 
 __Javacript__: These are `string`, `number`, `boolean`, `null`, `undefined` and `symbol`. A primitive variable stores its actual value.
+
+## Procedural Programming
+A programming paradigm focused on performing a task through subroutines that are executed one by one.
+
+Procedural Programming focuses on algorithms over data.
+
+__Examples__: PASCAL, C
 
 ## Progressive Enhancement(PE)
 A methodology for building web applications that focus on providing basic content and functionality. Advanced features are built on top of that core and used only by user agents that support them.
@@ -356,12 +604,39 @@ Web applications that work like [native](#native) applications. They:
 
 For a thorough explanation checkout what [Google](https://developers.google.com/web/progressive-web-apps/) has to say on the subject.
 
+## Pure Function
+A function that:
+* given the same input always provides the same output(are deterministic)
+* produces no side effects
+
+Side effects can be:
+* mutating static variables
+* mutating non-local variables
+* mutating reference arguments
+* mutating I/O streams
+
+Pure function are independent of outside state meaning they:
+* are immune to bugs that come with mutability
+* can easily run concurrently
+* are easy to refactor
+* are easy to extend
+
+Rull of thumb: _If you run it without using it's return value than it's probably not a pure function_
+
+Pure functions are the backbone of [functional programming](#functional-programming) and using the is good programming practice.
+
 &nbsp;
 # Q
 
 
 &nbsp;
 # R
+
+## Race Conditions
+When two or more threads share data and try to modify it at the same time. The result depends on the order of execution which is often impossible to control(thread switching depends on non-programmable mechanism).
+
+## Refactor
+Changing existing code so that it works better without changing how its used.
 
 ## Regular Expression
 A sequence of symbols expressing a pattern to be searched for in text.
@@ -384,6 +659,9 @@ Rule of thumb:
 * if the regular expression is too long think of a different approach
 * don't try to solve all cases in a single regular expression(all valid emails could take a reg exp of over 1000 characters)
 
+## REPL
+A __Read-eval-print-loop__ is a simple programming environment where you can easily run and execute your code without the hastle of installing extra software. 
+
 ## Responsive Design
 A design practice when creating websites. A responsive website appropriately resizes, repositions, shows or hides elements to provide a great user experience on any device.
 
@@ -399,6 +677,9 @@ The RTE is an environment in which a program is executed. Think of it as a layer
 &nbsp;
 # S
 
+## Semantic Versioning
+Versioning software in a way where different components of the version number have a standardized meaning.
+
 ## SEO
 Search engine optimization
 
@@ -407,8 +688,14 @@ Symbols that structure a program.
 
 Like a semicolon `;` to mark the end of a statement or braces {} that mark the beginning and end of a function body.
 
+## Server
+A program or device that manages network resources and performs services.
+
 ## Shim
-Code that intercepts an API Call, makes changes to it and forwards it. This allows introducing features in systems that don't normally support them. 
+Code that intercepts an API Call, makes changes to it and forwards it. This allows introducing features in systems that don't normally support them.
+
+## Singleton Pattern
+A design pattern which restricts instantation of a class or specific object to a single instance.
 
 ## Slug
 A human-readable URL component. Mostly used for:
@@ -417,13 +704,59 @@ A human-readable URL component. Mostly used for:
 
 __Example__: In `www.example.com/home.html?search=shoes` you could make it more readable with a slug `www.example.com/shoes`
 
+## Software Architecture
+Defining software components and how they interact in order to meet specific business needs. It can be seen as a __blueprint__ for a system.
+
+## SOLID
+5 coding principles relating to [Object Oriented Programming](#object-oriented-programming), but is not only limited to OOP languages(consider JavaScript which is a multiparadigm language).
+
+Keep in mind that programming is all about tradeoffs. Keep coding principles in mind but don't go crazy trying to abide by them and use common sense wherever possible. 
+
+### **S**ingle Responsibility Principle
+> A class or function should only perform one job
+
+When implementing something complex figure out if any common logic can be extracted into smaller reusable functions. On the other hand if a set of functions is always called together consider grouping them under a wrapper function.
+
+### **O**pen Closed Principle
+> Software entities should be open to extension but closed to modification
+
+Your functions, modules, classes should work in a way that you can add new features on top of them without changing their underlying code.
+
+No client should ever be forced to edit an external function/module/class in order to fit it to their needs. They should be able to create an abstraction layer that can communicate with it.
+
+### **L**iskov Substitution Principle
+> A subclass should be substitutable for its base class
+
+Subclasses should override all their base class methods in a way that you could use them interchangeably without causing errors. If this is not possible then reconsider how or if to use inheritance.
+
+### **I**nterface Segregation Principle
+> No client should be forced to depend on methods it does not use
+
+When writing code that is meant to be reused always make sure only the bare minimum is required and the rest is optional.
+
+### **D**ependency Inversion Principle
+> High-level modules should not depend on low-level modules. Both should depend on abstractions
+
+Modules should interact with each other through abstractions - not directly. This way you can change the inner workings of a module without affecting how it communicates with other applications.
+
+> Abstractions should not depend on details. Details should depend on abstractions
+
+You should not have to change an abstraction just because it needs to be used by a different client.
+
+Quite often by following the _Single Responsibility Principle_ and _Open Closed Principle_ you also conform to the _Dependency Inversion Principle_.
+
 ## Statement
 An action to be executed.
 
-__Javascript__: A statement cannot be used where a value is expected(even though in javascript statements produce a value).
+__JavaScript__: A statement cannot be used where a value is expected(even though in JavaScript statements produce a value).
 
 ## String Interpolation
 Replacing placeholders in a string literal with their corresponding values.
+
+## Stub
+Is a mockup component used for testing software. 
+
+Sometimes you need to test a component that relies on another component that hasnt been implemented yet. In order to do this you create a simplified version of that component in order to perform the testing.
 
 ## Subdomain
 Subdomains allow creating seperate versions of a website under one domain. 
@@ -456,7 +789,7 @@ Atomic element of a program. This could be an [identifier](#identifier), [keywor
 ## Type coercion
 Converting a value of one type to another. This can happen automatically, which is called __implicit type coercion__ or with expressed intention to convert which is called __explicit type coercion__.
 
-__Javascript__: You can only convert to __string__, __boolean__ or __number__. For a more in depth explanation check out [this article](https://medium.freecodecamp.org/js-type-coercion-explained-27ba3d9a2839).
+__JavaScript__: You can only convert to __string__, __boolean__ or __number__. For a more in depth explanation check out [this article](https://medium.freecodecamp.org/js-type-coercion-explained-27ba3d9a2839).
 
 &nbsp;
 # U
@@ -470,7 +803,8 @@ As of 2018 __UTF-8__ is used on over 90% websites.
 
 Here is a [list of Unicode characters](https://unicode-table.com/en/) and their matching numbers.
 
-__Javascript__: Most Javascript engines use __UTF-16__ encoding.
+__JavaScript__: Most JavaScript engines use __UTF-16__ encoding.
+
 
 ## URI
 A Uniform Resource Identifier is a string that allows the unambiguous identification of a resource.
@@ -516,7 +850,7 @@ Adding more power to a resource available to a system.
 &nbsp;
 # W
 
-## Wrapper
+## Wrapper Type
 Or wrapper object / wrapper class is a data type that encapsulates(or "wraps") another data type extending or simplifying its usage.
 
 &nbsp;
@@ -525,6 +859,11 @@ Or wrapper object / wrapper class is a data type that encapsulates(or "wraps") a
 
 &nbsp;
 # Y
+
+## YAGNI
+> You Ain't Gonna Need It
+
+A coding principle stating that you shouldn't implement a functionality until you are absolutely sure you need it.
 
 
 &nbsp;
