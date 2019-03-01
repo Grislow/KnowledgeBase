@@ -76,6 +76,9 @@ American Standard Code for Information Interchange is a 7-bit character encoding
 ## Assignment
 Assigning a specific value to a variable.
 
+## Asynchronous Programming
+Running a process seperate from the main thread, outside of the general flow of the application.
+
 ## Autoboxing
 Automatic conversion between a primitive type and a wrapper type.
 
@@ -125,6 +128,9 @@ If a code point can't be encoded in one UTF-16 code unite it is store in a [surr
 ## Comman Line Interface(CLI)
 A program in which you type commands for the operating system to execute.
 
+## Concurrent Programming
+Pertaining to managing multiple threads of execution at the same time.
+
 ## Control character
 A character that is used to perform an action and has no literal meaning. Some popular examples are:
 * `^@` - __Null__ is used as a string terminator in the C programming language
@@ -168,8 +174,51 @@ A programming paradigm that focuses on describing what needs to be done over how
 
 __Examples__: SQL, Prolog
 
+## Domain Naming System(DNS)
+Source: [ns1.com](https://ns1.com/resources/dns-types-records-servers-and-queries)
+
+A system responsible for translating IP Addresses into Domain Names(like www.google.com). This involves DNS Servers which store these mappings in a database or cache.
+
+When a [user agent](#user-agent) requests a domain it sends a query to a __DNS Resolver__ that attempts to match a human-readable hostname to an IP address. Upon failure the request is forwarded to another DNS Server until a mapping is found.
+
+__DNS Query Types__
+* __Recursive__ - if the resolver can't provide an answer it queries other DNS Servers possibly reaching the Authoritative Name Server
+* __Iterative__ - the DNS server either provides the answer or a reference to another DNS Server to which the DNS client has to repeat its request.
+* __Non-recursive__ - the DNS Server either stores the mapping or knows which external DNS Server holds the mapping. The request is resolved immediately. 
+
+__DNS Server Types__
+* __DNS Resolver__ - or recursive resolver, receives DNS queries which include human-readable hostnames and track the hostname - IP address mapping.
+* __DNS Root Server__ - responsible for resolving the Top Level Domain(TLD) like __.com__. There are 13 root servers worldwide.
+* __Authoritative DNS Server__ - resolves the authoritative name server for a hostname like __google__.
+
+__DNS Records__
+DNS Servers created records to store information on domains. These are some of them:
+* __A__ - stores mapping of hostname and IPv4 address
+* __AAAA__ - stores mapping of hostname and IPv6 address
+* __CNAME__ - stores mapping between a hostname and another hostname
+* __MX__ - stores mapping between hostname and an SMTP server
+* __NS__ - stores mapping of a DNS zone(example.com) to a Authoritative DNS Server
+* __TXT__ - machine-readable data(for example for encryption)
+
+__Advanced DNS Solutions__
+* __Global Server Load Balancing__ - controlling routing between globally distributed data centers
+* __Multi CDN__ - routing users to the nearest CDN
+* __Geographical Routing__ - routing users to the nearest resources
+* __Cloud Migration__ - migrating local data to a cloud resource
+* __Internet Traffice Management__ - reducing network congestion
+
+
+__Time to Live__(TTL) - when a domain name is resolved the DNS Server to which the request was originally made caches the mapping for a faster future resolution. TTL is how long that mapping is stored.
+
+__8.8.8.8__ is the ip address of Google's DNS Server. If you ever have DNS related problems try configuring your DNS settings to that server.
+
 ## DRY
 "Don't Repeat Yourself" is a coding principle which states that if you catch yourself writing the same code over and over again then you are probably doing something wrong. Try to group repeated logic into a seperate function.
+
+## Duck typing
+Checking if an object is of a certain type by checking its properties.
+
+> If it looks like a duck, swims like a duck, and quacks like a duck, then it probably is a duck.
 
 ## Dynamic typing
 Variables type is determined during runtime. This means any variable can be assigned and re-assigned values of any type.
@@ -313,7 +362,7 @@ Think of telling someone step-by-step how to do something. The 'someone' is a co
 [Procedural Programming](#procedural-programming) or [Object-Oriented Programming](#object-oriented-programming) follow the Imperative Programming Paradigm.
 
 ## Inheritance
-Passing down properties and methods between objects or classes creating a hirarchical dependency between them.
+Passing down properties and methods between objects or classes.
 
 ## Initialization
 Allocation of memory for a variable.
@@ -394,6 +443,9 @@ A value which is expressed as itself. For example:
 * `true` boolean literal 
 * `[1, 2, 3]` array literal containing 3 numeric literals
 
+## Load Balancing
+A mechanism that distributes workloads across a systems resources in a way so that resource hungry components don't become a bottle-neck.
+
 ## Locale
 An object containing a regional settings like a region or language code.
 
@@ -412,6 +464,20 @@ A programming language that can be directly translated to processor instructions
 Storing the result of a function call. When the function is called again with the same input the cached result is returned instead of calling the function again.
 
 This is an important technique for optimization.
+
+## Memory Leak
+When an application fails to release unused memory. This could slow the application down or even cause its untimely termination.
+
+## Memory Life Cycle
+Memory usage across almost all [runtime environments](#runtime-environment) goes through the same process:
+1. Allocating memory when needed
+1. Using the allocated memory
+1. Releasing memory when its not needed
+
+Environments with [garbage collection](#garbage-collection) usually handle the first and last step implicitly.
+
+## Metaprogramming
+Writing programs that can analyse, generate and transform source code.
 
 ## Method
 Is a function that describes a verb of a class or an object. 
@@ -556,6 +622,9 @@ Excess resources needed to perform a task.
 &nbsp;
 # P
 
+## Parallel Programming
+Pertaining to executing multiple threads at the same time.
+
 ## Parameter
 A variable in a function declaration.
 
@@ -625,6 +694,11 @@ Rull of thumb: _If you run it without using it's return value than it's probably
 
 Pure functions are the backbone of [functional programming](#functional-programming) and using the is good programming practice.
 
+## Push Notification
+Small message that are sent as a response to a trigger. This trigger doesn't have to be an open aplication.
+
+A web application can send push notifications through the __Notification API__ and __Push API__.
+
 &nbsp;
 # Q
 
@@ -637,6 +711,11 @@ When two or more threads share data and try to modify it at the same time. The r
 
 ## Refactor
 Changing existing code so that it works better without changing how its used.
+
+## Reflection
+Examining and modifying a program at runtime. 
+
+__Example__: Changing a function definition during execution.
 
 ## Regular Expression
 A sequence of symbols expressing a pattern to be searched for in text.
@@ -672,10 +751,24 @@ Request for Comments is a publication from the technology community regarding ho
 See [Execution Phase](#execution-phase).
 
 ## Runtime Environment
-The RTE is an environment in which a program is executed. Think of it as a layer between written code and the machine on which it runs. This often includes the operating system, any libraries the program uses and an interpreter that translates the program into something a machine can understand.
+An environment in which a program is executed. Think of it as a layer between written code and the machine on which it runs. This often includes the operating system, any libraries the program uses and an interpreter that translates the program into something a machine can understand.
 
 &nbsp;
 # S
+
+## Secure Shell(SSH)
+A network protocol for connecting network services in a secure way over an unsecure network. Most often this network service is providing access to a remote machines command line. A very popular tool for SSH is OpenSSH(preinstalled on macOS).
+
+__Tools__:
+* __openssh__ - tool for connecting over ssh
+* __nmap__ - network discovery tool
+
+
+__Commands__:
+* `which ssh` - command for checking whether you have openSSH installed
+
+
+
 
 ## Semantic Versioning
 Versioning software in a way where different components of the version number have a standardized meaning.
@@ -690,6 +783,15 @@ Like a semicolon `;` to mark the end of a statement or braces {} that mark the b
 
 ## Server
 A program or device that manages network resources and performs services.
+
+## Service Worker
+A script that is run by the browser outside of a web page.
+
+Most common use cases are:
+* sending [push notifications](#push-notifications)
+* enabling offline support
+* background sync
+* client-side [load balancing](#load-balancing)
 
 ## Shim
 Code that intercepts an API Call, makes changes to it and forwards it. This allows introducing features in systems that don't normally support them.
@@ -744,6 +846,7 @@ Modules should interact with each other through abstractions - not directly. Thi
 You should not have to change an abstraction just because it needs to be used by a different client.
 
 Quite often by following the _Single Responsibility Principle_ and _Open Closed Principle_ you also conform to the _Dependency Inversion Principle_.
+
 
 ## Statement
 An action to be executed.

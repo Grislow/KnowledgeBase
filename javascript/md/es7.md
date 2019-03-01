@@ -2,11 +2,11 @@ Reference for features introduced in Javascript as of the ES2016 or ES7 specific
 
 #### Table of contents
 
-* [Array Methods](#array-methods)
+* [Includes Method](#includes-method)
 * [Exponentiation Operator](#exponentiation-operator)
 
 &nbsp;
-## Array Methods
+## Includes Method
 
 `Array.prototype.includes(value)` - returns a boolean value based on whether a value exists in an array. Useful as a condition in control flow statements.
 

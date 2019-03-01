@@ -6,7 +6,7 @@ Various Javascript-related things I think are worth knowing or having available 
 * [Design Patterns](#design-patterns)
 * [Function Decorators](#function-decorators)
 * [Functional Composition](#functional-composition)
-* [Good Practice](#good-practice)
+* [Good Programming Practices](#good-programming-practices)
 * [JSDocs](#JSDocs)
 * [Node Package Manager(npm)](#node-package-manager(npm))
 * [Performance](#performance)
@@ -110,6 +110,28 @@ Can be directed and undirected
 ## Singleton Pattern
 https://codeburst.io/javascript-global-variables-vs-singletons-d825fcab75f9 
 
+## Revealing Module Pattern
+Exposing only selected properties of a module through closures.
+
+``` javascript
+// Dont let this mislead you
+// Your data is not secure in a closure, its just private
+var verifyUser = (function() {
+    var myPrivateNum = 123456;
+    var myPublicNum = 38746;
+    function verify(yourPublicNum) {
+        return myPrivateNum + myPublicNum * yourPublicNum;
+    }
+
+    return {
+        publicKey: myPublicNum,
+        verify: verify
+    }
+})();
+
+console.log(verifyUser.publicKey);
+verifyUser.verify(1234567);
+```
 
 &nbsp;
 # Function Decorators
@@ -177,7 +199,7 @@ const pipe = (...functions) => data =>
 ```
 
 &nbsp;
-# Good Practice
+# Good Programming Practices
 Credits to:
 * [An article by Eric Elliot's](#https://medium.com/javascript-scene/the-single-biggest-mistake-programmers-make-every-day-62366b432308) on a good approach to implementing software
 

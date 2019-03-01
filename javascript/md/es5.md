@@ -1,8 +1,12 @@
-This is something between a reference and a guide. Not quite a guide since you won't find explanations of common use cases or why a concept is important. More than a reference because you have definitions of concepts paired with examples.
+This is something between a reference and a guide. Not quite a guide since you won't always find explanations of common use cases or why a concept is important. More than a reference because you have definitions of concepts paired with examples.
 
 The following concerns the ES5 specification and its predecessors. Deprecated features are omitted.
 
 If the description is not enough make sure to check out the examples and try it yourself in a browser console.
+
+Credits: 
+* [MDN](https://developer.mozilla.org/en-US/) for creating a huge knowledge base for seasoned and aspiring web developers
+* [Eric Elliott](https://medium.com/@_ericelliott) for sharing your vast knowledge and showing devs a world without class inheritance
 
 #### Table of contents
 
@@ -27,6 +31,7 @@ If the description is not enough make sure to check out the examples and try it 
     * [Scope](#Scope)
     * [Scope Chain](#scope-chain)
     * [Hoisting](#hoisting)
+    * [Memory Management](#memory-management)
 * [Operators](#Operators)
     * [Arithmetic operators](#arithmetic-operators)
     * [Operator precedence](#operator-precedence)
@@ -111,6 +116,8 @@ If the description is not enough make sure to check out the examples and try it 
         * [Functional Inheritance](#functional-inheritance)
     * [Property Descriptor](#property-descriptor)
     * [Object Methods](#object-methods)
+    * [Object Related Operators](#object-related-operators)
+    * [Object Type Coercion](#object-type-coercion)
 * [Native Objects](#native-objects)
     * [Date](#date)
     * [Error](#error)
@@ -119,6 +126,9 @@ If the description is not enough make sure to check out the examples and try it 
     * [Number](#number-2)
 * [Asynchronicity](#asynchronicity)
 * [Strict mode](#strict-mode)
+    * [Invocation](#invocation)
+    * [Features](#features)
+
 
 &nbsp;
 # Conceptual
@@ -131,8 +141,9 @@ An annotation that is ignored by the [interpreter](/resources/glossary.md#interp
 
 To fully utilize the power of comments check out a documentation generator like [JSDocs](/javascript/md/misc.md#jsdocs)
 ``` javascript
-// This is a single line comment
-// these will be used to show produced values in further examples
+// this is a single line comment
+// single line comments will be used for brief descriptions in this guide
+//> single line comment with greater than is a returned value in this guide
 
 /*
     This is a multiline comment
@@ -156,9 +167,9 @@ Floating point numbers `2.1231`, integers `100`, positive infinity `Infinity`, n
 ``` javascript
 var age = 28;
 var height = 1.87;
-var posInf = 1/0;                       // Infinity
-var negInf = 1/-0;                      // -Infinity
-var notANumber = 1/'text';              // NaN
+var posInf = 1/0;                       //> Infinity
+var negInf = 1/-0;                      //> -Infinity
+var notANumber = 1/'text';              //> NaN
 ```
 
 ### String
@@ -222,11 +233,11 @@ If an expression ends with a semicolon it becomes an expression statement. An ex
 
 All of these are valid expressions.
 ``` javascript
-2 + 2 * 2                               // 6
-console.log()                           // undefined
-'text'                                  // "text"
+2 + 2 * 2                               //> 6
+console.log()                           //> undefined
+'text'                                  //> "text"
 someVariable                            // the variables value
-undefined == console.log()              // true
+undefined == console.log()              //> true
 ```
 
 ## Statements
@@ -253,8 +264,10 @@ Variable declarations start with the `var` keyword followed by a variable name `
 Function declarations start with the `function` keyword followed by a function name `funcName`, a list of parametres enclosed in paranthesis `(param1, param2)` and finally the function body within braces `{ ... }`.
 
 ``` javascript
-var someVar;                            // variable declaration without value assignment
-var b = 5;                              // variable declaration with value assignment
+var someVar;                            
+    // variable declaration without value assignment
+var b = 5;                              
+    // variable declaration with value assignment
 var c,
     d = 10,
     e;                                  // chained variable declarations
@@ -272,10 +285,10 @@ x = 10;
 Most online resources state that variables can start with `$`, `_` and any letter followed by any alphanumeric characters. While this is what you will usually see it is not the entire truth. Check out this [stackoverflow post](https://stackoverflow.com/a/9337047/10851837) for more. 
 
 Keywords are reserved phrases used internally by JavaScript. These are not allowed as variable names. The following phrases are keywords:\
-`break`, `case`, `catch`, `class`, `const`, `continue`, `debugger`, `default`, `delete`, `do`, `else`, `enum`, `export`, `extends`, `false`, `finally`, `for`, `function`, `if`, `import`, `in`, `instanceof`, `new`, `null`, `return`, `super`, `switch`, `this`, `throw`, `try`, `true`, `typeof`, `var`, `void`, `while`, `with`, 'yield'.
+`break`, `case`, `catch`, `class`, `const`, `continue`, `debugger`, `default`, `delete`, `do`, `else`, `enum`, `export`, `extends`, `false`, `finally`, `for`, `function`, `if`, `import`, `in`, `instanceof`, `new`, `null`, `return`, `super`, `switch`, `this`, `throw`, `try`, `true`, `typeof`, `var`, `void`, `while`, `with`.
 
 In [strict mode](#strict-mode) the following are also reserved phrases:\
-`implements`, `package`, `public`, `interface`, `private`, `static`, `let`, `protected`.
+`implements`, `package`, `public`, `interface`, `private`, `static`, `let`, `protected`, `yield`.
 
 Not all of the above are keywords in ES5 but using them as variable names would be considered bad practice for compatibility reasons.
 
@@ -304,42 +317,42 @@ This is focused on primitive data types. More on type coercion of [objects](#obj
 ### Implicit
 ``` javascript
 // String
-'Number ' + 2                           // "Number 2"
-true + ''                               // "true"
+'Number ' + 2                           //> "Number 2"
+true + ''                               //> "true"
 
 // Number
-2 == '2'                                // true
-2 * '2'                                 // 4
-'6' < '5'                               // false
-5/null                                  // Infinity
+2 == '2'                                //> true
+2 * '2'                                 //> 4
+'6' < '5'                               //> false
+5/null                                  //> Infinity
 
 // Boolean
 while(5) {...}                          // infinite loop
-!5                                      // false
-5 || 'five'                             // true
+!5                                      //> false
+5 || 'five'                             //> true
 ```
 
 ### Explicit
 ``` javascript
 // String
-String(undefined)                       // "undefined"
-String(true)                            // "true"
-Number(20).toString(2)                  // "10100"  - base 10 converted to base 2
-Number(20).toString(8)                  // "24"     - base 10 converted to base 8 
-Number(46).toString(16)                 // "2e"     - base 10 converted to base 16
+String(undefined)                       //> "undefined"
+String(true)                            //> "true"
+Number(20).toString(2)                  //> "10100"  - base 10 converted to base 2
+Number(20).toString(8)                  //> "24"     - base 10 converted to base 8 
+Number(46).toString(16)                 //> "2e"     - base 10 converted to base 16
 
 // Number
-Number('10')                            // 10
-Number(null)                            // 0 
-Number(false)                           // 0 
-Number(true)                            // 1
-Number('5 + 4')                         // NaN
-Number(undefined)                       // NaN
+Number('10')                            //> 10
+Number(null)                            //> 0 
+Number(false)                           //> 0 
+Number(true)                            //> 1
+Number('5 + 4')                         //> NaN
+Number(undefined)                       //> NaN
 
 // Boolean
-Boolean(0)                              // false
-Boolean(5)                              // true
-Boolean('hi')                           // true
+Boolean(0)                              //> false
+Boolean(5)                              //> true
+Boolean('hi')                           //> true
 ```
 
 ### Falsy values
@@ -347,25 +360,25 @@ Values that are coerced to a `false` boolean value. These values are `0`, `-0`, 
 
 This is especially important in the context of [control flow](#control-flow).
 ``` javascript
-Boolean(0)                              // false
-Boolean(-0)                             // false
-Boolean('')                             // false
-Boolean(undefined)                      // false
-Boolean(false)                          // false
-Boolean(null)                           // false
-Boolean(NaN)                            // false
+Boolean(0)                              //> false
+Boolean(-0)                             //> false
+Boolean('')                             //> false
+Boolean(undefined)                      //> false
+Boolean(false)                          //> false
+Boolean(null)                           //> false
+Boolean(NaN)                            //> false
 ```
 
 ### Gotchas
 `NaN` is not equal `NaN`
 ``` javascript
-NaN == NaN                              // false
+NaN == NaN                              //> false
 ```
 `null` does not undergo numeric conversion when used with `==`. It only equals `null` or `undefined`.
 ``` javascript
-null == 0                               // false
-null == null                            // true
-null == undefined                       // true
+null == 0                               //> false
+null == null                            //> true
+null == undefined                       //> true
 ```
 
 ## Mutability
@@ -380,7 +393,8 @@ tab[0] = 2;                             // changes both tab and tabTwo
 
 var obj = { name: 'Greg'};
 var objTwo = obj;
-obj.name = 'John';                      // changes the name property for both obj and objTwo
+obj.name = 'John';                      
+    // changes the name property for both obj and objTwo
 ```
 
 ### Immutable Variable Types
@@ -428,7 +442,7 @@ Or call stack is a collection of execution contexts, which are removed and added
     The execution stack is within square brackets [...]
     The first element is the bottom of the stack
 */
-// programs starts -> [Global Context]
+// program starts -> [Global Context]
 var x;
 function fibo(n) {
     if (n < 1)
@@ -438,12 +452,13 @@ function fibo(n) {
     return fibo(n - 1) + fibo(n - 2);   
 }
 
-x = fibo(3);    // fibo(3) execution -> [Global Context, fibo(3) Context]
-                // fibo(2) execution -> [Global Context, fibo(3) Context, fibo(2) Context]
-                // fibo(2) returns 1 -> [Global Context, fibo(3) Context]
-                // fibo(1) execution -> [Global Context, fibo(3) Context, fibo(1) Context]
-                // fibo(1) returns 1 -> [Global Context, fibo(3) Context]
-                // fibo(3) returns 2 -> [Global Context]
+x = fibo(3);    
+    // fibo(3) execution -> [Global Context, fibo(3) Context]
+    // fibo(2) execution -> [Global Context, fibo(3) Context, fibo(2) Context]
+    // fibo(2) returns 1 -> [Global Context, fibo(3) Context]
+    // fibo(1) execution -> [Global Context, fibo(3) Context, fibo(1) Context]
+    // fibo(1) returns 1 -> [Global Context, fibo(3) Context]
+    // fibo(3) returns 2 -> [Global Context]
 // program exits
 ```
 
@@ -465,7 +480,7 @@ function globalfunc() {
 }
 
 function ownScope() {
-    var a = 'available in ownScope() function and nestedFunc()';
+    var a = 'available in ownScope function and nestedFunc';
     var b = globalVar + ' can be referenced here';
     var x = 5;
     globalFunc();
@@ -500,10 +515,10 @@ function x() {
         b = 5;
         function z() {
             a = 3;
-            console.log(a);             // 3
-            console.log(b);             // 5
-            console.log(c);             // 8
-            console.log(d);             // 0
+            console.log(a);             //> 3
+            console.log(b);             //> 5
+            console.log(c);             //> 8
+            console.log(d);             //> 0
         }
     }
 }
@@ -521,25 +536,71 @@ function other() {
     return func;
 }
 
-other()();                              // 2
+other()();                              //> 2
 ```
 
 ## Hoisting
 Variable declarations and function declarations are loaded into memory before the [execution phase](/resources/glossary.md#Execution-Phase). This means they are accessible throughout their [execution context](#execution-context) disregarding their location within the source code.
 
 ``` javascript
-console.log(hoistedVar);                // undefined
-hoistedFunc();                          // "The function body is also hoisted"
+console.log(hoistedVar);                //> undefined
+hoistedFunc();                          //> "The function body is also hoisted"
 
 var hoistedVar = 'hoistedVar can be accessed before declaration';
 
-console.log(hoistedVar);                // "hoistedVar can be accessed before declaration"
+console.log(hoistedVar);                
+    //> "hoistedVar can be accessed before declaration"
 
 function hoistedFunc() {
     console.log('The function body is hoisted');
 }
 ```
 
+## Memory Management
+In JavaScript memory is allocated and freed automatically. Memory is allocated for declarations(variables, functions) and function expressions. Memory is freed through garbage collection.
+
+``` javascript
+var a = {                               // memory allocated for a
+    b: {                                // memory allocated for b
+        c: 2
+    },
+    getB: function() {                  // memory allocated for getB
+        return b;
+    }
+}
+
+function Obj(prop) {                    // memory allocated for Obj
+    this.prop = prop;
+}
+
+var arr = [new Obj(1), new Obj(2)];     
+    // memory allocated for arr
+    // memory allocated for instance of Obj
+    // memory allocated for instance of Obj
+```
+
+__Garbage Collection__\
+A mechanism that automatically releases unused memory. This is done based on an approximation since there is no way of knowing exactly when some data will stop being needed.
+
+There are two popular garbage collection algorithms:
+* __Reference counting__ - counts the number of references to a piece of data. If not referenced, it is considered unused and memory allocated to it is freed.
+* __Mark-and-sweep__ - marks a root from which data can be accessed. Periodically, the program checks what objects can be reached from these roots and which cant. If a piece of data cant be reached, it is considered unused and memory allocated to it is freed.
+
+Just because memory allocation and release is done automatically doesn't mean a developer should take it for granted. Poor programming could cause memory leaks, application performance decline or even crashing.
+
+A common issue with garbage collection are __cycles__. When two objects reference each other their allocated memory is not freed even if they are not referenced anywhere else.
+
+This is only a problem in _reference counting_ garbage collectors.
+
+``` javascript
+// hold reference to each other so memory isnt freed
+var a = b;
+var b = a;
+```
+
+All modern browser have _mark-and-sweep_ garbage collectors, but some of them implement mechanisms that are not compatible with _mark-and-sweep_ so cycles can still be a problem.
+
+Garbage collection becomes a very resource hungry process in online games, where objects are created in very high volume. Knowledge of some design patterns is useful for writing code that doesn't rely so heavily on garbage collection.
 
 &nbsp;
 # Operators
@@ -1524,25 +1585,27 @@ Matches are replaced:
 ``` javascript
 // Replacing a matched string with another string
 var fileName = 'products.txt; wontChange.txt';
-fileName.replace('.txt', '.csv');       // "products.csv; wontChange.txt"
+fileName.replace('.txt', '.csv');       
+    //> "products.csv; wontChange.txt"
 
 // Replacing a matched string with a functions return value
 var example = '> x';
 example.replace('x', function(match, index, str){
     return "match: '" + match + "'; index: '" + index + "'; str: '" + str + "'";
-});                                     // "> match: 'x'; index: '2'; str: '> x'"
+});                                     
+    //> "> match: 'x'; index: '2'; str: '> x'"
 
 // Replacing a matched regular expression with a string
 var name = '!@# Two words ^&*';
 var re = /(\w+)\s(\w+)/;
 name.replace(re, "\n $$& = '$&'\n $$` = '$`'\n $$' = '$''\n $$1 = '$1'\n $$2 = '$2'\n");
-                                        // "!@# 
-                                        //  $& = 'Two words'
-                                        //  $` = '!@# '
-                                        //  $' = ' ^&*'
-                                        //  $1 = 'Two'
-                                        //  $2 = 'words'
-                                        //  ^&*"
+    //> "!@# 
+    //>  $& = 'Two words'
+    //>  $` = '!@# '
+    //>  $' = ' ^&*'
+    //>  $1 = 'Two'
+    //>  $2 = 'words'
+    //>  ^&*"
 
 // Replacing a matched regular expression with a functions return value
 var prices = 'bread 2€, milk 1.80€, salami 4€';
@@ -3173,7 +3236,7 @@ for(prop in me) {
 * Instance Methods
     * `Object.prototype.hasOwnProperty(prop)` - returns boolean value indicating if property exists in object.
     * `Object.prototype.isPrototypeOf(obj)` - returns boolean value indicating if the reference object exists in the passed objects prototype chain.
-    * `Object.prototype.propertyIsEnumerable()` - 
+    * `Object.prototype.propertyIsEnumerable(prop)` - returns boolean value indicating if an objects property is enumerable
 
 ``` javascript
 /*
@@ -3354,10 +3417,30 @@ var obj = Object.create(proto);
 
 proto.isPrototypeOf(obj);               //> true
 
+/*
+    Object.prototype.propertyIsEnumerable()
+*/
+var obj = Object.create({}, {
+    a: {
+        value: 1,
+        enumerable: true
+    },
+    b: {
+        value: 2,
+        enumerable: false
+    },
+    c: {
+        value: 3
+    }
+})
+
+obj.propertyIsEnumerable('a')           //> true
+obj.propertyIsEnumerable('b')           //> false
+obj.propertyIsEnumerable('c')           //> false - by default
 
 ```
 
-## Object related operators
+## Object Related Operators
 
 ### new operator
 Enables creating an instance of an object.
@@ -3385,13 +3468,45 @@ var exp = new Example('hello');
 ```
 
 ### in operator
+Returns a boolean value indicating if a property exists in the operand or its prototype chain.
 ``` javascript
+var obj = {a: 1};
 
+'a' in obj                              //> true  
+'b' in obj                              //> false
+'toString' in obj                       //> true
 ```
 
 ### delete operator
-``` javascript
+Deletes property belonging to an object.
 
+Will not delete properties of any prototype in the prototype chain.
+
+Will not delete properties in the global or function scope.
+
+Will not delete non-configurable properites.
+
+``` javascript
+var obj = Object.create({}, {
+    a: {
+        value: 1,
+        configurable: true
+    },
+    b: {
+        value: 2,
+        configurable: false
+    },
+    example: {
+        value: function() {
+            console.log('An example method');
+        },
+        configurable: true
+    }
+});
+
+delete obj.a;                           //> a deleted
+delete obj.b;                           //> b not deleted
+delete obj.example;                     //> example deleted
 ```
 
 ### instanceof operator
@@ -3401,7 +3516,11 @@ Careful:
 * prototypes can be changed
 * primitive data types have an undefined prototype
 
-The instanceof operator has more gotchas - make sure to read what mdn has to say on the [topic](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof).
+The instanceof operator has more gotchas - make sure to read what MDN has to say on the [topic](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof).
+
+A better alternative to type checking with `instanceof` is __duck typing__. Duck typing is determing if an object is suitable for a given purpose by checking its properties(not its type).
+
+In ES6 you can customize how classes handle the `instanceof` operator making it work like duck typing.
 
 ``` javascript
 function Person(name) {
@@ -3423,9 +3542,39 @@ console.log(me instanceof Person);      //> false
 console.log(5 instanceof Number);       //> false
 console.log(true instanceof Boolean);   //> false
 console.log('str' instanceof String);   //> false
+
+// Duck typing
+function Duck() {
+    this.look = 'duck',
+    this.sound = 'quack'
+}
+
+Duck.prototype.swim = function() {
+    console.log('Is swimming');
+}
+
+var duckProto = {
+    swim: function() {
+        console.log('Swimming like a duck');
+    }
+}
+
+var duck = new Duck();
+
+Duck.prototype = duckProto;
+
+function isDuck(obj) {
+    var looksLikeDuck = obj.look === 'duck';
+    var soundsLikeDuck = obj.sound === 'quack';
+    var swimsLikeDuck = Boolean(obj.swim);
+    return looksLikeDuck && soundsLikeDuck && swimsLikeDuck;
+}
+
+duck instanceof Duck                    //> false
+isDuck(duck);                           //> true
 ```
 
-## Object type coercion
+## Object Type Coercion
 __Boolean__: all objects are converted to `true`.
 __String__: the objects `toString()` method is called. If it doesn't return a primitive value it's `valueOf()` method is called. If that fails to return a primitive value a TypeError is thrown.
 __Number__: the objects `valueOf()` method is called. If it doesn't return a primitive value it's `toString()` method is called. If that fails to return a primitive value a TypeError is thrown.
@@ -3846,10 +3995,183 @@ num.toFixed(2);                         // "1234.57"
 
 &nbsp;
 # Asynchronicity
+Running a process seperate from the main thread, outside of the general flow of the application.
 
+Asynchronicity in JavaScript is managed by the __Event Loop__ and the __Event Queue__.
 
+Whenever an asynchronous function call is encountered in the main thread it is placed in the __Event Queue__ instead of on the [__Execution Stack__](#execution-stack).
+
+The __Event Loop__ periodically inspects the Execution Stack. If the Execution Stack is empty the first function from the Queue is placed on it. This is repeated until the Queue is empty.
+
+Each function on the Event Queue needs to be fully processed before the next one can be loaded into the main thread(the execution stack). Be careful with functions that have a long execution time. This could block other asynchronous actions like events(user interaction with your app).
+
+The event loop is a non-blocking mechanism. Most lengthy asynchronous processes like AJAX requests or I/O operations work on a call-wait-then basis - a function is called and waits for a response. While its waiting other functions can be executed.
+
+__Disclaimer__: setTimeout is part of a Web API, not a standard JavaScript feature.
+``` javascript
+var startRun = new Date();
+var countAsync = 0;
+
+var async = function() {
+	setTimeout(function() {
+        console.log('Async() -> ' + ++countAsync);
+        console.log('Execution Time: ' + ((new Date()) - startRun) + 'ms');
+	}, 2000);
+}
+
+var first = function() {
+	console.log('Before async()');
+	async();
+	async();
+	async();
+	console.log('After async()');
+}
+
+first();
+
+setTimeout(function() {
+    console.log('After first()');
+    console.log('Execution Time: ' + ((new Date()) - startRun) + 'ms');
+}, 1000);
+
+console.log('Synchronous Execution Time: ' + ((new Date()) - startRun) + 'ms');
+
+/* OUTPUT
+    Before async()
+    After async()
+    Synchronous Execution Time: 0ms
+    After first()
+    Execution Time: 1005ms
+    Async() -> 1
+    Execution Time: 2004ms
+    Async() -> 2
+    Execution Time: 2004ms
+    Async() -> 3
+    Execution Time: 2005ms
+*/
+```
 
 &nbsp;
 # Strict mode
+Strict mode runs JavaScript code in a restricted operating environment. This means:
+* some errors which are usually silent will throw exceptions
+* disallows some features that are hard to optimize for the JavaScript engine
+* future-proofs your syntax by disallowing usage of keywords that are or might be included in later ES specifications.
+* reduced security risk of in app code execution
+
+__Careful__:\
+Strict mode is not cross-browser compatible so be careful when using it in the context of client-side scripting.
+
+## Invocation
+Strict mode can only be applied to an execution context. To invoke strict mode place `'use strict';` before any other statement. If invoked in the global scope all functions in that scope also run in strict mode.
+
+``` javascript
+// whole script will be in strict mode
+'use strict';
+
+var s = 'some statement';
+
+(function() {
+    // the entire function will run in strict mode
+    'use strict';
+    var x = 'this function runs in strict mode';
+})();
+
+(function() {
+    var inh = 'global scope strict mode applies to this function';
+})();
+
+var x = eval('"use strict"; var val = "in strict mode"; val');
+```
+
+## Features
+Here is a list of strict mode features:
+* Errors
+    * __non-declared__ variables throw a ReferenceError
+    * certain __value assignments__ will throw a TypeError:
+        * to a global property
+        * to a non-writable property
+        * a new property to a non-extensible object
+    * __deleting__ an __undeletable__ property will throw a TypeError
+    * setting a __property__ on a __primitive__ value throws a TypeError
+    * __deleting names__ will throw a SyntaxError
+    * __duplicated__ function __parameters__ throw a SyntaxError
+    * __octal__ literals(ES6) and escape sequences throw a SyntaxError
+    * using `eval` and `arguments` as an identifier throws a SyntaxError
+    * using a functions `arguments` object and its properties throws a TypeError
+* Optimization
+    * enables better mapping of variables to their definitions in code
+* Security
+    * `this` is not autoboxed. If unspecified will default to `undefined`.
+    * disabling usage of `arguments` object disallows accessing private variables
+* Future-proof
+    * the following words throw a Syntax Error when used as identifiers:
+        * `implements`
+        * `interface`
+        * `let`
+        * `package`
+        * `private`
+        * `protected`
+        * `public`
+        * `static`
+        * `yield`
 
 
+``` javascript
+'use strict';
+x = 5;                                  // ReferenceError
+
+var obj = Object.create({}, {
+    cantWrite: {
+        value: 10,
+        writable: false
+    }
+});
+
+var obj2 = { a: 1, b: 2};
+Object.freeze(obj2);
+
+undefined = 10;                         // TypeError
+obj.cantWrite = 20;                     // TypeError
+obj2.c = 'nope';                        // TypeError
+
+delete obj.cantWrite;                   // TypeError
+delete Object.prototype;                // TypeError
+
+undefined.prop = 5;                     // TypeError
+Infinity.val = true;                    // TypeError
+
+delete Object                           // SyntaxError
+delete undefined                        // SyntaxError
+var name;
+delete name;                            // SyntaxError
+
+function dupl(x, x) {                   // Syntax Error
+    var whatever = 10;
+    return x * whatever;
+}
+
+0123                                    // Syntax Error - ES6
+'\0123'                                 // Syntax Error
+
+var eval;                               // Syntax Error
+var arguments;                          // Syntax Error
+
+(function(){
+    console.log(arguments.callee);      // TypeError
+})();
+
+(function(){
+    console.log(this);                  // undefined
+})();
+
+var implements;                         // SyntaxError
+var interface;                          // SyntaxError
+var let;                                // SyntaxError
+var package;                            // SyntaxError
+var private;                            // SyntaxError
+var protected;                          // SyntaxError
+var public;                             // SyntaxError
+var static;                             // SyntaxError
+var yield;                              // SyntaxError
+```

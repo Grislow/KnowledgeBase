@@ -5,6 +5,7 @@ Reference for Javascript as of the ECMAScript version 9 specification.
 * [Enhanced Asynchronicity](#enhanced-asynchronicity)
     * [Promise finally method](#promise-finally-method)
     * [for-await-of](#for-await-of)
+    * [Symbol.asyncIterator](#symbol.asyncIterator)
 * [Enhanced Regular Expressions](#enhanced-regular-expressions)
     * [Lookbehind](#lookbehind)
     * [Property escapes](#property-escapes)
@@ -14,25 +15,28 @@ Reference for Javascript as of the ECMAScript version 9 specification.
 * [Spread Properties](#spread-properties)
 
 &nbsp;
-## Enhanced Asynchronicity
+# Enhanced Asynchronicity
 
-### Promise finally method
-
-``` javascript
-
-```
-
-### for-await-of
+## Promise finally method
 
 ``` javascript
 
 ```
 
+## for-await-of
+
+``` javascript
+
+```
+
+## Symbol.asyncIterator
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/asyncIterator
 
 &nbsp;
-## Enhanced Regular Expressions
+# Enhanced Regular Expressions
 
-### Lookbehind
+## Lookbehind
 * `(?<=exp)el`- __positive lookbehind__ matches `el` if preceeded by a match to the specified subexpression.
 * `(?<!exp)el`- __negated lookbehind__ matches `el` if not preceeded by a match to specified subexpression.
 
@@ -40,7 +44,7 @@ Reference for Javascript as of the ECMAScript version 9 specification.
 
 ```
 
-### Property escapes
+## Property escapes
 * `\p{...}` - property escape
 * `\P{...}` - negated property escape
 
@@ -48,27 +52,27 @@ Reference for Javascript as of the ECMAScript version 9 specification.
 
 ```
 
-### Named capturing groups
+## Named capturing groups
 
 ``` javascript
 
 ```
 
-### The s flag
-
-``` javascript
-
-```
-
-&nbsp;
-## Rest Properties
+## The s flag
 
 ``` javascript
 
 ```
 
 &nbsp;
-## Spread Properties
+# Rest Properties
+
+``` javascript
+
+```
+
+&nbsp;
+# Spread Properties
 
 ``` javascript
 
