@@ -1,15 +1,43 @@
 Welcome to my Knowledge Base! This is and hopefully always will be work in progress.
 
-### Languages:
-* [Javascript](/javascript/md/toc.md)
-    * [es5](/javascript/md/es5.md)
-    * [es6](/javascript/md/es6.md)
-    * [es7](/javascript/md/es7.md)
-    * [es8](/javascript/md/es8.md)
-    * [es9](/javascript/md/es9.md)
+### Languages and Technologies
+* [AWS](/cloud/aws.md)
+* [CSS](/css/css.md)
+    * [Misc](/css/misc.md)
+* [Docker](/containers/docker.md)
+* [DBMS](/databases/toc.md)
+    * [Comparison](/databases/comparison.md)
+    * [General](/databases/general.md)
+    * [MongoDB](/databases/nosql/mongodb.md)
+    * [MySQL](/databases/sql/mysql.md)
+* [JavaScript](/javascript/md/toc.md)
+    * [ES5](/javascript/md/es5.md)
+    * [ES6](/javascript/md/es6.md)
+    * [ES7](/javascript/md/es7.md)
+    * [ES8](/javascript/md/es8.md)
+    * [ES9](/javascript/md/es9.md)
 	* [APIs](/javascript/md/apis.md)
+    * [Misc](/javascript/md/misc.md)
 * [Markdown](/markdown/reference.md)
+* [Node](/javascript/md/node.md)
+* [Protocols](/protocols/toc.md)
+    * [HTTP](/protocols/http.md)
+* [Python](/python/python3.md)
+* [Testing](/testing/toc.md)
+    * [Enzyme](/testing/enzyme.md)
+    * [Jest](/testing/jest.md)
+* [TypeScript](/typescript/typescript.md)
+* [Views](/views/toc.md)
+    * [React](/views/react/react.md)
+    * [Redux](/views/react/redux.md)
+* [Webpack](/tools/webpack.md)
 
-### General: 
+### KnowHow
+* [Software Architecture and Design](/architecture/architecture.md)
+* [Web Design](/webdesign/webdesign.md)
+
+### General
+* [Checklists](/checklists/checklists.md)
+* [Command Line Tools](/tools/cli.md)
 * [Glossary](/resources/glossary.md)
 * [Resources](/resources/resources.md)

@@ -13,20 +13,33 @@ ASI
     (http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
 TDZ
     https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
-
-
 http request
 route
 functional programming in js
     https://medium.com/javascript-scene/master-the-javascript-interview-what-is-functional-programming-7f218c68b3a0
-peer-to-peer architecture
-    https://www.techrepublic.com/article/understanding-the-differences-between-client-server-and-peer-to-peer-networks/
-software architecture
-    https://www.tutorialspoint.com/software_architecture_design/introduction.htm
+graph databases
+    -https://neo4j.com/developer/graph-db-vs-nosql/
+published interfaces, indirection, wrapping, security kernels
 
 
 &nbsp;
 # A
+
+## AB Tests
+Testing two version of the same website against how each version [converts](#conversion-rate).
+
+Source: [vwo](https://vwo.com/ab-testing/)
+
+How its done:
+1. __Perform research__ - find out what is effecting conversion by analyzing metrics from website analytics tools:
+    * Google Analytics
+    * heatmaps
+    * surveys
+    * user tests
+1. __Hypothesis formulation__ - based on researched metrics form a hypothesis aimed at increasing conversion.
+1. __Creating a variation__ - create a new version of the website and test it against the old version. Use a [Bayesian Calculator](https://vwo.com/ab-split-test-duration/) to determine how long the tests should run.
+1. __Testing__ - let the tests run, wait until you have enough data for a statistically significant result.
+1. __Conclusions__ - if the new version improved conversion - deploy it, if not - reiterate with what you've learned.
 
 ## Abstraction
 Hiding complexities of a system by only exposing what is needed to the users. 
@@ -60,6 +73,47 @@ See [Abstraction Layer](#Abstraction-Layer)
 ## Accessor
 Also called an _Accessor Method_ or _Getter_ are methods that allow accessing an objects state data without changing it.
 
+## ACID
+Stands for **A**tomicity, **C**onsistency, **I**solation, **D**urability is a set of properties a relational database should have to guarentee validity in event of sudden system failure(errors, power failures, etc.). A single operation that satisfies the ACID properties is called a __transaction__.
+
+<u>**A**tomicity</u>
+* each transaction is treated as a __single unit__
+* a single unit can either __succeed completely__ or __fail completely__
+* if any operation within a transactioin fail the whole transaction fails
+
+<u>**C**onsistency</u>
+* transaction can only change shift the DB from one __valid state__ to another valid state
+* transactions maintain the databases invariants
+* any data written to the DB is valid(constraints, cascades, triggers)
+* this does not mean all transactions are valid but all changes they could make must be valid
+
+<u>**I**solation</u>
+* transactions change the database sequentially, but can be executed concurrently
+
+<u>**D**urability</u>
+* if a transaction is complete it will remain complete upon system failure
+* completed transaction should be stored in non-volatile memory
+
+<br>
+
+__TECHNIQUES__:
+* __Write-ahead Logging(WAL)__ - Provides atomicity and durability. Any changes must be recorded in a log prior to being written to the database. [ARIES](https://en.wikipedia.org/wiki/Algorithms_for_Recovery_and_Isolation_Exploiting_Semantics) is a popular algorithm that facilitates WAL.
+* __Shadow Paging__ - Provides atomicity and durability. When data is to be modified a copy of the data(shadow page) is created in physical storage. Any changes are commited to that copy. Once changes are complete any references to that data in the database are replaced with the copy making it durable. 
+* __Locking__ - marking data that is being manipulated by a transaction and blocking any other transactions from making changes to that data
+* __Multiversion Concurrency Control(MVCC)__ - when a transaction requires data that is currently being processed by another transaction a copy of the data before modification is created. Each concurrent transaction works on a copy of the data after which the changes are consolidated(for example using snapshot isolation)
+* __Snapshot Isolation__ - all transactions see a consistant snapshot of the database(db state right before transaction execution). A transaction will only commit if that would cause no conflicts with operations that have been completed since the snapshot was taken.
+* __Two-Phase Commit Protocol__ - used in distributed databases. Commiting a transaction is a 2-stage process:
+    1. __Voting Phase__ - a coordinator node queries all nodes participating(participants) in a transaction if they have finished execution on behalf of that particular transaction.
+    1. __Commit Phase__ - only if all participants reply positively is the transaction commited
+
+Source: [wikipedia](https://en.wikipedia.org/wiki/ACID_(computer_science))
+
+## Acknowledgement(ACK)
+A signal passed between communicating processes that signifies receipt of a message.
+
+## AJAX
+**A**synchronous **J**avascript **A**nd **X**ML is a technique that makes use of various technologies such as HTML, CSS, JavaScript, DOM, XML, XSLT and XMLHttpRequest object to update a web application through XML or JSON documents without reloading the entire page.
+
 ## Argument
 Value that is passed to a function. 
 
@@ -79,11 +133,83 @@ Assigning a specific value to a variable.
 ## Asynchronous Programming
 Running a process seperate from the main thread, outside of the general flow of the application.
 
+## Authentication
+Comfirming a users identity. Can be thought of as a contract between the server and the user agent.
+
+<u>Concepts</u>:
+* __Multi-factor Authentication__ - using a combination of factors and/or methodologies to authenticate a user. For example through a login/password and a secret phrase or phone number.
+* __Single-Sign On(SSO)__ - authentication on one service instantly authenticates on other services connected to a common domain. 
+* __One Time Password(OTP)__ - a password that authenticates the user for only one session.
+* __Token__ - some data stored on the client side that can be directly or indirectly matched with some data stored on the server side.
+
+<u>Methodologies</u>:
+* <u>__Basic Authentication__</u> - or basic HTTP authentication is when a user name and password are included in the HTTP request header. Credentials are stored in base64 format seperated by a semicolon. Does not require cookies, session identifiers, login pages, handshakes
+    * `https://johndoe:pass123@www.example.com/index.html`
+* <u>__Cookie Authentication__</u> - server verifies credentials sent through an HTTP request. If verified a session id is created server side and sent back to client via cookie. When the user logs out session id is cleared from server and client cookies.
+* <u>__Token Authentication__</u> - upon verifying credentials received from the client the server generates a signed web token and sends it back to the client. The server does not store the token, only verifies it. The client stores the token in local storage, session storage or cookies. A popular implementation is the __JSON Web Token(JWT)__. The token usually consists of 3 parts which are Base65Url encoded and dot delimited:
+    * __Header__ - token type(ex. JWT), signing algorithm(ex. HMAC, SHA256, RSA)
+    * __Payload__ -  consists of _claims_ - user data. Payload is not encrypted so dont store sensitive data in it. Three types of claims:
+        * __Registered__ - set of predefined claims like __iss__(issuer), __exp__(expiration date), __sub__(subject) or __aud__(audience)
+        * __Public__ - custom public claims. Can cause namespace collision(unless defined appropriatly)
+        * __Private__ - custom private claims. Allow sharing information between parties that agree to use that type of claim
+    * __Signature__ - the result of signing encoded header, encoded payload and a secret using the tokens algorithm. This verifies the message wasnt changed along the way.
+* <u>__3rd Party Authentication__</u> -  authentication happens through a 3rd party called an __identity provider__. The identity provider generates a token based on passed credentials.
+    * __API Token__ - all authentication requests are sent through a gateway which returns an API Token for validated users.
+    * __OpenId__ - a HTTP based protocol that uses a 3rd party(like google, facebook, etc) to authenticate a user. The resulting token is in __JSON__ format. Usually works in conjunction with OAuth.
+    * __SAML__ - **S**ecurity **A**ssertion **M**arkup **L**anguage uses a 3rd party to authenticate a user. The resulting token is in __XML__ format.
+* <u>__Mobile Authentication__</u> - verify identity through a mobile device. User passes something that uniquely identifies the mobile device(like a phone number). The server sends some information to that mobile device that allows verification that the device belongs to the user. Successful verification generates a token for authorization.
+
+<u>Usage</u>:
+* __Single Sign On__ :
+    * __OpenId__ best choice for __consumer market__ since it has lots of common services under one domain(google, facebook, twitter etc)
+    * __SAML__ best choice for __enterprise solution__ since it can be easily customized and extended for business needs
+* __Web Apps__ - both cookie and token authentication
+* __Mobile Apps__ - cookie based api token  
+
+
+Source: 
+* [Vivek Madurai](https://medium.com/@vivekmadurai/different-ways-to-authenticate-a-web-application-e8f3875c254a)
+* [jwt.io](https://jwt.io/introduction/)
+* [RFC on JWT](https://tools.ietf.org/html/rfc7519#section-4.1)
+
+## Authorization
+Providing an authenticated user access to resources based on their permissions and rights.
+
+__OAuth__\
+An authorization protocol that relies on HTTPS for security and is implemented by Google, Facebook, Twitter and more giants of the IT world. 
+* after authentication an OAuth Token is generated for authorization purposes
+* The OAuth token is stored on the client side for a set amount of time(not indefinetly or until manual deletion)
+* OAuth in effect delegates authorization to a 3rd party(like Google)
+* OAuth is not an authentication method - it deals with permissions and rights of a verified user, not verification itself. 
+* OAuth 1.0 is not compatible with OAuth 2.0. Use 2.0 whenever possible - its easier to configure
+
 ## Autoboxing
 Automatic conversion between a primitive type and a wrapper type.
 
 &nbsp;
 # B
+
+## BASE
+A set of requirements for effectively storing data in a distributed database system. Formulated based on [CAP Theorum](#CAP-theorum)
+
+<u>**B**asically **A**vailable</u>
+* guarantees data availability as in there will be a response to every request
+* response can be a failure
+* data can be inconsistant
+
+<u>**S**oft state</u>
+* system state can change even when lack of input
+* this happens because of internal operations focused on providing eventual consistency
+
+<u>**E**ventual Consistency</u>
+* system state will eventually be consistant once it stop receiving input
+* consistancy of all transactions is not checked
+
+## Batch Processing
+Sequential execution of a collection of programs that require no human interaction.
+
+## Blue/green Deployment
+A type of AB testing where an application is run on two identical environments. One envrionment is __active__ and the other __idle__. The active environment serves the users while the idle environment runs a newer version of the application. Once the newer version is thoroughly tested the idle environment is activated and the former active environment becomes idle and awaits a new version of the application.
 
 ## Breakpoint
 A moment that pauses the execution of a progra for inspection by a debugger tool.
@@ -91,11 +217,58 @@ A moment that pauses the execution of a progra for inspection by a debugger tool
 &nbsp;
 # C
 
+## Caching
+Storing data in a cache so that it can be quickly accessed. Increases performance by reducing calls to on-disk data(database).
+
+Choosing a caching strategy depends on various factors:
+* read and write ratio
+* is the same data read many times
+* is data returned usually unique
+
+<u>Caching Strategies</u>
+* __Cache-Aside__ - application communicates directly with both the DB and cache. If data is missing in the cache it is retrieved from the DB and stored in the cache.
+    * good for read-heavy workloads
+    * loads data lazily
+    * failover to DB during cache failure
+    * data in cache can be structured differently than in DB
+* __Read-through Cache__ - all data read by the application goes through the cache. The application only communicates directly with the cache. 
+    * App <- Cache <- DB
+    * good for read-heavy workloads where same data is read many times
+    * loads data lazily
+    * data in cache needs to have the same structure as in DB
+* __Write-Through Cache__ - all data written to db goes through the cache. The application only communicates directly with the cache.
+    * App -> Cache -> DB
+    * consistency guarentee
+    * works well with read-through cache
+* __Write-Around__ - aplication writes data directly to the DB, only read data is stored in the cache
+    * good when data is written once and not read frequently
+* __Write-Back__ - apllication writes to cache. After a while the cache data is written to the DB.
+    * great for write-heavy workloads
+    * combined with read through good for mixed workloads
+    * resilient to db failures
+
+
+Source: [codeahoy.com](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/)
+
 ## Call Stack
 Also called and Execution Stack, Program Stack or Run-time Stack. It is a LIFO data structure containing all routines that are currently being executed or are awaiting execution. The position of subroutines on the stack determines their order of execution. 
 
 ## Callback Function
 A function passed as an argument.
+
+## Canary Deployment
+Pushing application changes to a few users who are unaware of it. This minimizes damage caused if the code is buggy since it doesn't affect the whole user base. 
+
+## CAP Theorum
+Source: [wikipedia](https://en.wikipedia.org/wiki/CAP_theorem)
+
+A theorum stating that a distributed data store can only provide at most two of three quarentess:
+* __Consistency__ - every read either receives the most recent write or an error
+* __Availability__ - every request receives a non-error response, but not neccessarily the latest data
+* __Partition Tolerance__ - system continues to operate even if nodes in it fail 
+
+## Cardinality
+The number of elements in a collection of elements as a property of that collection.
 
 ## Clause
 An incomplete fragment of a statement.
@@ -107,6 +280,14 @@ In [Client-Server Architecture](#client-server-architecture) it is the consumer 
 A [network architecture](#network-architecture) in which [clients](#client) communicate with a central [server](#server) in order to consume resources and make use of services. A client sends __requests__ to the server, the server performs tasks in order to meet these requests and finally sends back an appropriate __response__. 
 
 For example a browser could be a client. You type in a url and hit enter. This sends an http request to a web server. The web server then fetches the requested files and sends them back to the browser in an http response.
+
+## Client Side Storage
+Storing data on a users device. 
+
+This can be achieved through various means. Some of the most popular options are:
+* __Cookies__ - stores a small amount of data(up to 5KB) that is exchanged between client and server. An expiration duration can be set on a cookie. Cookies can be set(httpOnly flah) to only be accessible server-side.
+* __Local Storage__ - data is cached on client side and persists until it is manually (cache clear) or programatically(client-side scripting) removed. Maximum data size is greater than in session storage. Local storage can only be accessed client-side.
+* __Session Storage__ - data is cached on the client side only while a given context is active(browser tab is open). Maximum data size is greater than a cookie(over 5MB). Session storage can only be accessed client-side.
 
 ## Closure
 A function that has its own lexical environment.
@@ -131,6 +312,98 @@ A program in which you type commands for the operating system to execute.
 ## Concurrent Programming
 Pertaining to managing multiple threads of execution at the same time.
 
+## Confluence
+A wiki tool for collaboration and knowledge sharing in an IT project(but is not limited to).
+
+Source: [official website](https://www.atlassian.com/software/confluence)
+
+## Container
+A form of OS virtualization. A container consists of all necessary executables, binaries, libraries and configurations to run an application without including the operating system(as opposed to virtual machines).
+
+Containers offer a streamlined mechanism for building, testing and deploying applications on multiple environments.
+
+<u>Benefits</u>:
+* __less overhead__ - no OS
+* __increased portability__ - OS and hardware independent
+* __consistancy__ - runs the same on various platforms
+* __efficiency__ - ease of deployment, patching and scaling
+* __enhanced development__ - support accelerated development, testing and production cycles
+
+<u>Use Cases</u>:
+* make existing application compliant with a modern cloud architecture
+* refactor applications for containers to enable full benefits of containerization
+* provides better support for microservice architecture
+* easily integrated with CI/CD tools
+* simple deployment for repetitive jobs and tasks
+
+<u>Popular Tools</u>:
+* __Docker__ - runtime environment for software containerization and deploying containers.
+* __Kubernetes__ - container management tool used for operations on large amounts of containers. Good for automation and scaling of container based workloads.
+
+Source: [netapp](https://www.netapp.com/us/info/what-are-containers.aspx)
+
+## Continuous Deployment
+A development practice where every code commit that passes the automated testing phase is automatically deployed to production. This requires adhering to production-level development practices and real-time monitoring in production.
+
+__Practices__:
+* rollback capabilities
+* [canary deployment](#canary-deployment)
+* [sharding](#sharding)
+* [blue/green deployment](#blue/green-deployment)
+* [feature flags(toggles)](#feature-flags(toggles))
+
+__Tools__:
+* Configuration management: [Puppet](https://puppet.com/) or [Ansible](https://www.ansible.com/)
+* Acceptance Tests: [Cucumber](https://cucumber.io/) and [Calabash](https://calaba.sh/)
+* Monitoriing Tools: [Splunk](https://www.splunk.com/en_us), [AppDynamics](https://www.appdynamics.com/)
+
+## Continuous Integration
+A development practice that focuses on merging code into a shared repository several times a day. Each merge is verified by an automated build and automated testing. This allows quickly detecting and correction of integration errors.
+
+__Benefits__:
+* simplifies integration
+* increased visibility - improved communication
+* catch issues early
+* less debugging, more coding
+* builds a solid foundation
+
+__Practices__:
+* single source repository
+* automated build
+* hook automated testing to build
+* each commit builds on an integration machine
+* fast build
+* test in a clone of production env
+* easy access to latest executable version
+* transparent work flow
+* automated deployment
+
+__Process__:
+1. devs check out into their private workspace
+1. after completion they commit changes to the repository
+1. CI server monitors repository and checks any changes
+1. CI server builds system and runs unit/integration tests
+1. CI server releases deployable artefacts for testing
+1. CI server assigns a build label to the built code
+1. CI server notifies of success or failure
+1. If the build failed the team reacts immediatly
+1. Start over at 1
+
+__Responsibilities__:
+* check in frequently
+* dont check in broken code
+* dont check in untested code
+* dont check in when build is broker
+* dont go home after checking in until the system builds
+
+__Popular Tools__:
+* [Buddy](https://buddy.works/) - proprietary, easy to configure, integrates with other popular tools
+* [Jenkins](https://jenkins.io/) - open-source, popular, easy installation
+* [Travis CI](https://travis-ci.com/) - open-source, notifications, easy setup, good for small projects
+
+Source: [thoughtworks.com](https://www.thoughtworks.com/continuous-integration)
+
+
 ## Control character
 A character that is used to perform an action and has no literal meaning. Some popular examples are:
 * `^@` - __Null__ is used as a string terminator in the C programming language
@@ -138,6 +411,15 @@ A character that is used to perform an action and has no literal meaning. Some p
 * `^D` - __End of Transmission__ is used in Unix based command line interfaces to indicate the end-of-file 
 
 For a full list vist [wikipedia](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C0_controls)
+
+## Conversion Rate
+Ratio of visitors of a website that complete a desired goal.
+
+## Conway's Law
+M. Conway:
+> organizations which design systems ... are constrained to produce designs which are copies of the communication structures of these organizations.
+
+Social boundaries reflect how well a system or component is designed. Authors must communicate with eachother frequently to achieve a high level of quality. 
 
 ## Currying
 Seperating a function that takes multiple arguments into several functions that take a part of those arguments.
@@ -155,6 +437,9 @@ __One Way Data Flow__
 When data is only changed by an internal mechanism. User input is sent through to the model of the application which in turn updates a components state.
 
 An example is a UI Form that is controlled by state.
+
+## Data Buffer
+A region of physical memory that temporarily stores data that is being moved from one place to another.
 
 ## Data Structures
 Data structures are ways of grouping data which define how this data is related and how you you can work with it.
@@ -220,6 +505,9 @@ Checking if an object is of a certain type by checking its properties.
 
 > If it looks like a duck, swims like a duck, and quacks like a duck, then it probably is a duck.
 
+## Dynamic Reconfiguration
+Assigning new resources to a process while its being executed.
+
 ## Dynamic typing
 Variables type is determined during runtime. This means any variable can be assigned and re-assigned values of any type.
 
@@ -255,6 +543,9 @@ A unit of code that produces a single value.
 
 &nbsp;
 # F
+
+## Feature Flags(Toggles)
+A technique that allows testing and developing features without maintaining multiple source-code branches. Each feature has a flag associated with it which a developer can use to toggle if the feature is available in production, only for testing or completely disabled.
 
 ## First Class Citizen
 An entity that supports basic operations such as being: 
@@ -361,6 +652,44 @@ Think of telling someone step-by-step how to do something. The 'someone' is a co
 
 [Procedural Programming](#procedural-programming) or [Object-Oriented Programming](#object-oriented-programming) follow the Imperative Programming Paradigm.
 
+## In-memory Database(IMDB)
+A database which stores data in the systems main memory(RAM) in a compressed, non-relational format. This enables higher and more predictable performance during data retrieval at the price of volatility. 
+
+IMDB's as a concept dont support "durability" of the [ACID](#acid) properties.
+
+<u>Durability Techniques</u>
+* __Snapshot__ - periodically save images of in-memory data on non-volatile memory. Supports only partial durability(data after snapshot can be lost)
+* __Transaction Logging__ - records changes to DB or changing commands in a journal. This usually works in an append-only manner(append operations are fast even on HDD)
+* __NVRAM(Non Volatile RAM)__ - NVRAM do not lose data after reboot
+* __High availability__ - database replication with automated failover implemented
+* __Hybrids__ - storing the most frequently accessed data on disk as a backup
+
+Popular implementations are [Redis](https://redis.io/) and [Memchached](https://memcached.org/). 
+
+<u>Comparison</u>
+* Data Structures
+    * __Redis__ better with complicated operations and data structures(String, Hash, List, Set, Sorted Set)
+* Memory Efficiency
+    * __Memcached__ uses memory more efficiently
+* Data Volume
+    * __Redis__ is better for small data sets(utilizies one core)
+    * __Memcached__ is better for large data sets(utilizies multiple cores)
+* Memory Management
+    * __Redis__ when size exceeds RAM, data that is accessed infrequently is moved to the disk
+    * __Memcached__ uses _slab allocation_ which is grouping data of a similiar size in bytes and storing it together
+* Data Persistency
+    * __Redis__ - supports snapshots(can lose data) and transaction logging(safer but less optimal)
+    * __Memcached__ - does not support data persistency
+* Cluster Managements
+    * __Redis__ - distribute storage on server side. Master-slave pattern possible, when master fails cluster will automatically redirect data flow to child.
+    * __Memcached__ - distributed storage only configurable on client side
+
+Source:
+* [wikipedia](https://en.wikipedia.org/wiki/In-memory_database)
+* [comparison](https://medium.com/@Alibaba_Cloud/redis-vs-memcached-in-memory-data-storage-systems-3395279b0941)
+
+
+
 ## Inheritance
 Passing down properties and methods between objects or classes.
 
@@ -372,6 +701,11 @@ A program that directly executes instructions written in a programming language 
 
 &nbsp;
 # J
+
+## JIRA
+A tool used mostly for tracking issues and bugs related to your software. Useful for managing a project.
+
+Source: [official website](https://www.atlassian.com/software/jira)
 
 ## JSON
 JavaScript Object Notation is a language independent data-interchange format based on object syntax in JavaScript.
@@ -460,6 +794,9 @@ An algorithm that checks the validity of various identification numbers like a c
 ## Machine Code
 A programming language that can be directly translated to processor instructions. All applications are finally compiled to some form of machine code.
 
+## Marshalling
+Transforming data into a standard format that can be transmitted over a network and decoded by other applications. 
+
 ## Memoization
 Storing the result of a function call. When the function is called again with the same input the cached result is returned instead of calling the function again.
 
@@ -475,6 +812,13 @@ Memory usage across almost all [runtime environments](#runtime-environment) goes
 1. Releasing memory when its not needed
 
 Environments with [garbage collection](#garbage-collection) usually handle the first and last step implicitly.
+
+## Message Broker
+A middleware that intercepts published messages, translates them and sends them to the appropriate receiver. This creates a central point for connecting various components and systems that would otherwise be hard to connect.
+
+Popular message broker software:
+* [RabbitMQ](https://www.rabbitmq.com/)
+* [Apache Kafka](https://kafka.apache.org/)
 
 ## Metaprogramming
 Writing programs that can analyse, generate and transform source code.
@@ -525,6 +869,9 @@ __Cons__
 
 Also check-out [Microservice Architecture](#microservice-architecture).
 
+## Multiplexing
+A mechanism that combines multiple signals into one over a shared medium.
+
 ## Mutable
 Meaning its state can be changed. Immutable variable types are usually assigned values which represent a reference to a space in memory. This means that any changes made to what the reference points at effects all other variables that share the same reference.
 
@@ -554,6 +901,15 @@ This includes:
 * physical layout of the network
 * protocols
 * various hardware devices
+
+## Network Protocols
+Sets of rules for communication between network-enabled devices like server, computers or routers.
+
+These protocols can be grouped by the network layer in which they operator:
+* __Communication protocols__ - basic data interchange -> TCP/IP, HTTP
+* __Security protocols__ - secure network communication -> HTTPS, SSL, SFTP
+* __Management protocols__ - network governance and maintenance -> SNMP, ICMP
+
 
 &nbsp;
 # O
@@ -616,6 +972,44 @@ The object of an operation.
 ## Operator
 Symbols that represent mathematical and logical operations.
 
+## OSI Model
+The *O**pen **S**ystems **I**nterconnection model is a layered representation of how a telecommunication or computer network operates. Consists of 7 layers which create a hirarchical structure with the top layer being closest to the end user.
+
+An alternative is the [TCP/IP model](#tcp/ip-model). It groups the application, presentation and session layers into one.
+
+1. <u>__Application Layer__</u>
+    * functionalities the end user interacts with directly
+    * __examples__: Chrome, Skype, FileZilla
+    * __protocols__: HTTP, POP3, SMTP, FTP, SOAP, IRC
+1. <u>__Presentation Layer__</u>
+    * facilitates communication between different elements in the application layer - creates a common context for them
+    * __examples__: encryption, decryption
+    * __protocols__: TLS, SSL
+1. <u>__Session Layer__</u>
+    * facilitates setup, coordination , termination of sessions between two devices or servers
+    * __examples__: connecting to a remote VM
+    * __protocols__: [RPC](#remote-procedure-call(rpc)), NetBIOS, PAP, PPTP
+1. <u>__Transport Layer__</u>
+    * coordinates data transfer(size of data, rate of transfer, destination) between edge devices like systems and hosts.
+    * __examples__: transfering data over an established websocket between two servers
+    * __protocols__: TCP, UDP, SCTP
+1. <u>__Network Layer__</u>
+    * facilitates communication between nodes in different networks
+    * __examples__: a router in London sending packets to a router in Boston
+    * __protocols__: IP, ICMP, NAT
+1. <u>__Data Link Layer__</u>
+    * controls the physical connection between two devices. The conditions for connection establishment, termination, error handling, flow control.
+    * __examples__: when your phone connects to your wifi and you have to type in a password
+    * __protocols__: Ethernet, WiFi(IEEE 802.11), ARP, VLAN, PPP, MAC, LLC
+1. <u>__Physical Layer__</u>
+    * facilities transmission of raw data through physcial medium
+    * __examples__: transfering digital bits through a USB Bus from your thumb drive you your hard drive.
+    * __protocols__: USB, DSL, ISDN, Infrared
+
+Source:
+* [wikipedia on protocols](https://en.wikipedia.org/wiki/List_of_network_protocols_(OSI_model)#Layer_7_(Application_Layer))
+* [wikipedia on OSI](https://en.wikipedia.org/wiki/OSI_model#Layer_5:_Session_Layer)
+
 ## Overhead
 Excess resources needed to perform a task.
 
@@ -657,6 +1051,16 @@ A programming paradigm focused on performing a task through subroutines that are
 Procedural Programming focuses on algorithms over data.
 
 __Examples__: PASCAL, C
+
+## Profiling
+Program analysis that measures various parameters of a programs performance:
+* space complexity
+* time complexity
+* usage
+* frequency of function calls
+* real-time state
+
+Usually done through a tool called a __profiler__. Aids in software optimization.
 
 ## Progressive Enhancement(PE)
 A methodology for building web applications that focus on providing basic content and functionality. Advanced features are built on top of that core and used only by user agents that support them.
@@ -713,7 +1117,12 @@ When two or more threads share data and try to modify it at the same time. The r
 Changing existing code so that it works better without changing how its used.
 
 ## Reflection
-Examining and modifying a program at runtime. 
+Examining and modifying a program at runtime.
+
+__Reflection Types__:
+* __Reflection within implementation__ - implementing features that change the codes behaviour
+* __Reflection through introspection__ - examining low level information about the code
+* __Reflection through intercession__ - wrapping objects and examing/modifying their behaviour through intercepting/changing input and output.
 
 __Example__: Changing a function definition during execution.
 
@@ -744,8 +1153,57 @@ A __Read-eval-print-loop__ is a simple programming environment where you can eas
 ## Responsive Design
 A design practice when creating websites. A responsive website appropriately resizes, repositions, shows or hides elements to provide a great user experience on any device.
 
+## REST
+**Re**presentation **S**tate **T**ransfer is a method of data interchange over HTTP that focuses on loose-coupling between communicating entities and fast data transfer. The format of data is usually JSON or XML and the communnicating entities are usually a client and server. Request are made through specialized URL's.
+
+<u>RESTful APIs Characteristics</u>:
+* __seperation of concerns__ - the internal working of the client and server are isolated. 
+    * reusable
+    * flexible
+    * scalable
+* __stateless__ - servers and clients do not need to store information regarding eachothers state. They do not rely on interfaces, but on standard http message types(get, set, put etc.)
+    * reliable
+    * performant
+
+<u>Client Request Content</u>
+Client requests in a RESTful API usually consist of:
+* __HTTP Verb__ - the type of operation being performed(get, set, etc.)
+* __Header__  - the type of content being sent(mime type), the `accept` field in an HTTP request
+* __Path__ - path to the resource the operation performs operations on. A path should be human readable and easy to understand
+* __Body__ - additional data regarding the item. For example data with which to update a resource
+
+<u>Server Response Content</u>
+* __Status Code__ - HTTP status code regarding the operation
+* __Content Type__ - the mime type of the data that is being sent back
+
+<u>Used HTTP Verbs</u>:
+|url example|verb|operation|success status code|
+|-----------|----|---------|-------------------|
+|/\<name>		|__POST__  |create new item| 200 |
+|/\<name>		|__GET__   |fetch all items| 200 |
+|/\<name>/:id	|__GET__   |fetch specific item| 200 |
+|/\<name>/:id	|__PUT__   |update specific item| 201 |
+|/\<name>/:id	|__DELETE__|delete specific item| 204 |
+
+<u>Common Response Codes</u>
+|Status code|Name|Description|
+|:-----------:|----|-----------|
+|200|OK|Successful request|
+|201|CREATED|Item sucessfully created|
+|204|NO CONTENT|Succesful request with empty response body|
+|400|BAD REQUEST|General client error response|
+|403|FORBIDDEN|No permission to access this resource|
+|404|NOT FOUND|The resource could not be located|
+|500|INTERNAL SERVER ERROR|General server error response|
+
+## Retransmission
+Mechanism that resends data that has been corrupted or lost during transmission from one entity to another.
+
 ## RFC
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
+
+## Remote Procedure Call(RPC)
+A [Session Layer](#osi-model) protocol that uses the [client-server model](#client-server-architecture). RPC allows a computer to a request a service from a remote entity without having to understand the networks details. 
 
 ## Runtime
 See [Execution Phase](#execution-phase).
@@ -756,25 +1214,30 @@ An environment in which a program is executed. Think of it as a layer between wr
 &nbsp;
 # S
 
+## Search Engine
+A program that searches for items in a database based on querries submitted by users.
+
+Popular _web search engines_ are made available by __Google__, __Yahoo__ or __Baidu__.
+
+When creating an application that deals with a large amounts of variable search queries you can implement a search engine of you own. Popular solutions are:
+* [ElasticSearch](https://www.elastic.co/)
+* [Apache Solr](http://lucene.apache.org/solr/)
+
 ## Secure Shell(SSH)
-A network protocol for connecting network services in a secure way over an unsecure network. Most often this network service is providing access to a remote machines command line. A very popular tool for SSH is OpenSSH(preinstalled on macOS).
+A network protocol for connecting network services in a secure way over an unsecure network. Most often this network service is providing access to a remote machines command line. 
 
-__Tools__:
-* __openssh__ - tool for connecting over ssh
-* __nmap__ - network discovery tool
-
-
-__Commands__:
-* `which ssh` - command for checking whether you have openSSH installed
-
-
-
+A very popular tool for SSH is OpenSSH(preinstalled on macOS).
 
 ## Semantic Versioning
 Versioning software in a way where different components of the version number have a standardized meaning.
 
 ## SEO
-Search engine optimization
+Search engine optimization.
+
+<u>Best SEO Practices</u>:
+* aasdasdas
+
+Source: [it-consultis](https://it-consultis.com/blog/best-seo-practices-for-react-websites)
 
 ## Separator
 Symbols that structure a program. 
@@ -782,7 +1245,18 @@ Symbols that structure a program.
 Like a semicolon `;` to mark the end of a statement or braces {} that mark the beginning and end of a function body.
 
 ## Server
-A program or device that manages network resources and performs services.
+A program(logical) or device(physical) that manages network resources and performs services.
+
+There are various server types:
+* <u>Web Server</u> - focuses on handling http requests
+    * __Apache HTTP Server__ - free and open-source web server used by almost all hosting providers
+    * __Nginx__ - an event-driven asynchronous web server good for handling high loads
+    * __MS IIS__ - microsoft web server popular for connecting windows machines
+* <u>Application Server</u> - focuses on handling business logic. Not limited to any particular protocol
+    * __Apache Tomcat__ - an application server for working with java files
+    * __Oracle WebLogic__ - durable and easy to use application server released by Oracle
+* <u>Database Server</u> - focuses on data persistance
+
 
 ## Service Worker
 A script that is run by the browser outside of a web page.
@@ -792,6 +1266,9 @@ Most common use cases are:
 * enabling offline support
 * background sync
 * client-side [load balancing](#load-balancing)
+
+## Sharding
+Database partitioning strategy that seperates large databases into many smaller parts called data shards.
 
 ## Shim
 Code that intercepts an API Call, makes changes to it and forwards it. This allows introducing features in systems that don't normally support them.
@@ -808,6 +1285,61 @@ __Example__: In `www.example.com/home.html?search=shoes` you could make it more 
 
 ## Software Architecture
 Defining software components and how they interact in order to meet specific business needs. It can be seen as a __blueprint__ for a system.
+
+## Software Development Methodologies
+How an IT project is strucutered, planned and controlled during its lifecycle.
+
+Main categories are:
+* __<u>Agile</u>__ - iterative development over short timeframes. Each iteration is like a mini-project of its own focusing on planning, requirement analysis, design, coding, testing and documentation. Priorities are re-evaluated at the end of each iteration.
+    * flexible
+    * realtime communication
+    * working software as primary measure of progress
+* __<u>Waterfall</u>__ - a rigid and linear methodology. Focuses on phases and each phase needs to be completed the next phase is started.
+    * greater control
+    * rigid
+* __<u>Spiral</u>__ - extension of the waterfall method. Focuses on determining different risk factors and working on reducing them in iterations. If the team only starts work on the next iteration if risks at that stage are considered manageable.
+    * focused on risk reduction
+    * can be aborted at any iteration
+    * focuses on prototyping
+
+<u>Agile Methods</u>
+* __DSDM__ - **D**ynamic **S**ystem **D**evelopment **M**odel treats software development like an exploratory endeavor. Nine principles:
+    * active user involvement
+    * teams have the authority to make decisions
+    * frequent delivery of products
+    * main criteria for deliverables is how well they fit business requirements
+    * iterative and incremental development
+    * reversible changes in development
+    * high-level baselined requirements
+    * constant integrated testing
+    * collaboratioini among all stakeholders
+* __XP__ - E**x**treme **P**rogramming is a very flexible, test-driven methodology that focuses on lowering the cost of implementing changes. Core practices based on taking good practices to the extreme:
+    * team has customer on site for fast feedback
+    * test early, test often
+    * simple is better, on meet essential requirements, reduce code complexity
+    * pair programming to review code as it is written
+    * tests are written before the code is written
+* __LD__ - **L**ean **D**evelopment focuses on creating change-tolerant software. Core principles are:
+    * customer satisfaction is of highest priority
+    * provide best value for the budget
+    * active customer participation
+    * focused on team effort
+    * everything is changeable
+    * domain, no point solutions
+    * complete, don't construct
+    * an 80% today over 100% solution tomorrow
+    * minimalism is essential
+    * needs determine technology
+    * product growth is feature growth, not size growth
+    * dont push beyond limits
+* __Scrum__ - focuses on team productivity. Features include:
+    * backlog of prioritized work
+    * completing a predetermined set of backlog items in a series of sprints
+    * daily brief - progress, upcoming work, risk assessment
+    * planning session for backlog description
+    * heartbeat retrospective on lessons learned from previous sprints
+
+Source: [itinfo](http://www.itinfo.am/eng/software-development-methodologies/)
 
 ## SOLID
 5 coding principles relating to [Object Oriented Programming](#object-oriented-programming), but is not only limited to OOP languages(consider JavaScript which is a multiparadigm language).
@@ -853,6 +1385,11 @@ An action to be executed.
 
 __JavaScript__: A statement cannot be used where a value is expected(even though in JavaScript statements produce a value).
 
+## Static Analysis
+Inspecting and debugging code without running it. Checking the source code itself, not how it executes. 
+
+Lots of code editors have static analysis built-in which allows catching syntax error and poor practices early on.
+
 ## String Interpolation
 Replacing placeholders in a string literal with their corresponding values.
 
@@ -865,10 +1402,18 @@ Sometimes you need to test a component that relies on another component that has
 Subdomains allow creating seperate versions of a website under one domain. 
 
 Often used for:
-* __multilingual website__ - seperate a site depending on the users chosen language `en.somesite.com`, `cn.somesite.com`, `de.somesite.com`
+* __multilingual website__ - seperate a site depending on the users chosen language 
+    * `en.somesite.com`
+    * `cn.somesite.com`
+    * `de.somesite.com`
 * __mobile version__ - a seperate mobile version of a website `mobile.somesite.com`
-* __complex websites__ - seperate subdomain for different features `shop.somesite.com` `vendor.somesite.com` `dashboard.somesite.com`
+* __complex websites__ - seperate subdomain for different features 
+    * `shop.somesite.com` 
+    * `vendor.somesite.com` 
+    * `dashboard.somesite.com`
 * __distributed server architecture__ - seperate subdomain for content served from different servers.
+    * `admin.somesite.com`
+    * `app.somesite.com`
 
 Advantages:
 * adds a keyword to the domain name for SEO or branding.
@@ -885,6 +1430,39 @@ A surrogate pair is comprised of a:
 
 &nbsp;
 # T
+
+## Task Runner
+Allow automating various tasks required during software development. Anything that can be executed from the command line can be bundled into a script. Task runners control how and when these scripts are executed.
+
+Popular task runners include:
+* [npm scripts](https://docs.npmjs.com/misc/scripts)
+* [grunt](https://gruntjs.com/)
+* [gulp](https://gulpjs.com/)
+
+Comparison:
+* [gulp vs npm-scripts](https://gist.github.com/elijahmanor/179e47828bf760c218bb3820d929836d)
+
+## TCP/IP Model
+Also called the __Internet Protocol Suite__ or __Department of Defense model__ is a layered representation of how a computer network operates. Consists of 4 layers which create a hirarchical structure with the top layer being closest to the end user.
+
+An alternative is the [OSI model](#osi-model) which seperates the Application Layer into 3 seperate layers.
+
+1. <u>__Application Layer__</u>
+    * applications which allow interaction with the end user and communication between those applications on the same host
+    * __examples__: Chrome, Skype, FileZilla
+    * __protocols__: HTTP, SMTP, FTP, SSH, DHCP
+1. <u>__Transport Layer__</u>
+    * facilitates host to host connectivity. May provide error control, flow control, congestion control, segmentation and application addressing(port numbers)
+    * __examples__: transfering data over an established websocket between two servers
+    * __protocols__: TCP, UDP
+1. <u>__Internet Layer__</u>
+    * facilitates communication between nodes in different networks
+    * __examples__: a router in London sending packets to a router in Boston
+    * __protocols__: IP, ICMP, NAT
+1. <u>__Link Layer__</u>
+    * controls the physical connection between two devices and the transmission of raw data through physcial medium
+    * __examples__: connecting a thumb drive to a computer and transfering its data to your hard drive.
+    * __protocols__: MAC, USB
 
 ## Token
 Atomic element of a program. This could be an [identifier](#identifier), [keyword](#keyword), [literal](#literal), [operator](#operator) or [seperator](#separator).
@@ -948,10 +1526,18 @@ Software used by a user. For example:
 # V
 
 ## Vertical Scaling
-Adding more power to a resource available to a system.
+Adding more power to an existing resource.
 
 &nbsp;
 # W
+
+## Web Services
+A service that facilitates transfering data(XML, JSON) between machines using a networking protocol like HTTP.
+
+Examples: [AJAX](#ajax), [REST](#rest).
+
+## Web Sockets
+A communication protocol that allows two-way data exchange between client and server over a single TCP connection. Web Socket connections are persistant. If one side disconnects unexpectedly both sides will attempt to reestablish the connection.
 
 ## Wrapper Type
 Or wrapper object / wrapper class is a data type that encapsulates(or "wraps") another data type extending or simplifying its usage.

@@ -2,6 +2,9 @@ Node is a Javascript runtime written in C++ used to execute code outside of the 
 
 In a client-server architecture an HTTP server is run using node. Node listens for HTTP requests on specified ports. Node can handle the requests on it's own but usually makes use of a library(like Express) that simplifies this process.
 
+__TODO__:
+* [web scraping](https://blog.bitsrc.io/https-blog-bitsrc-io-how-to-perform-web-scraping-using-node-js-5a96203cb7cb)
+
 #### Table of contents
 
 * [Conceptual](#conceptual)
@@ -12,6 +15,7 @@ In a client-server architecture an HTTP server is run using node. Node listens f
     * [CommonJS](#CommonJS)
 * [Events](#Events)
 * [Native Modules](#native-modules)
+* [Misc](#misc)
 
 &nbsp;
 # Conceptual
@@ -145,4 +149,14 @@ module.exports = emitterFactory;
 Node.js comes with a lot of useful native utility modules. The full list can be found [here](https://nodejs.org/api/).
 
 
+&nbsp;
+# Misc
 
+## Watch files with node
+Source: [thisdavej](https://thisdavej.com/how-to-watch-for-files-changes-in-node-js/)
+
+## Local Test Server
+Sources:
+* [hackernoon](https://hackernoon.com/build-your-first-local-server-and-web-app-with-node-js-5a5d9e00aff0)
+* [websiteforstudents](https://websiteforstudents.com/install-the-latest-node-js-and-nmp-packages-on-ubuntu-16-04-18-04-lts/)
+* [itsfoss](https://itsfoss.com/install-linux-in-virtualbox/)

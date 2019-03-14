@@ -1,4 +1,7 @@
-Python 2 reference.
+Python 3 reference.
+
+Source:
+* [quora](https://www.quora.com/What-are-some-best-Python-references)
 
 #### Table of contents
 

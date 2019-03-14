@@ -7,8 +7,12 @@ Interesting and useful resources regarding mostly software development and desig
 * [Web Development](#web-development)
 
 # General
+* Gifs
+    * [crop and speeden up](https://ezgif.com)
+    * [format convertor](https://convertio.co/pl/mov-gif/)
 * [Google on PWA's](https://developers.google.com/web/progressive-web-apps/)
 * [JSON Guide](https://json.org/)
+* [OpenSSH Manual Pages](http://www.openssh.com/manual.html)
 * [Reference to Software Licenses](https://tldrlegal.com/)
 * Terminology
     * [CS and Programming terms](http://www.labautopedia.org/mw/List_of_programming_and_computer_science_terms)

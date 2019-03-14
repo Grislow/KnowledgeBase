@@ -1,7 +1,9 @@
-https://stackoverflow.com/questions/580233/what-are-the-most-important-considerations-when-designing-a-database
+Guides to chosen database implementations and their comparison.
 
 #### Table of contents
+* [Comparison](/databases/comparison.md)
+* [General](/databases/general.md)
 * [SQL](/..)
-	* [Conceptual](/..)
+	* [MySQL](/databases/sql/mysql.md)
 * NoSQL
     * [MongoDB](/databases/nosql/mongodb.md)

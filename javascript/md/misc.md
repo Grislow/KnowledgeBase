@@ -1,5 +1,10 @@
 Various Javascript-related things I think are worth knowing or having available for quick reference when needed.
 
+__TODO__:
+* https://medium.freecodecamp.org/make-your-code-easier-to-read-with-functional-programming-94fb8cc69f9d
+* https://medium.com/@cristisalcescu/learn-immutability-with-javascript-6a67e4a48d7f
+* https://medium.com/@trungluongquang/10-simple-effective-tips-to-master-javascript-c365aa176852
+
 #### Table of contents
 * [Algorithms](#algorithms)
 * [Data Structures](#data-structures)
@@ -8,6 +13,7 @@ Various Javascript-related things I think are worth knowing or having available 
 * [Functional Composition](#functional-composition)
 * [Good Programming Practices](#good-programming-practices)
 * [JSDocs](#JSDocs)
+* [Mobile Devices](#mobile-devices)
 * [Node Package Manager(npm)](#node-package-manager(npm))
 * [Performance](#performance)
 * [Regular Expressions](#regular-expressions)
@@ -235,6 +241,39 @@ Following this principle keep the following in mind:
 JSDocs is a documentation generator. It uses tags to describe characteristics of functions, modules and classes.
 
 You can find its full documentation [here](http://usejsdoc.org/).
+
+&nbsp;
+# Mobile Devices
+Detecting various mobile devices.
+
+Source: [Cory Laviska](https://www.abeautifulsite.net/detecting-mobile-devices-with-javascript)
+
+``` javascript
+var isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
+
+if( isMobile.any() ) alert('Mobile');
+
+if( isMobile.iOS() ) alert('iOS');
+```
 
 &nbsp;
 # Node Package Manager(npm)

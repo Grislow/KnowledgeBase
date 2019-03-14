@@ -1,5 +1,9 @@
 Reference for Javascript as of the ECMAScript version 8 specification.
 
+Source:
+* [MDN](https://developer.mozilla.org/en-US/)
+* [flaviocopes](https://flaviocopes.com/es2017/)
+
 #### Table of contents
 
 * [Async-Await](#async-await)
@@ -13,7 +17,7 @@ Reference for Javascript as of the ECMAScript version 8 specification.
 
 &nbsp;
 ## Async-Await
-
+Handling promises using generators.
 
 &nbsp;
 ## Enhanced Concurrency

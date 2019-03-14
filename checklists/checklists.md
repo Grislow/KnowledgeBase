@@ -2,26 +2,93 @@ Various handy checklists and best practices for developers or project managers.
 
 #### Table of contents
 
+* [Containerization](#containerization)
+    * [Can App Be Containerized](#can-app-be-containerized)
+* [Databases](#databases)
+    * [Database Design Checklist](#database-design-checklist)
+    * [MongoDB Checklist](#mongoDB-checklist)
 * [Backend Development Checklist](#backend-development-best-practices)
-* [MongoDB Checklist](#mongoDB-checklist)
 * [NodeJS Best Practices](#nodejs-best-practices)
 * [OWASP Security Guidelines](#owasp-security-guidelines)
 * [RODO](#rodo)
+* [Tech Lead Checklist](#tech-lead-checklist)
 * [Web Application Checklist](#web-application-checklist)
 
 &nbsp;
-# MongoDB Checklist
+# Containerization
 
-## Development Checklist
+## Can App Be Containerized
+Source: [mesosphere.com](https://mesosphere.com/blog/five-steps-you-can-use-to-determine-if-an-existing-app-can-be-containerized/)
+
+1. Is App a single binary? 
+    * single binaries or JARs are easy to containerize
+1. Is the build platform containerized?
+    * many popular platforms like Node.js, Drupla, Joomla are available as docker containers.
+1. If its a 3rd party App check with vendor
+    * Lots of vendors offer containerized versions of their software
+1. Is the App stateless?
+    * apps that do not hold persistent data locally are easier to containerize
+1. Is your application already a part of CI/CD pipeline?
+    * if an apps integration and development is streamlined its not only easier but beneficial to containerize it
+
+&nbsp;
+# Databases
+
+## Database Design Checklist
+Source: [stackoverflow](https://stackoverflow.com/questions/580233/what-are-the-most-important-considerations-when-designing-a-database)
+
+* <u>Transaction rate</u>
+    - [ ] __Hi__    -> web portal
+    - [ ] __Low__   -> hr system
+* <u>Security</u>
+    - [ ] __Important__ -> personal, financial data
+    - [ ] __Trivial__   -> product catalog
+* <u>Transaction type</u>
+    - [ ] __Write__ -> lots of insterts/updates
+    - [ ] __Read__  -> only reading data
+* <u>Users and Usage patterns</u>
+    - [ ] __Peak Load__             -> is there a peak usage
+    - [ ] __Evenly Distributed__    -> is usage evenly dist
+* <u>Uptime</u>
+    - [ ] __24x7__  -> is it essential that its always up
+    - [ ] __16x5__  -> can be up only during business hours
+* <u>Target Size</u>
+    - [ ] __Big__   -> __partition__
+    - [ ] __Small__
+* <u>Hosting type</u>
+    - [ ] __Enterprise cluster__ -> __hot failover__
+    - [ ] __Normal Hosting__
+* <u>Administration Type</u>
+    - [ ] __assigned__ -> backups, integration with systems, data loading
+    - [ ] __reactive__
+* <u>__Data Loading__</u>
+* <u>__Data Integrity__</u>
+    - [ ] __Modeling the UoD__
+
+## MongoDB Checklist
+
+### Development Checklist
 Source: [MongoDB Development Checklist](https://docs.mongodb.com/manual/administration/production-checklist-development/)
 
 
-## Security Checklist
+### Security Checklist
 Source: [MongoDB Security Checklist](https://docs.mongodb.com/manual/administration/security-checklist/)
 
 
-## Operations Checklist
+### Operations Checklist
 Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administration/production-checklist-operations/)
+
+
+&nbsp;
+# Backend Development Best Practices
+Source: [futurice](https://github.com/futurice/backend-best-practices#bill-of-materials)
+
+## Development Environment
+- [ ] 
+- [ ] 
+
+## Data
+
 
 &nbsp;
 # NodeJS Best Practices
@@ -42,6 +109,87 @@ Source:
 Source: https://mamstartup.pl/prawo/12190/wplyw-rodo-na-aplikacje-e-sklepy-i-serwisy-internetowe-praktyczny-przewodnik
 
 
+&nbsp;
+# Tech Lead Checklist
+Source: [dev.to](https://dev.to/backendandbbq/what-does-a-tech-lead-do-1cpj)
+
+<u>Software Development Methodology</u>
+- [ ] Number of days in iteration
+- [ ] Which tasks should be estimated
+- [ ] How to estimate tasks
+- [ ] Should changes in requirements between iterations be acceptable
+- [ ] Rules on task types and priorities
+
+<u>Technical Stack</u>
+- [ ] __Client__ (React / Angular / Vue)
+- [ ] __Web Server__ (nginx / Apache / Node.js)
+- [ ] __Application Server__ (AWS / Node.js / Python )(Express)
+- [ ] __Data Persistance__ (MongoDB / MySQL / SQL Server)
+- [ ] __Module Bundler__ (webpack)
+- [ ] __Task Runner__ (npm-scripts / gulp)
+- [ ] __Testing__ (jest / enzyme / cypress)
+
+<u>Software Architecture</u>
+- [ ] __Conceptual Model__
+- [ ] __Logical Model__
+- [ ] __Physical Model__
+- [ ] __Component Level Design__
+- [ ] __Technical Documentation__ (implementation details, reusability, risks)
+
+<u>Non-Functional Requirements</u>
+- [ ] __MVP__
+- [ ] __MMP__
+- [ ] __Perfect product__(optional)
+- [ ] __Future of product__
+
+<u>Tools</u>
+- [ ] __Knowledge Repository__ (confluence)
+- [ ] __Issue Tracking Tool__ (jira)
+- [ ] __Repository__ (github)
+- [ ] __Code Reviews__ (github)
+- [ ] __Live Communication__ (skype / slack)
+
+<u>Internal Milestones</u>
+- [ ] __Functional Roadmap__
+- [ ] __Clear Milestones__
+- [ ] __Independent Work Streams__ for remote teams
+
+<u>Service Level Indicators</u>
+- [ ] __Identify Services__
+- [ ] __Monitor Services__
+- [ ] __Number of processed jobs__ - do we need it?
+
+<u>Rollout Schedule</u>
+- [ ] __Deployment plan__ (after merges / every x time)
+
+<u>Communication</u>
+- [ ] __How often__
+- [ ] __Form of communication__
+- [ ] __Subject of communication__
+- [ ] __Retrospectives__ how often?
+
+<u>Split of Work</u>
+- [ ] __How to decide priority__
+- [ ] __Who does what__
+- [ ] __Determine bottle-necks__
+
+<u>Code Review Policy</u>
+- [ ] __how are pull requests approved__ (consensus / senior engineers / team lead)
+- [ ] __pull request standards__
+    * what changed
+    * checklists(docs, test)
+    * how to use the feature(like a gif)
+    * how it changed design
+    * dev notes
+    * interactive rebasing
+
+<u>EOD Contributions</u>
+- [ ] __Hot Fixes__
+- [ ] __POC for Pull Request__
+- [ ] __Commit DB / Configuration Changes__
+- [ ] __Investigate Weird Bugs__
+- [ ] __Investigate Implementation Ideas__
+
 
 &nbsp;
 # Web Application Checklist
@@ -53,13 +201,3 @@ Source: [dhilipsiva](https://github.com/dhilipsiva/webapp-checklist)
 - [ ] 
 - [ ] 
 - [ ] 
-
-
-# Backend Development Best Practices
-Source: [futurice](https://github.com/futurice/backend-best-practices#bill-of-materials)
-
-## Development Environment
-- [ ] 
-- [ ] 
-
-## Data

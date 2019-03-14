@@ -1,5 +1,11 @@
 Reference for Javascript features introduced in the ECMAScript 2015(ES6) specification. This reference assumes knowledge of core JS concepts.
 
+Main sources:
+* [MDN](https://developer.mozilla.org/en-US/)
+* http://es6-features.org
+* [flaviocopes](https://flaviocopes.com/es6/#generators)
+* a whole lot of articles and blogs
+
 #### Table of contents
 
 * [Arrow functions](#arrow-functions)
@@ -8,23 +14,31 @@ Reference for Javascript features introduced in the ECMAScript 2015(ES6) specifi
     * [Class Definition](#class-definition)
     * [Static Properties](#static-properties)
     * [Class Inheritance](#class-inheritance)
-* [Default Parameters](#default-parameters)
+* [Collections](#Collections)
+    * [Map](#map)
+    * [Set](#set)
+    * [Weak-Link Collections](#weak-link-collections)
+    * [Typed Arrays](#typed-arrays)
 * [Destructuring](#destructuring)
 * [Enhanced Object Literals](#enhanced-object-literals)
+* [Enhanced Parameter Handling](#enhanced-parameter-handling)
+    * [Default Parameters](#default-parameters)
+    * [Rest Parameters](#rest-parameters)
+    * [Spread Operator](#spread-operator)
 * [Enhanced Regular Expressions](#enhanced-regular-expressions)
 * [Generators](#generators)
+* [Internalization and Localization](#internalization-and-localization)
 * [Iteration Protocols](#iteration-protocols)
 	* [Iterable](#iterable)
 	* [Iterator](#iterator)
 	* [For-of Loop](#for-of-loop)
-* [Map and Set](#map-and-set)
 * [Metaprogramming](#metaprogramming)
     * [Symbols](#symbols)
         * [Symbol Properties](#symbol-properties)
         * [Global Symbol Registry](#global-symbol-registry)
         * [Well-known Symbols](#well-known-symbols)
-    * [Reflection](#reflection)
-    * [Proxying](#proxying)
+    * [Reflect](#reflect)
+    * [Proxy](#proxy)
 * [Modules](#modules)
 * [New Methods](#new-methods)
     * [Array Methods](#array-methods)
@@ -32,17 +46,11 @@ Reference for Javascript features introduced in the ECMAScript 2015(ES6) specifi
     * [Number Methods](#number-methods)
     * [Object Methods](#object-methods)
     * [String Methods](#string-methods)
+* [New Number Constants](#new-number-constants)    
 * [New Numeric Literals](#new-numeric-literals)
-* [New Properties](#new-properties)
 * [Promises](#promises)
-* [Spread Operator](#spread-operator)
 * [Tail Call Optimization](#tail-call-optimization)
 * [Template Literals](#template-literals)
-    * [Interpolation](#interpolation)
-    * [Raw String content](#raw-string-content)
-* [Typed Arrays](#typed-arrays)
-
-
 
 &nbsp;
 # Arrow Functions
@@ -303,16 +311,382 @@ pete.greet();
 ```
 
 &nbsp;
-# Default Parameters
-Setting default function parameters. Before ES6 function parameters always defaulted to `undefined`.
+# Collections
+New built in array-like objects.
+
+# Map
+A ordered collection of key-value pairs. Before ES6 objects where usually used for this purpose.
+
+__Characteristics__:
+* keys can be of any data-type.
+* keys are unique
+* [iterable](#iterable)
+* has a `size` property indicating the number of stored key-value pairs
+* optimized for fast addition/removal of key-value pairs
+
+__Maps over Object__:
+* when keys are unknown until execution phase
+* when all keys are of the same data type and all values are of the same data type
+* storing primitive values as keys
+
 ``` javascript
-function def(a , b = 5, condition = true) {
-    if(condition) {
-        return a + b;
-    }
+/* 
+    Keys of any data-type
+*/
+let primitiveMap = new Map([
+    [true, 'boolean key'],
+    [10,'number key'], 
+    ['string', 'string key'],
+    ['string', 'same key?']
+]);
+
+let anyTypeMap = new Map([
+    [{}, 'object key'], 
+    [function f(){}, 'function key'],
+    [NaN, 'NaN key'],
+    [undefined, 'undefined key'],
+    [null, 'null key']
+])
+
+/*
+    Keys are unique
+*/
+console.log(primitiveMap);
+    //> {true => "boolean key", 10 => "number key", "string" => "same key?"}
+    // "string" => 'string key' was overwritten
+
+/*
+    Iterable
+*/
+for(let [key, val] of anyTypeMap) {
+    console.log(`${key}: ${val}`);
 }
-def(10);
-    //> 15
+    //> [object Object]: object key
+    //> function f(){}: function key
+    //> NaN: NaN key
+    //> undefined: undefined key
+    //> null: null key
+
+let [arr,,] = primitiveMap;
+
+console.log(arr);
+    //> [true, "boolean key"]
+
+/*
+    Size property
+*/
+console.log(anyTypeMap.size);
+    //> 5
+
+/*
+    Optimized addition
+    -as seen below it depends on the runtime
+*/
+let timeFunc = function(func) {
+    let before = new Date();
+    func();
+    let after = new Date();
+    return 'Execution time: ' + (after - before) + 'ms';
+}
+
+let map = new Map();
+let obj = {};
+
+timeFunc(() => {
+    for(let i = 0; i < 100000; i++) {
+        map.set(i , i);
+    }
+}); //> "Execution time: 12ms"
+
+timeFunc(() => {
+    for(let i = 0; i < 100000; i++) {
+        obj[i] = i;
+    }
+}); //> "Execution time: 4ms"
+
+/*
+    Optimized deletion
+    -as seen below it depends on the runtime
+*/
+timeFunc(() => {
+    for(let i = 0; i < 100000; i++) {
+        map.delete(i);
+    }
+}); //> "Execution time: 12ms"
+
+timeFunc(() => {
+    for(let i = 0; i < 100000; i++) {
+        delete obj[i];
+    }
+}); //> "Execution time: 7ms"
+```
+
+Map instance methods:
+* `Map.prototype.set(key, value)` - adds or updates a key-value pair
+* `Map.prototype.get(key)` - returns the value matching the specified key
+* `Map.prototype.has(key)` - returns a boolean indicating if a key exists
+* `Map.prototype.forEach(func)` - iterators over each key-value pair
+* `Map.prototype.entries()` - returns an iterator object containing all key-value pairs
+* `Map.prototype.keys()` - returns an iterator object containing all keys
+* `Map.prototype.values()` - returns an iterator object containing all value
+* `Map.prototype.delete(key)` - deletes the specified key-value pair
+* `Map.prototype.clear()` - removes all key-value pairs
+
+``` javascript
+let map = new Map([
+    [1, 'one'],
+    [2, 'two']
+])
+
+map.set(3, 'three');
+    //> Map(3) {1 => "one", 2 => "two", 3 => "three"}
+map.set(1, 'ONE');
+    //> Map(3) {1 => "ONE", 2 => "two", 3 => "three"}
+
+map.get(3);
+    //> "three"
+map.get(4);
+    //> undefined
+
+map.has(1);
+    //> true
+map.has(4);
+    //> false
+
+map.forEach((val, key) => console.log(`${key}: ${val}`));
+    //> 1: ONE
+    //> 2: two
+    //> 3: three
+
+let mapIterator = map.entries();
+mapIterator.next().value;               //> [1, "ONE"]
+mapIterator.next().value;               //> [2, "two"]
+mapIterator.next().value;               //> [3, "three"]
+
+let keyIterator = map.keys();
+keyIterator.next().value;               //> 1
+keyIterator.next().value;               //> 2
+keyIterator.next().value;               //> 3
+
+
+let valueIterator = map.values();
+valueIterator.next().value;             //> "ONE"
+valueIterator.next().value;             //> "two"
+valueIterator.next().value;             //> "three"
+
+map.delete(1);                          //> true
+console.log(map);
+    //> Map(2) {2 => "two", 3 => "three"}
+
+map.clear();
+console.log(map);
+    //> Map(0) {}
+```
+
+__Careful:__\
+Objects are stored by reference. Remember this when assigning an object literal as a key. You will not be able to access it directly(only through enumaration). For example: 
+* `{} === {}` is false
+* `[1, 2, 3] === [1, 2, 3]` is false
+* `(function () {}) === (function () {})` is false
+
+``` javascript
+let map = new Map([
+    [{}, 'object literal'],
+    [[], 'array literal'],
+    [function () {}, 'function expression']
+])
+
+map.get({});                            //> undefined
+map.get([]);                            //> undefined
+map.get(function () {});                //> undefined
+
+for(let [key, value] of map) {
+    console.log(`${key} : ${value}`);
+}
+    //> [object Object] : object literal
+    //>  : array literal
+    //> function () {} : function expression
+```
+
+# Set
+An ordered iterable collection of unique values of any data type.
+
+The number of elements is stored in the `size` property.
+
+``` javascript
+let arr = [1, 1, 2, 2, 3, 3];
+let str = 'aaabbbccc';
+
+let set = new Set(arr);
+console.log(set);                       //> Set(3) {1, 2, 3}
+
+let strSet = new Set(str);
+console.log(strSet);                    //> Set(3) {"a", "b", "c"}
+
+let emptySet = new Set();
+console.log(emptySet);                  //> Set(0) {}
+
+/*
+    size property
+*/
+console.log(set.size);                  //> 3
+console.log(emptySet.size);             //> 0
+
+/*
+    is iterable
+*/
+for(let el of set) {
+    console.log(el);
+}
+    //> 1
+    //> 2
+    //> 3
+```
+
+Set instance methods:
+* `Set.prototype.add(value)` - adds an element
+* `Set.prototype.has(value)` - returns a boolean indicating if a value exists
+* `Set.prototype.forEach(func)` - iterates over each element
+* `Set.prototype.entries()` - returns an iterator object containing all values as value-value pairs. The values in the pairs are the same - implemented this way to mimick a maps `entries()` method behavior.
+* `Set.prototype.values(value)` - returns an iterator object containing all values
+* `Set.prototype.delete(value)` - removes specified element
+* `Set.prototype.clear()` - removes all elements
+
+``` javascript
+let set = new Set([1,2]);
+
+set.add(3);
+console.log(set);
+    //> Set(3) {1, 2, 3}
+
+set.has(3);
+    //> true
+set.has(4);
+    //> false
+
+set.forEach(el => console.log(el))
+    //> 1
+    //> 2
+    //> 3
+
+let entryIterator = set.entries();
+entryIterator.next().value;             //> [1, 1]
+entryIterator.next().value;             //> [2, 2]
+entryIterator.next().value;             //> [3, 3]
+
+let valueIterator = set.values();
+valueIterator.next().value;             //> 1
+valueIterator.next().value;             //> 2
+valueIterator.next().value;             //> 3
+
+set.delete(3);                          //> true
+console.log(set);                       //> Set(2) {1, 2}
+
+set.clear();
+console.log(set);
+    //> Set(0) {}
+```
+## Weak-Link Collections
+Weak-link collections make use of weak references to objects. A weak reference means that if it is the only reference to an object that object can be garbage collected. Because of this weak-link collections are not iterable.
+
+These data-structures are used as a memory efficient alternative to their non-weak linked counterparts. 
+
+__WeakMap__: like a [Map](#map) but keys can only be objects. The stored reference to objects is weak - if there is no reference to a key or its value it may be garbage collected. 
+
+Available methods:
+* `WeakMap.prototype.delete(key)`
+* `WeakMap.prototype.get(key)`
+* `WeakMap.prototype.has(key)`
+* `WeakMap.prototype.set(key, value)`
+
+__WeakSet__: like a [Set](#set) but values can only be objects. The stored reference to objects is weak - if there is no reference to a value it may be garbage collected.
+
+Available methods:
+* `WeakSet.prototype.delete(value)`
+* `WeakSet.prototype.add(value)`
+* `WeakSet.prototype.has(value)`
+
+``` javascript
+let obj1 = {};
+let obj2 = {};
+
+let weakmap = new WeakMap([
+    [obj1, 'val1'],
+    [obj2, 'val2']
+])
+
+let weakset = new WeakSet([obj1, obj2]);
+
+console.log(weakmap);
+    //> WeakMap {{…} => "val1", {…} => "val2"}
+console.log(weakset);
+    //> WeakSet {{…}, {…}}
+
+/* 
+    not iterable
+*/
+for(let [key, value] of weakmap) {
+    console.log(`${key} : ${value}`);
+}
+    //> TypeError: weakmap is not iterable
+
+for(let value of weakset) {
+    console.log(value);
+}
+    //> TypeError: weakset is not iterable
+
+```
+
+# Typed Arrays
+Array-like objects that store numerical elements that can be represented by a specified number of bytes. Can be useful when dealing with streams of binary data.
+
+Typed Arrays mostly have the same properties and methods as normal Arrays with some extra properties for working with Array Buffers. More on this in [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray).
+
+Unsigned means there is no bit representing the numbers sign. In effect only positive values and 0 are stored.
+
+Clamped arrays set out of range numbers to either the highest or lowest possible value within the arrays element size.
+
+Typed Arrays:
+|Name|Value Range|Element Size(bytes)|Element Description|
+|----|:-----------:|:------------:|-------------------|
+Int8Array|__-128__ to __127__|	1	|8-bit signed integer|
+Uint8Array|	__0__ to __255__|	1	|8-bit unsigned integer|
+Uint8ClampedArray|__0__ to __255__|	1	|clamped 8-bit unsigned integer|
+Int16Array|	__-32768__ to __32767__|	2	|16-bit two's complement signed integer|
+Uint16Array|__0__ to __65535__|	2	|16-bit unsigned integer|
+Int32Array|	__-2147483648__ to __2147483647__|	4	|32-bit two's complement signed integer|
+Uint32Array|__0__ to __4294967295__|	4	|32-bit unsigned integer|
+Float32Array|__1.2 x 10<sup>-38</sup>__ to __3.4 x 10<sup>38</sup>__|	4	|32-bit floating point number (max 7 digits)|
+Float64Array|__5.0 x 10<sup>-324</sup>__ to __1.8 x 10<sup>308</sup>__|	8	|64-bit floating point number (max 16 digits)|
+BigInt64Array|	__-2<sup>63</sup>__ to __2<sup>63</sup>-1__|	8	|64-bit signed integer|
+BigUInt64Array|	__0__ to __2<sup>64</sup>-1__|	8	|64-bit unsigned integer|
+
+``` javascript
+let int8 = new Int8Array([-128, 0, 127]);
+let uint8 = new Uint8Array([0, 127, 255]);
+let clampedUint8 = new Uint8ClampedArray([0, 127, 255]);
+let int16 = new Int16Array([-32768, 0, 32767]);
+let uint16 = new Uint16Array([0, 65535]);
+let int32 = new Int32Array([-2147483648, 0, 2147483647]);
+let uint32 = new Uint32Array([0, 4294967295]);
+let float32 = new Float32Array([1.2*10**(-38), 0, 3.4*10**38]);
+let float64 = new Float64Array([5*10**(-324), 0, 1.8*10**308]);
+
+// Clamped
+let clamped = new Uint8ClampedArray([-100, 300, 123132143]);
+    // Uint8ClampedArray(3) [0, 255, 255]
+```
+
+__Constructor__
+* `new TypedArrName(length)` - creates a typed array of a predefined length
+* `new TypedArrName(obj)` - creates a typed array out of an array-like object
+* `new TypedArrName(typedArr)` - creates a typed array from another typed array
+
+``` javascript
+let int16 = new Int16Array(5);
+    //> [0, 0, 0, 0, 0]
+let int8 = new Uint8Array([-10, -129, -130, 130, 0.123]);
+    //> Uint8Array(5) [246, 127, 126, 130, 0]
 ```
 
 &nbsp;
@@ -407,6 +781,88 @@ let obj = {
 ```
 
 &nbsp;
+# Enhanced Parameter Handling
+
+## Default Parameters
+Setting default function parameters. Before ES6 function parameters always defaulted to `undefined`.
+``` javascript
+function def(a , b = 5, condition = true) {
+    if(condition) {
+        return a + b;
+    }
+}
+def(10);
+    //> 15
+```
+
+## Rest Parameters
+A syntax that allows representing an indefinite number of parameters.
+
+``` javascript
+function addTo(start, ...values) {
+    return values.reduce((acc, val) => {
+        return acc + val;
+    }, start)
+}
+
+addTo(10, 1, 2, 3);                     //> 16
+addTo('Hi, ', 'im', ' ', 'Greg');       //> "Hi, im Greg"
+```
+
+
+## Spread Operator
+Expands an iterable object or a non-iterable objects enumerable properties.
+
+``` javascript
+let arr = [1, 2, 3];
+let str = 'string';
+
+// spread an array
+let newArr = [0, ...arr];
+console.log(newArr);                    //> [0, 1, 2, 3]
+
+// spread a string 
+let strArr = [...str];
+console.log(strArr);                    //> ["s", "t", "r", "i", "n", "g"]
+
+// spread a function argument
+function everyOther(){
+    let str = '';
+    for(let i = 0; i < arguments.length; i += 2) {
+        str += arguments[i];
+    }
+    return str;
+}
+
+everyOther(...str);                     //> "srn"
+everyOther(str);                        //> "string"
+everyOther(...arr);                     //> "13"
+everyOther(arr);                        //> "1,2,3"
+
+// spread an object
+let obj = Object.create(null, {
+    val1: {
+        value: 10,
+        enumerable: true
+    },
+    val2: {
+        value: 20,
+        enumerable: true
+    },
+    val3: {
+        value: 30,
+        enumerable: false
+    }
+})
+
+let objClone = {...obj};
+console.log(objClone);
+    //> {val1: 10, val2: 20}
+    // only enumerable properties
+```
+
+
+&nbsp;
 # Enhanced Regular Expressions
 New properties:
 * `sticky` - boolean value indicating whether the _sticky_ flag is set
@@ -445,23 +901,103 @@ strUnicode.match(regExp);
 # Generators
 Functions that can pause, allowing other code to run, and resume execution at a later time. Generators implement the [iteration protocols](#iteration-protocols).
 
-A generator is defined by placing an asterisk between the `function` keyword and the function identifier. 
+A generator function is defined by placing an asterisk between the `function` keyword and the function identifier. 
 
 ``` javascript
 function* generatorExample() {...}
 ```
 
-The `yield` keyword is used to return an iterator object and remove the generators execution context from the execution stack. 
+A generator method(using es6 shorthand syntax) is defined by placing an asterisk before the method identifier.
+
+``` javascript
+obj = {
+    * genFun() {...}
+}
+```
+
+The `yield` keyword is used to return an iterator object(or yield a value depending on the context) and remove the generators execution context from the execution stack. 
 
 The iterator object returned through a `yield` statement contains the following properties:
 * a return value
 * `done` property - contains a boolean value indicating if the generator finished execution
-* `next([val])` method - calling it resumes execution. Optionally a value can be passed and used within the generator.
+* `next([val])` method - calling it resumes generators execution. Optionally a value can be passed and used within the generator.
 
-A generator is considered _done_ when the final `yield` statement is executed.
+A generator is considered _done_ when the final `yield` is executed or a `return` statement is encountered.
+
+Generator can be used in many ways and involve some interesting data patterns. Read more about this on [exporingjs](http://exploringjs.com/es6/ch_generators.html#sec_generators-as-observers).
 
 ``` javascript
+// Basic generator
+function * simpleGen() {
+    yield 1;
+    yield 2;
+}
 
+let simpleIterator = simpleGen();
+simpleIterator.next();                  // {value: 1, done: false}
+simpleIterator.next();                  // {value: 2, done: false}
+simpleIterator.next();                  // {value: undefined, done: true}
+
+// Return in generator
+function * returnGen() {
+    yield 10;
+    return 20;
+    yield 30;   // unreachable
+}
+let retIterator = returnGen();
+retIterator.next();                     // {value: 10, done: false}
+retIterator.next();                     // {value: 20, done: false}
+retIterator.next();                     // {value: undefined, done: true}
+```
+
+The `yield*` expression yields data from another generator or iterable.
+
+``` javascript
+function* gen() {
+    yield 1;
+    yield 2;
+}
+
+let arr = [3, 4];
+
+function* delegatingGen() {
+    yield* gen();
+    yield* arr;
+}
+
+var iterator = delegatingGen();
+iterator.next().value;                  // 1
+iterator.next().value;                  // 2
+iterator.next().value;                  // 3
+iterator.next().value;                  // 4
+iterator.next().value;                  // undefined
+```
+
+Generators are a great tool for [lazy evaluation](/resources/glossary.md#lazy-evaluation)
+
+``` javascript
+function* resourceHungry(a, b, c) {
+    yield {
+        number: a,
+        bigNumber: a**b,
+        hugeNumber: (a**b)**c
+    }
+}
+
+let executeResourceHungry = resourceHungry(2, 10, 40);
+/*
+    ...executing code
+*/
+let nowIneedTheData = executeResourceHungry.next().value;
+    //> {number: 2, bigNumber: 1024, hugeNumber: 2.5822498780869086e+120}
+
+```
+
+&nbsp;
+# Internalization and Localization
+Source: http://es6-features.org/#Collation
+
+``` javascript
 
 ```
 
@@ -481,31 +1017,39 @@ JavaScript comes with some built-in iterable objects:
 * TypedArray
 
 ``` javascript
-// Custom iterable
+/* 
+    Custom iterable
+*/
 let obj = {
-    [Symbol.iterator]: function* () {
+    * [Symbol.iterator]() {
         yield 'a';
         yield 'b';
         yield 'c';
     }
 }
 
-console.log([...obj]);                  // ["a", "b", "c"]
+console.log([...obj]);                  //> ["a", "b", "c"]
 
-// Built-in iterables
+/* 
+    Built-in iterables
+*/
 let arr = [1, 2, 3, 4];
-console.log([...arr, 5]);               // [1, 2, 3, 4, 5]
+console.log([...arr, 5]);               //> [1, 2, 3, 4, 5]
 
-//map
+let map = new Map([
+    [1, 'one'],
+    [2, 'two']
+]);
+console.log([...map]);                  //> [[1, "one"], [2, "two"]]
 
-let str = 'a string';
+let set = new Set(['a', 'b', 'c', 'd']);
+console.log([...set]);                  //> ["a", "b", "c", "d"]
+
+let str = 'hello';                      //> ["h", "e", "l", "l", "o"]
 console.log([...str]);
-    //>  ["a", " ", "s", "t", "r", "i", "n", "g"]
 
 let int8 = new Int8Array(5);
-console.log([...int8]);                 // [0, 0, 0, 0, 0]
-
-
+console.log([...int8]);                 //> [0, 0, 0, 0, 0]
 ```
 
 ## Iterator
@@ -547,10 +1091,48 @@ iteratorExample.next()
 ```
 
 ## For-of Loop
+A loop that iterates over iterable objects.
 
+``` javascript
+function* genIterable() {
+    yield 'hi';
+    yield 'there';
+    yield 'having fun?';
+}
 
-&nbsp;
-# Map and Set
+// iterable
+let obj = {
+    [Symbol.iterator]: function() {
+        // iterator
+        return {
+            str: 'text',
+            index: 0,
+            next: function() {
+                let done = (this.index >= this.str.length);
+                let value = this.str[this.index];
+                this.index += 2;
+                return {
+                    done,
+                    value
+                }
+            }
+        }
+    }
+}
+
+for(let val of genIterable()) {
+    console.log(val);
+}
+    //> hi
+    //> there
+    //> having fun?
+
+for(let val of obj) {
+    console.log(val);
+}
+    //> t
+    //> x
+```
 
 &nbsp;
 # Metaprogramming
@@ -856,40 +1438,441 @@ normalObj.toString();                   // "[object Object]"
 taggedObj.toString();                   // "[object Tagged]"
 ```
 
-## Reflection
+## Reflect
+A new global object that enables [reflection](/resources/glossary.md#reflection) through introspection by exposing some JavaScript internal methods as static methods of the `Reflect` object.
+
+Introduction of the Reflect object aims at replacing existing reflection methods belonging to `Object` and `Function` with a more readable and unified approach.
+
+Strength of Reflect over existing internal methods:
+* __readable__ - all reflection methods are called through the `Reflect` object which sends a clear message to anybody viewing the code
+* __concise__ - some of the Reflect methods provide extended functionality which could otherwise only be achieved by combining 2 or more different functions.
+* __secure__ - Reflect methods handle errors better than their original counterparts
+
+Reflect is coupled with the new [Proxy](#proxy) constructor. Every reflect method is paired with a proxy handler method.
+
+Reflect methods:
+* __`Reflect.apply(to, context, argList)`__ - applies a context and arguments list(as an array) to a function. Like the `Function.prototype.apply()` method.
+* __`Reflect.construct(constructor, argList [, proto])`__ - mimics new operator behaviour. Takes a constructor argument, array of arguments to call with that constructor and an optional prototype argument which sets the returned objects prototype.
+* __`Reflect.defineProperty(obj, key, propDesc)`__ - allows adding a new property using a property descriptor. Similiar to `Object.defineProperty()` method.
+* __`Reflect.getOwnPropertyDescriptor(obj, key)`__ - returns a properties descriptor. Similiar to `Object.getOwnPropertyDescriptor()` method.
+* __`Reflect.deleteProperty(obj, key)`__ - deletes an objects property. Similar to the `delete` operator.
+* __`Reflect.getPrototypeOf(obj)`__ - returns an objects prototype. Similar to the `Object.getPrototypeOf()` method.
+* __`Reflect.setPrototypeOf(obj, proto)`__ - sets an objects prototype. Similar to the `Object.setPrototypeOf()` method.
+* __`Reflect.isExtensible(obj)`__ - returns a boolean value indicating if an object is extensible. Similar to the `Object.isExtensible()` method.
+* __`Reflect.preventExtensions(obj)`__ - disables adding new properties to an object. Similar to the `Object.preventExtensions()` method.
+* __`Reflect.get(obj, key[, context])`__ - retrieves a property value based on a passed key. Throws error if the first argument is not an object. Can set context through an optional final argument.
+* __`Reflect.set(obj, key, val [, context])`__ - sets a property value based on a passed key. Throws error if the first argument is not an object. Can set context through an optional final argument.
+* __`Reflect.has(obj, key)`__ - returns a boolean value indicating if an obj has a property. Does not need to own that property. Similar to the `in` operator.
+* __`Reflect.ownKeys(obj)`__ - returns all own property keys including symbols. Similar to a combination of the `Object.getOwnPropertyNames()` and `Object.getOwnPropertySymbols()` methods.
+
+``` javascript
+/*
+    Reflect.apply()
+*/
+
+function sum() {
+    let factor  = this.factor || 1;
+    let sum = 0;
+    [...arguments].forEach((num) => sum += num * factor );
+    return sum;
+}
+
+let context = {factor: 3};
+
+sum(1, 2, 3, 4, 5);                     
+    //> 15
+
+Reflect.apply(sum, {factor: 2}, [1, 2, 3, 4, 5]);
+    //> 30
+
+Reflect.apply(sum, context, [1, 2, 3, 4, 5]);
+    //> 45
+
+/*
+    Reflect.construct()
+*/
+class A {
+    constructor(a) {
+        this.val = 'A constructor';
+        this.a = a;
+    }
+    example() {
+        console.log('A.prototype');
+    }
+}
+
+class Proto {
+    constructor(b) {
+        this.val = 'Proto constructor';
+        this.b = b;
+    }
+    example() {
+        console.log('Proto.prototype');
+    }
+}
+
+let objA = Reflect.construct(A, [5]);
+let withProto = Reflect.construct(A, [5], Proto);
+
+objA.__proto__ === A.prototype          //> true
+withProto.__proto__ === Proto.prototype //> true
+
+objA.example();                         //> A.prototype
+withProto.example();                    //> Proto.prototype
 
 
-## Proxying
 
+console.log(objA.val);                  //> A constructor
+console.log(withProto.val);             //> A constructor
+console.log(withProto.a);               //> 5
+console.log(withProto.b);               //> undefined
+
+/*
+    Reflect.defineProperty()
+*/
+let obj = {};
+
+Reflect.defineProperty(obj, 'id', {
+    value: 10982,
+    enumerable: true
+})
+
+console.log(obj.id);                    //> 10982
+
+
+/*
+    Reflect.getOwnPropertyDescriptor()
+*/
+let obj = { 
+    prop: 'value',
+    get val() {
+        return this.prop;
+    }
+};
+
+Reflect.getOwnPropertyDescriptor(obj, 'prop');
+    //> {value: "value", writable: true, enumerable: true, configurable: true}
+
+/*
+    Reflect.deleteProperty()
+*/
+let obj = { prop: 1234 };
+
+Reflect.deleteProperty(obj, 'prop');
+
+console.log(obj);                       //> {}
+
+/*
+    Reflect.setPrototypeOf()
+    Reflect.getPrototypeOf()
+*/
+let obj = {
+    name: 'value'
+}
+
+let proto = {
+    getName() {
+        return this.name;
+    }
+}
+
+Reflect.setPrototypeOf(obj, proto);
+
+obj.getName();                          //> "value"
+
+Reflect.getPrototypeOf(obj)             //> {getName: ƒ}
+
+
+/*
+    Reflect.preventExtensions()
+    Reflect.isExtensible()
+*/
+let obj = { a: 5};
+
+Reflect.preventExtensions(obj);
+
+obj.b = 10;
+console.log(obj.b);                     //> undefined
+
+Reflect.isExtensible(obj);              //> false
+
+
+/*
+    Reflect.get()
+*/
+let obj = {
+    prop: 'value'
+}
+let str = 'string';
+
+Reflect.get(obj, 'prop');               //> "value"
+Reflect.get(str, '1');                  //> TypeError
+
+/*
+    Reflect.set()
+*/
+let obj = {
+    prop: 'value'
+}
+let str = 'string';
+
+Reflect.set(obj, 'prop', 'new value');
+Reflect.set(obj, 'val', 10);
+
+console.log(obj);                       //> {prop: "new value", val: 10}
+
+Reflect.set(str, '6', 's');             //> TypeError
+
+/*
+    Reflect.has()
+*/
+let obj = {
+    prop: 'Value'
+}
+
+Reflect.has(obj, 'prop');               //> true 
+'prop' in obj;                          //> true
+
+Reflect.has(obj, 'val');                //> false
+'val' in obj;                           //> false
+
+/*
+    Reflect.ownKeys()
+*/
+let obj = {
+    prop: 'value',
+    [Symbol('desc')]: 10
+}
+
+let objKeys = Reflect.ownKeys(obj);
+
+console.log(objKeys);                   // ["prop", Symbol(desc)]
+```
+
+## Proxy
+A new global constructor that enables [reflection](/resources/glossary.md#reflection) through intercession by wrapping an object in a handler. The handler has a set of methods that customize how an object behaves in certain operations.
+
+__Proxy constructor__ - `Proxy(obj, handler)`
+
+``` javascript
+let handler = {
+    set(obj, prop, value) {
+        if(prop === 'name') {
+            if(typeof value !== 'string'){
+                throw new TypeError('name is not a string');
+            }
+        }
+        obj[prop] = value;
+        return true;
+    }
+}
+
+let obj = {};
+
+let user = new Proxy(obj, handler);
+
+user.age = 20;
+user.name = 'John';
+
+console.log(user);
+    //> Proxy {age: 20, name: "John"}
+
+user.name = 10;
+    //> TypeError: name is not a string
+```
+
+Proxy is coupled with the new [Reflect](#reflect) constructor. Every proxy handler method __traps__ a respective Reflect method. This means it effects how the Reflect method works for the Proxy object.
+* __`handler.apply()`__ - traps `Reflect.apply(to, context, argList)`
+* __`handler.construct()`__ - traps `Reflect.construct(constructor, argList [, proto])`
+* __`handler.defineProperty()`__ - traps `Reflect.defineProperty(obj, key, propDesc)`
+* __`handler.getOwnPropertyDescriptor()`__ - traps `getOwnPropertyDescriptor(obj, key)`
+* __`handler.deleteProperty()`__ - traps `Reflect.deleteProperty(obj, key)`
+* __`handler.getPrototypeOf()`__ - traps `Reflect.getPrototypeOf(obj)`
+* __`handler.setPrototypeOf()`__ - traps `Reflect.setPrototypeOf(obj, proto)`
+* __`handler.isExtensible()`__ - traps `Reflect.isExtensible(obj)`
+* __`handler.preventExtensions()`__ - traps `Reflect.preventExtensions(obj)`
+* __`handler.get()`__ - traps `Reflect.get(obj, key[, context])`
+* __`handler.set()`__ - traps `Reflect.set(obj, key, val [, context])`
+* __`handler.has()`__ - traps `Reflect.has(obj, key)`
+* __`handler.ownKeys()`__ - traps `Reflect.ownKeys(obj)`
+
+``` javascript
+// Hiding props
+function hidePrivate(obj) {
+    let handler = {
+        has: function(obj, prop) {
+            if(prop[0] === '_') {
+                return false;
+            }
+            return Boolean(obj[prop]);
+        },
+        ownKeys: function() {
+            return Object.getOwnPropertyNames(obj).filter((el) => el[0] !== '_');
+        },
+        getOwnPropertyDescriptor(obj, prop) {
+            if(prop[0] === '_') {
+                return undefined;
+            }
+            return Object.getOwnPropertyDescriptor(obj, prop);
+        }
+    }
+    return new Proxy(obj, handler);
+}
+
+let obj = {
+    _hidden: 123456,
+    _key: 98765,
+    exposed: 'exposed prop'
+}
+
+let proxyObj = hidePrivate(obj);
+
+console.log('_hidden' in obj);          //> true
+console.log('_hidden' in proxyObj);     //> false
+console.log('exposed' in obj);          //> true
+console.log('exposed' in proxyObj);     //> true
+
+console.log(obj.hasOwnProperty('_key'));
+    //> true
+console.log(proxyObj.hasOwnProperty('_key'));
+    //> false
+console.log(obj.hasOwnProperty('exposed'));
+    //> true
+console.log(proxyObj.hasOwnProperty('exposed'));
+    //> true
+
+console.log(Object.getOwnPropertyNames(obj));
+    //> ["_hidden", "_key", "exposed"]
+console.log(Object.keys(obj));
+    //> ["_hidden", "_key", "exposed"]
+
+console.log(Object.getOwnPropertyNames(proxyObj));
+    //> ["exposed"]
+console.log(Object.keys(proxyObj));
+    //> ["exposed"]
+
+console.log(Object.getOwnPropertyDescriptor(obj, '_hidden'));
+    //> {value: 123456, writable: true, enumerable: true, configurable: true}
+console.log(Object.getOwnPropertyDescriptor(proxyObj, '_hidden'));
+    //> undefined
+```
 
 &nbsp;
 # Modules
-Modules are in strict mode by default.
+A native system for dealing with modules in JavaScript. 
+
+Sources:
+    * [exploringjs](http://exploringjs.com/es6/ch_modules.html)
+    * [mdn on import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
+    * [mdn on export](https://developer.mozilla.org/en-US/docs/web/javascript/reference/statements/export)
+    * [hacks.mozilla.org](https://hacks.mozilla.org/2018/03/es-modules-a-cartoon-deep-dive/)
+
+__Module features:__
+* executed in strict mode by default
+* `import` includes bindings exported by another module
+* `export` exposes bindings for external consumption
+    * __named__ - exports an identifier. Can have multiple named exports per module. At import the identifier has to be matched.
+    * __default__ - default exported value. Can only have one default export per module. Default export does not require an identifier
+* `import` and `export` are static(evaluated before code execution)
+* named imports and exports
+* works asynchronously - loading a module is divided into steps which can be executed asynchronously. 
+
+__Steps in module loading__:
+1. __Construction__ - finds, stores and parses all imported modules
+1. __Instantiation__ - creates locations in memory and links the parsed modules with those locations.
+1. __Evaluation__ - executes the modules code to assign values to linked locations in memory
+
+``` javascript
+/* 
+    EXPORT
+*/
+let internal = 100;
+
+const val1 = 5;
+const val2 = 10;
+const val3 = 15;
+const val4 = 20;
+
+console.log('Hello');
+
+// named exports
+export const val5 = 30, val6 = 'whatever';
+
+export const func = function(val) {
+    return internal + val;
+}
+
+export class A {
+    constructor() {
+        this.value = 'a';
+    }
+}
+
+export val1, val2;
+
+export {val3, val4};
+
+// default export
+export default { 
+    prop: 'val', 
+    sum: val1 + val2
+};
+```
+
+``` javascript
+/* 
+    IMPORT
+    -based on export above
+*/
+
+// importing default export
+import isDefault from './my-module';
+console.log(isDefault.prop);            //> val
+console.log(isDefault.sum);             //> 15
+
+// Aliases
+import {val1 as someVal, val2 as anything} from './my-module';
+import * as accessor from './my-module';
+
+console.log(someVal);                   //> 5
+console.log(anything);                  //> 10
+
+console.log(accessor.func(200));        //> 300
+
+// import for side effects
+//  -only executes module code
+//  -does not import any data
+import './my-module';                   //> Hello
+```
+
+Performing __module redirects__ by exporting from another module.
+
+``` javascript
+export {default} from './some-module';
+```
 
 &nbsp;
 # New Methods
 
 ## Array Methods
-`Array.from(obj)` - create an array instance from any object that contains a length property.
+`Array.from(obj)` - create an array instance from any array-like object.
 
 `Array.prototype.copyWithin(target[,start][,end])` - copies part of the array into the same array at a given index. This is a [mutator method](/resources/glossary.md#mutator).
 * __target__: index at which the copy is placed.
 * __start__: index at which the copying starts.
 * __end__: index at which the copying ends. Copying does not include element at this index.
 
-`Array.prototype.entries()` - 
+`Array.prototype.entries()` - returns an iterator that contains all arrays index-value pairs.
 
-`Array.prototype.fill()` - 
+`Array.prototype.keys()` - returns an iterator that contains all arrays indexes.
 
-`Array.prototype.find()` - 
+`Array.prototype.values()` - returns an iterator that contains all arrays values.
 
-`Array.prototype.findIndex()` - 
+`Array.prototype.fill(val, [start, end])` - replaces elements in an array with values. Can optionally specify at which index replacing starts and ends. By default the whole array is replaced.
 
-`Array.prototype.keys()` - 
+`Array.prototype.find(func)` - returns the first element for which the passed function returns `true`
 
-`Array.prototype.values()` - 
-
-`Array.prototype[@@iterator]()` - 
+`Array.prototype.findIndex(func)` - returns the index of the first element for which the passed function returns `true`
 
 ``` javascript
 let obj = { length: 3 };
@@ -901,17 +1884,76 @@ let obj2 = {
 }
 let arr = [1, 2, 3, 'one', 'two', 'three'];
 
-Array.from('Hello');                    // ['H', 'e', 'l', 'l', 'o']
-Array.from(obj);                        // ['undefined', 'undefined', 'undefined']
-Array.from(obj2);                       // ["indexes", "just like", "an array"]
+/*
+    Array.from()
+*/
+Array.from('Hello');                    //> ['H', 'e', 'l', 'l', 'o']
+Array.from(obj);                        //> ['undefined', 'undefined', 'undefined']
+Array.from(obj2);                       //> ["indexes", "just like", "an array"]
 
-arr.copyWithin(4);                      // [1, 2, 3, 'one', 1, 2]
-arr.copyWithin(1, 3, 5);                // [1, "one", 1, "one", 1, 2]
+/*
+    Array.prototype.copyWithin()
+*/
+arr.copyWithin(4);                      //> [1, 2, 3, 'one', 1, 2]
+arr.copyWithin(1, 3, 5);                //> [1, "one", 1, "one", 1, 2]
+
+/*
+    Array.prototype.entries()
+    Array.prototype.keys()
+    Array.prototype.values()
+*/
+let arr = ['zero', 'one', 'two'];
+
+let arrEntries = arr.entries();
+let arrIndexes = arr.keys();
+let arrValues = arr.values();
+
+arrEntries.next().value;                //> [0, "zero"]
+arrEntries.next().value;                //> [1, "one"]
+arrEntries.next().value;                //> [2, "two"]
+
+arrIndexes.next().value;                //> 0
+arrIndexes.next().value;                //> 1
+arrIndexes.next().value;                //> 2
+arrIndexes.next().value;                //> undefined
+
+arrValues.next().value;                 //> "one"
+arrValues.next().value;                 //> "two"
+
+/*
+    Array.prototype.fill()
+*/
+let arr = [1, 2, 3, 4, 5];
+
+arr.fill(0);
+console.log(arr);                       //> [0, 0, 0, 0, 0]
+
+arr.fill(1, 1, 4);
+console.log(arr);                       //> [0, 1, 1, 1, 0]
+
+/*
+    Array.prototype.find()
+    Array.prototype.findIndex()
+*/
+let users = [
+    {name: 'John', id: 12345},
+    {name: 'Tom', id: 12346},
+    {name: undefined, id: 12347}
+]
+
+function wrongName(el) {
+    return typeof el.name !== 'string';
+}
+
+users.find(wrongName);
+    //> {name: undefined, id: 12347}
+users.findIndex(wrongName);
+    //> 2
 ```
 
 ## Math Methods
 * Binary
-    * `Math.clz32(x)` - number of leading in binary representation of x
+    * `Math.clz32(x)` - number of leading zeros in binary representation of x
     * `Math.imul(x, y)` - multiplication of 32-bit integer x and y
 * Exponentiation
     * `Math.cbrt(x)` - cube root of x
@@ -936,31 +1978,36 @@ arr.copyWithin(1, 3, 5);                // [1, "one", 1, "one", 1, 2]
 
 ``` javascript
 // Binary
-Math.clz32(x);
-Math.imul(x, y);
+Math.clz32(1);                          //> 31
+Math.clz32(111111111);                  //> 5
+
+Math.imul(0xf, 0xf);                    //> 225
 
 // Exponentiation
-Math.cbrt(x);
-Math.expm1(x);
-Math.hypot([x, ... , n]);
-Math.log1p(x);
-Math.log10(x);
-Math.log2(x);
+Math.cbrt(8);                           //> 2
+Math.cbrt(27);                          //> 3
+Math.expm1(1);                          //> 1.718281828459045
+Math.hypot(3, 4);                       //> 5
+Math.log1p(-1);                         //> -Infinity
+Math.log10(10000);                      //> 4
+Math.log2(16);                          //> 4
 
 // Miscellaneous
-Math.sign(x);
+Math.sign(-5);                          //> -1
+Math.sign(5);                           //> 1
+Math.sign('text');                      //> NaN
 
 // Rounding
-Math.fround(x);
-Math.trunc(x);
+Math.fround(-5.01);                     //> -5.010000228881836
+Math.trunc(0.123456);                   //> 0
 
 // Trigonometry
-Math.acosh(x);
-Math.asinh(x);
-Math.atanh(x);
-Math.cosh(x);
-Math.sinh(x);
-Math.tanh(x);
+Math.acosh(1);                          //> 0
+Math.asinh(1);                          //> 0.881373587019543
+Math.atanh(1);                          //> Infinity
+Math.cosh(1);                           //> 1.5430806348152437
+Math.sinh(1);                           //> 1.1752011936438014
+Math.tanh(1);                           //> 0.7615941559557649
 ```
 
 ## Number Methods
@@ -987,7 +2034,70 @@ Number.isSafeInteger(2**53);            // false
     * `Object.setPrototypeOf(obj, proto)` - assigns a new prototype to an object
 
 ``` javascript
-// Object.
+/* 
+    Object.assign()
+*/
+let obj = {};
+let a = { a: 'a', [Symbol('ten')]: 10};
+let b = { b: 'b'};
+let c = { c: 'c'};
+let letterPrinter = {
+    printLet() {
+        console.log(this.a + this.b + this.c)
+    }
+}
+
+obj = Object.assign(obj, a, b, c, letterPrinter)
+console.log(obj);
+    //> {a: "a", b: "a", c: "a", printLet: ƒ, Symbol(ten): 10}
+obj.printLet()
+    //> abc
+
+/* 
+    Object.getOwnPropertySymbols()
+*/
+let obj = {
+    prop1: 10,
+    prop2: 20,
+    * [Symbol.iterator]() {
+        yield 1;
+    },
+    [Symbol('1')] : 1
+}
+
+let objSym = Object.getOwnPropertySymbols(obj);
+console.log(objSym);
+    //> [Symbol(Symbol.iterator), Symbol(1)]
+
+/* 
+    Object.is()
+*/
+Object.is(undefined, undefined);        //> true
+Object.is(null, null);                  //> true
+Object.is(false, false);                //> true
+Object.is(true, true);                  //> true
+Object.is(NaN, NaN);                    //> true
+Object.is('string', 'string');          //> true
+
+Object.is({}, {});                      //> false
+Object.is(+0, -0);                      //> false
+Object.is('1', 1);                      //> false
+
+
+/* 
+    Object.setPrototypeOf()
+*/
+let user = {firstName: 'John', lastName: 'Doe'};
+let namePrinter = {
+    namePrint() {
+        console.log(this.firstName + ' ' + this.lastName);
+    }
+}
+
+Object.setPrototypeOf(user, namePrinter);
+user.namePrint();
+    //> John Doe
+
 ```
 
 ## String Methods
@@ -1041,6 +2151,22 @@ cTail1 === cTail2.normalize()           // true
 'Hi'.repeat(4);                         // "HiHiHiHi"
 ```
 
+&nbsp;
+# New Number Constants
+__Number__:
+* `Number.EPSILON` - difference between the smallest and greatest floating point number between 0 and 1
+* `Number.MAX_SAFE_INTEGER` - maximum safe integer. A safe integer is one which produces expected results in operations.
+* `Number.MIN_SAFE_INTEGER` - minimum safe integer. A safe integer is one which produces expected results in operations. 
+
+``` javascript
+console.log(Number.EPSILON);
+    //> 2.220446049250313e-16
+console.log(Number.MAX_SAFE_INTEGER);
+    //> 9007199254740991
+console.log(Number.MIN_SAFE_INTEGER);
+    //> -9007199254740991
+```
+
 
 &nbsp;
 # New Numeric Literals
@@ -1055,19 +2181,43 @@ Octal literals start with  `0o` or `0O` followed by a sequence of 1 or more octa
 ```
 
 &nbsp;
-# New Properties
-__Number__:
-* `Number.EPSILON` - difference between the smallest and greatest floating point number between 0 and 1
-* `Number.MAX_SAFE_INTEGER` - maximum safe integer. A safe integer is one which produces expected results in operations.
-* `Number.MIN_SAFE_INTEGER` - minimum safe integer. A safe integer is one which produces expected results in operations. 
+# Promises
+An object that represents a pending asynchronous action. Unlike asynchronous operations in ES5 which involved passing callbacks, promises involve chaining callbacks which are called depending on the outcome of the asynchronous action.
+
+The Promise constructor takes a function as an argument. This function should have the following parameters:
+* __resolve function__ - is called if the promise is successfully resolved
+* __reject function__ - is called if the promise fails
 
 ``` javascript
+let successPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('Promise resolved');
+    }, 1000)
+});
 
+let failPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        reject('Promise failed');
+    }, 1500)
+});
+
+function success(val) {
+    console.log(val);
+}
+
+function failure(val) {
+    try {
+        throw new Error(val)
+    } catch(e) {
+        console.log(e.name + ': ' + e.message);
+    }
+}
+
+successPromise.then(success, failure);
+    //> Promise resolved
+failPromise.then(success, failure);
+    //> Error: Promise failed
 ```
-
-&nbsp;
-# Promises
-An object that represents a pending asynchronous action.
 
 A promise can be in one of four states:
 * __PENDING__ - initial state when promise is created
@@ -1075,76 +2225,267 @@ A promise can be in one of four states:
 * __REJECTED__ - the action was rejected, the promise is finalized
 * __SETTLED/RESOLVED__ - the promise was either fulfilled or rejected
 
-You can chain on `then(success, failure)` functions which are called once the promise is finalized.
-
 ``` javascript
+// resolve and reject function
+function res(val) {
+    console.log(val);
+    return val;
+}
 
+function err(val) {
+    try {
+        throw new Error(val);
+    } catch(e) {
+        console.log(e.name + ': ' + e.message);
+        return e.name + ': ' + e.message;
+    }
+}
+
+// creating one promise that gets rejected and one that is fulfilled
+let successPromise = new Promise((res, err) => {
+    setTimeout(() => {
+        res('Promise resolved');
+    }, 2000)
+});
+
+let errorPromise = new Promise((res, err) => {
+    setTimeout(() => {
+        try {
+            err('Promise failed');
+        } catch(e) { }
+    }, 2000)
+});
+
+setTimeout(() => {
+    console.log(successPromise);
+        //> Promise {<pending>}
+    console.log(errorPromise);
+        //> Promise {<pending>}
+}, 1000);
+
+setTimeout(() => {
+    console.log(successPromise);
+        //> Promise {<resolved>: "Promise resolved"}
+    console.log(errorPromise);
+        //> Promise {<rejected>: "Promise failed"}
+}, 2100);
+
+errorPromise.then(res, err);
+    //> Promise {<resolved>: "Error: Promise failed"}
 ```
 
-&nbsp;
-# Spread Operator
-Works with any object! Uses the enumarable properties
+Promises can be chained creating what is called a __promise chain__. This enables sequential execution of various asynchronous actions.
+
+``` javascript
+let promiseFactory = function() {
+    let count = 0;
+    let value = 0;
+    let start = new Date();
+    function create() {
+        return new Promise((res, err) => {
+            setTimeout(() => {
+                let elapsed = (new Date()) - start;
+                console.log(`Promise ${++count} resolved after ${elapsed}ms`);
+                value += 5;
+                res(value);
+            }, 1000)
+        });    
+    }
+    return create;
+}
+
+let creator = promiseFactory();
+
+creator()
+.then((result)=> {
+    console.log('value : ' + result);
+    return creator();
+})
+.then((result)=> {
+    console.log('value : ' + result);
+    return creator();
+})
+.then((result)=> {
+    console.log('value : ' + result);
+    return creator();
+})
+
+/*
+    Promise 1 resolved after 1005ms
+    value : 5
+    Promise 2 resolved after 2009ms
+    value : 10
+    Promise 3 resolved after 3015ms
+    value : 15
+    Promise 4 resolved after 4015ms
+*/
+```
+
+__Promise methods:__
+* Chaining
+    * `Promise.prototype.then(resFunc, rejFunc)` - calls a resolution or rejection function depending on a promises status
+    * `Promise.prototype.catch(rejFunc)` - calls a function if an error is encountered in the promise chain
+    * `Promise.prototype.finally()` - calls a function once a promise is resolved disrespective of the outcome of the asynchronous action
+* Composition
+    * `Promise.all(iterable)` - combines promises available through an iterable into one. When all the promises are fulfilled the combined promise is fulfilled. When one is rejected all are rejected.
+    * `Promise.race(iterable)` - combines promises available through an iterable into one. When one of the promises is fulfilled or rejected the combined promise is fulfilled or rejected.
+    * `Promise.reject(reason)` - returns an already rejected promise. Takes a 'reason' argument which specifies why the promise failed(like an error)
+    * `Promise.resolve(arg)` - return an already resolved promise. Takes the resolved value as an argument.
+
+``` javascript
+let examplePromise = new Promise((res, err) => {
+    res('Promise resolved');
+});
+
+/* 
+    CHAINING
+*/
+
+examplePromise
+.then((res) => {
+    console.log(res);
+        //> Promise resolved
+    return 'Some returned value';
+})
+.then((res) => {
+    console.log(res);
+        //> Some returned value
+    throw new Error('error encountered');
+})
+.then((res) => {
+    console.log('this is never executed')
+})
+.catch((err) => {
+    console.log(err);
+        //> Error: error encountered
+})
+.finally(() => {
+    console.log('Called no matter what');
+        //> called no matter what
+})
+
+/* 
+    COMPOSITION
+*/
+let prom1 = Promise.resolve('resolved');
+let prom2 = new Promise((res, err) => {
+    setTimeout(res, 1000, 'resolved value');
+});
+let prom3 = new Promise((res, err) => {
+    setTimeout(()=> {
+        try {
+            throw new Error('failed');
+        } catch(e) {
+            console.log(`${e.name}: ${e.message}`)
+        }
+    }, 1200);
+})
+
+// Promise.all()
+const allResolved = Promise.all([prom1, prom2])
+.then((results) => {
+    console.log(results);
+        //> ["resolved", "resolved value"]
+});
+
+const oneFailed = Promise.all([prom1, prom2, prom3])
+.then((results) => {
+    console.log(results);
+        // not logged - prom3 failed
+})
+.catch((e) => {
+    console.log(e);
+        //> Error: failed
+});
+
+// Promise.race()
+const raceResolved = Promise.race([prom1, prom2])
+.then((results) => {
+    console.log(results);
+        //> resolved
+});
+
+const raceFailed = Promise.race([prom1, prom2, prom3])
+.then((results) => {
+    console.log(results);
+        //> resolved
+})
+.catch((e) => {
+    console.log(e);
+        // not logged, a promise is resolved before one fails
+});
+
+
+// Promise.reject()
+let rejPromise = Promise.reject(new Error('failed'));
+console.log(rejPromise);
+    //> Promise {<rejected>: Error: failed}
+
+// Promise.resolve()
+let resPromise = Promise.resolve('resolved');
+console.log(resPromise);
+    //> Promise {<resolved>: "resolved"}
+
+```
 
 &nbsp;
 # Tail Call Optimization
-https://stackoverflow.com/questions/25228871/how-to-understand-trampoline-in-javascript
-http://pages.cs.wisc.edu/~vernon/cs367/notes/6.RECURSION.html#iter
-https://www.sitepoint.com/recursion-functional-javascript/
+Source: [2ality](http://2ality.com/2015/06/tail-call-optimization.html)
+
+``` javascript
+
+```
 
 &nbsp;
 # Template Literals
-Template literals are strings wrapped in 
-
-## Interpolation
-
-## Raw String content
-
-
-
-# Typed Arrays
-Array-like objects that store numerical elements that can be represented by a specified number of bytes. Can be useful when dealing with streams of binary data.
-
-Typed Arrays mostly have the same properties and methods as normal Arrays with some extra properties for working with Array Buffers. More on this in [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray).
-
-Typed Arrays:
-|Name|Value Range|Element Size(bytes)|Element Description|
-|----|:-----------:|:------------:|-------------------|
-Int8Array|__-128__ to __127__|	1	|8-bit signed integer|
-Uint8Array|	__0__ to __255__|	1	|8-bit unsigned integer|
-Uint8ClampedArray|__0__ to __255__|	1	|clamped 8-bit unsigned integer|
-Int16Array|	__-32768__ to __32767__|	2	|16-bit two's complement signed integer|
-Uint16Array|__0__ to __65535__|	2	|16-bit unsigned integer|
-Int32Array|	__-2147483648__ to __2147483647__|	4	|32-bit two's complement signed integer|
-Uint32Array|__0__ to __4294967295__|	4	|32-bit unsigned integer|
-Float32Array|__1.2 x 10<sup>-38</sup>__ to __3.4 x 10<sup>38</sup>__|	4	|32-bit floating point number (max 7 digits)|
-Float64Array|__5.0 x 10<sup>-324</sup>__ to __1.8 x 10<sup>308</sup>__|	8	|64-bit floating point number (max 16 digits)|
-BigInt64Array|	__-2<sup>63</sup>__ to __2<sup>63</sup>-1__|	8	|64-bit signed integer|
-BigInt64Array|	__0__ to __2<sup>64</sup>-1__|	8	|64-bit unsigned integer|
+Template literals are strings wrapped in backticks `` ` `` with additional features:
+* multiline
+* string interpolation
+* access to raw string
 
 ``` javascript
-let int8 = new Int8Array([-128, 0, 127]);
-let uint8 = new Uint8Array([0, 127, 255]);
-let int8 = new Uint8ClampedArray([-128, 0, 127]);
-let int8 = new Int16Array([-128, 0, 127]);
-let int8 = new Uint16Array([-128, 0, 127]);
-let int8 = new Uint32Array([-128, 0, 127]);
-let int8 = new Float32Array([-128, 0, 127]);
-let int8 = new Float64Array([-128, 0, 127]);
-let int8 = new BigInt64Array([-128, 0, 127]);
-let int8 = new BigInt64Array([-128, 0, 127]);
+/*
+    MULTILINE
+*/
+let multiline = `A
+very very long string
+That spans across multiple lines
+    respects whitespaces
+\nRespects escape sequences
+`
 
+console.log(multiline);
+/*
+A
+very very long string
+That spans across multiple lines
+    respects whitespaces
+
+Respects escape sequences
+*/
+
+/*
+    INTERPOLATION
+*/
+let age = 40, name = 'John';
+
+let interpolation = `Hi, my name is ${name} and I'm ${age - 5} years old`;
+
+console.log(interpolation);
+    //> Hi, my name is John and I'm 35 years old
+
+
+/*
+    RAW VALUE
+*/
+const wrongFilePath = `C:\files\programs\myproject\index.js`;
+
+const filePath = String.raw`C:\files\programs\myproject\index.js`;
+
+console.log(wrongFilePath);
+    //> C:ilesprogramsmyprojectindex.js
+console.log(filePath);
+    //> C:\files\programs\myproject\index.js
 ```
 
-__Constructor__
-* `new TypedArrName(length)` - creates a typed array of a predefined length
-* `new TypedArrName(obj)` - creates a typed array out an array-like object
-* `new TypedArrName(typedArr)` - creates a typed array from another typed array
 
-``` javascript
-let int16 = new Int16Array(5);
-    //> [0, 0, 0, 0, 0]
-let int8 = new Uint8Array([-10, ]);
-    //>
-
-
-```

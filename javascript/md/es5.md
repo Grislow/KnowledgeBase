@@ -2860,6 +2860,7 @@ Do not confuse an objects Prototype with the inaccessible [[prototype]] property
 
 An objects prototype can be accessed through its constructor - `Object.constructor.prototype`
 
+You can create an object with no prototype using `Object.create(null)`.
 
 ``` javascript
 function Person(name) {
@@ -2883,6 +2884,11 @@ console.log(me.constructor.prototype);
 
 me.constructor.prototype === Person.prototype
                                         //> true
+
+// No prototype
+var objNoProto = Object.create(null);
+
+console.log(objNoProto.__proto__);      //> undefined
 ```
 
 ## Prototype Chain
