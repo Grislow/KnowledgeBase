@@ -6,6 +6,9 @@ Remaining:
 * [design patterns](#design-patterns)
 * [study non-functional requirements](https://en.wikipedia.org/wiki/Non-functional_requirement)
 
+Books to consider:
+* [Refactoring: Improving the Design of Existing Code](https://www.amazon.com/Refactoring-Improving-Design-Existing-Code/dp/0201485672)
+
 Sources:
 * [Mark Richards - Software Architecture Patterns](https://www.oreilly.com/library/view/software-architecture-patterns/9781491971437/)
 * [michael-rechardson.com](http://www.michael-richardson.com/processes/rup_for_sqa/core.base_rup/guidances/guidelines/software_architecture_document_F4C93435.html)
@@ -63,13 +66,21 @@ Sources:
         * [Object Oriented Design](#object-oriented-design)
 * [Software Design](#software-design)
     * [Design Concepts](#design-concepts)
+    * [Design Principles](#design-principles)
     * [Modeling Behavior](#modeling-behavior)
-    * [Design Patterns](#design-patterns)
-        * [Creational Patterns](#creational-patterns)
-        * [Structural Patterns](#structural-patterns)
-        * [Behavioral Patterns](#behavioral-patterns)
-        * [Functional Patterns](#functional-patterns)
-        * [Concurrency Patterns](#concurrency-patterns)
+    * [Design Reviews](#design-reviews)
+* [Design Patterns](#design-patterns)
+    * [Creational Patterns](#creational-patterns)
+        * [Abstract Factory](#abstract-factory)
+        * [Singleton](#singleton)
+        * [Builder](#builder)
+        * [Factory Method](#factory-method)
+    * [Structural Patterns](#structural-patterns)
+        * [Composite](#composite)
+    * [Behavioral Patterns](#behavioral-patterns)
+        * [Visitor](#visitor)
+    * [Functional Patterns](#functional-patterns)
+    * [Concurrency Patterns](#concurrency-patterns)
 * [Documentation](#documentation)
     * [Design Documentation](#design-documentation)
     * [Specification](#specification)
@@ -82,6 +93,16 @@ __Software Architecture__ regards the system as a whole, its components and how 
 The two main techniques used for software architecture are:
 * __Abstraction__ - finding individual components that build a solution
 * __Decomposition__ - dividing individual components into atomic pieces
+
+This can be done through:
+* __Divide and Conquer__ - breaking down a problem into several sub problems and tackling them one at a time
+* __Horizontal Decomposition__ - dividing a problem into a set of problems within the same level of abstraction
+* __Vertical Decompostion__ - dividing a problem into sub categories across a lower level of abstraction. Rules:
+    * top level must represent the requirements
+    * each level must be internally consistant - operations preserve invariants
+    * each lower level must represent the level above it
+        * for each lower level property there must exist a corresponding higher level property
+        * lower level property values must match corresponding higher level property values
 
 <u>Architecture produces</u>:
 * system specification
@@ -1019,57 +1040,223 @@ __Software Design__ is the process of implementing a program while adhering to f
 * guide tasks like testing, deployment, integration, design
 * consider tradeoffs
 
-## Design Principles
-__Seperation Of Concerns__ - each component should be responsible for a specific feature. This facilitates high cohesion and low coupling.
-
-__Single Responsibility Principle__ - each component should have one responsiblity. This facilitates readability, reusability and extendibility.
-
-__Principle of Least Knowledge__ - each component should operate with no knowledge of internal workings of other components
-
-__Do Not Repeat Yourself__ - functionalities should not be duplicated across the application
-
-__Composition over Inheritance__ - objects should use eachother through composition, not inheritance which creates tight coupling.
-
-__Define Communication Protocols__ - understand how the components will communicate with eachother in a given environment
-
-__Define Data Formats__ - define data formats for different components and the layers they reside in. Do not mix formats across a layer.
-
-__System Service Components as Abstract Entities__ - components related to security, communications, logging, profiling or configuration should be abstracted to seperate components - do not mix them with business logic.
-
-__Design Exceptions__ - identify possible exceptions early on and create appropriate mechanisms to handle them.
-
-__Naming Conventions__ - define naming conventions in advance to support readability across your team
-
 ## Design Concepts
 
-<u>Design Vocabulary</u>
+### Pillars of Design
 * __Coupling__ - how strongly two components rely on each-other
 * __Cohesion__ - the extent to which a single component has a single purpose
-* __Information Hiding__ - determine what is only needed for the internal workings of a component and what needs to be exposed for external consumption.
-* __Divide and Conquer__ - breaking down a problem into several sub problems and tackling them one at a time
-* __Horizontal Decomposition__ - dividing a problem into a set of problems within the same level of abstraction
-* __Vertical Decompostion__ - dividing a problem into sub categories across a lower level of abstraction. Rules:
-    * top level must represent the requirements
-    * each level must be internally consistant - operations preserve invariants
-    * each lower level must represent the level above it
-        * for each lower level property there must exist a corresponding higher level property
-        * lower level property values must match corresponding higher level property values
+* __Orthogonality__ - extent to which the systems features can be used in various environments
+* __Information Hiding__ - determine what is needed for the internal workings of a component and what needs to be exposed for external consumption.
 
-<u>Design Types</u>
+### Design Types
 * __Top down__ - treating the problem as a whole, then dividing it into atomic parts through abstraction and decomposition.
 * __Bottom up__ - focuses on the atomic parts and then combines them into a whole.
 * __Role Based__ - focusing on the use cases and building a collaboration diagram out of the different use cases, finally translating them into components and their connections. 
 
-<u>Abstraction Mechanisms</u>
+### Abstraction Mechanisms
 * __Declarative__ - specify what needs to be solved while abstracting away details of how it will be solved
 * __Aggregation__ - group data while abstracting away how its grouped
 * __Generalization__ - abstract away special/edge cases
 * __Parameterization__ - pass dependencies as arguments over making them itegral parts of a component
 
-<u>Invariant Maintenance Strategies</u>
+### Invariant Maintenance Strategies
 * __Aggregated Responsiblity__ - a component is responsible for maintaining an invariant even if it requires usage of other components
 * __Distributed Responsibility__ -  several components are responsible for maintaining an invariant
 * __Mediated Responsiblity__ - one entity per invariant - the mediator, knows everything about participants of an invariant and is reponsible solely for maintaining it
+
+## Design Principles
+An informal piece of advice about the structure of a design.
+
+__Abstract System Services__\
+Components related to security, communications, logging, profiling or configuration should be abstracted to seperate components - do not mix them with business logic.
+
+Consequences:
+* `[+]` readability
+* `[+]` maintainability
+* `[+]` loose coupling
+
+__Acyclic Dependency Principle__\
+Dependencies between packages must not form cycles. Components should only depend on other components beneath it.
+
+Consequences:
+* `[+]` readability
+* `[+]` maintainability
+
+__Bad Smells__\
+'Bad smells' are code situations that are suggestive of design problems. These problems should be resolved during the implementation phase.
+
+Examples:
+* duplicate code
+* too many comments
+* long classes
+
+Consequences:
+* `[+]` reduced rework in rapidly changing environments
+
+__Common Closure Principle__\
+Classes that change together should be released together.
+
+Consequences:
+* `[+]` versions can be easily maintained
+* `[+]` straightforward contract for clients
+
+__Dependency Inversion__\
+High level modules should not depend on low level modules. Both should depend on abstractions. In other words: Layering should be one of abstraction, rather than one of control or data access. 
+
+Consequences:
+* `[+]` controlling principles are enforced at the highest level of architecture
+* `[+]` higher reusability - modules depend on abtractions, not implementation details
+
+__Design Heuristics__\
+Situations that should be avoided during software design:
+1. most __class methods__ should __use__ most __class data__ most of the time
+    * if not split the class
+1. check constraints in constructors
+1. factor commonality of data, behavior and interface as high as possible in the inheritance hierarchy
+1. inheritance should __only__ be used to model generalization
+1. prefer composition over inheritance
+1. do not override base class method with a NOP method
+1. do not change state of an object without going through its public interface
+1. do not create god classes - distribute system intelligence horizontally as uniformly as possible
+
+Before implementation:
+1. communication protocols between components should be known before implementation
+1. define data formats and the layers they reside in - do not mix formats across layers
+1. identify exceptions early on and handle them appropriately
+
+Consequences:
+* `[+]` reusability
+* `[+]` error reduction
+* `[+]` resolves common inheritance problems
+* `[+]` maintains information hiding
+* `[+]` enforces loose coupling
+
+__Do Not Repeat Yourself__\
+Functionalities should not be duplicated across the application. Repeated patterns should be replaced with abstractions or through data normalization.
+
+Consequences:
+* `[+]` maintainability
+* `[+]` readability
+* `[+]` reusability
+* `[+]` loose coupling
+
+__Hollywood Principle__\
+Also called __Inversion of Control__ states that in a framework-client relationship calls should be made form the framework to the client classes.
+
+> Don't call us, we'll call you
+
+Consequences:
+* `[+]` decouples execution from implementation
+* `[+]` rely on contracts, not assumptions
+* `[+]` prevents side effects when replacing frameworks
+* `[-]` lower control on client side
+* `[-]` loss of flexibility
+
+__Intentionality__\
+Design software in such a way that intent is manifest and localized in your code. The conceptual distance between the problem you are trying to solve and the code you are solving it with should be minimal.
+
+This can be achieved by __cohesion__ and __naming conventions__.
+
+Consequences:
+* `[+]` traceability
+* `[+]` validation
+* `[+]` maintainability
+
+__Interface Segregation Principle__\
+Clients should depend on an interface to a part of a larger classes features.
+
+Consequences:
+* `[+]` reduced coupling - client only relies on functionality it actually needs
+* `[+]` readability - interface clearly explains intent
+
+__Law of Demeter__\
+Or _Principle of Least Knowledge_ state that the number of different classes a method can refer to should be limited to: 
+* enclosing objects properties
+* enclosing objects components properties
+* method parameters properties
+* properties of objects instantiated in the method body
+
+In short - each component should operate with no knowledge of the internal workings of other components.
+
+Consequences:
+* `[+]` low coupling
+* `[-]` can require wrapper classes
+
+__Liskov Substitution Principle__\
+Subclass instances should satisfy parent-class constraints.
+
+Consequences:
+* `[+]` subclass obeys parent class invariants
+* `[+]` subclass obeys parent class method contracts
+
+__Naming Conventions__\
+Define naming conventions in advance.
+
+Consequences:
+* `[+]` readability
+* `[+]` maintainability
+
+__Open Close Principle__\
+A class should be open for extension but closed for modification. Once a class is released, enhancements should only be made to its subclasses.
+
+Consequences:
+* `[+]` resolves common inheritance problems like the fragile base class problem
+
+__Reuse/Release Equivalency Principles__\
+> The granule of reuse is the granule of release.
+
+Each release of a package should be a highly cohesive code unit.
+
+Consequences:
+* `[+]` versions can be easily maintained
+* `[+]` straightforward contract for clients
+
+__Seperation Of Concerns__\
+Each component should be responsible for a specific feature.
+
+Consequences:
+* `[+]` high cohesion
+* `[+]` low coupling
+
+__Single Choice Principle__\
+If a program needs to support a set of alternatives they should be handled by a single subclass, with choice-specific subclass methods. Creating a module for each alternative reduces maintainability and readability.
+
+Consequences:
+* `[+]` readability
+* `[+]` maintainability
+
+__Single Responsibility Principle__\
+Each component should have one and only one responsiblity. 
+
+Consequences:
+* `[+]` readability
+* `[+]` maintainability
+* `[+]` reusability
+* `[+]` extendibility
+
+__Stable Abstraction Principle__\
+The more stable a package is the more abstract it should be. 
+
+Consequences:
+* `[+]` maintainability
+
+__Stable Dependency Principle__\
+No package should be dependent on packages that are more likely to change than it is. Depend in the direction of stability.
+
+Consequences:
+* `[+]` extendibility
+* `[+]` maintainability
+
+__Transparency__\
+Provide interfaces that enable client code to be written without knowledge of extraneous details.
+
+Consequences:
+* `[+]` reusability
+* `[+]` decoupling
+* `[+]` maintainability
+* `[-]` extra design
+* `[-]` requires more tests
+
 
 ## Modeling Behavior
 Pertains to:
@@ -1116,238 +1303,1736 @@ To depict a transition from one state to another use:
 
 __State Explosion Problem__ - a design problem pertaining to how the state space grows exponentially as new state variables are introduced.
 
+## Design Reviews
+Also called an inspection or walkthrough is a systematic reading of a software development artifact. The purpose is to find defects, check adherence to corporate or governmental standards. __Should not__ be used to educate staff, report or fix defects. 70 to 90% of defects are found through the review process, but reviews amount to 10-20% total cost of development
 
-## Design Patterns
+Reviews complement other verification techniques such as testing, proofs and static analysis.
+
+Prior to reviews the organization should determine __issue types__ and __severity classification__. 
+
+Example severity classification:
+* minor rework
+* conditional rework
+* major rework
+
+Reviews can pertain to:
+* requirements documents
+* specifications
+* architectural designs
+* detail designs
+* new code
+* fixes
+* test plans
+* documentation
+
+Process:
+1. __Planning__ - around 5 days before the review
+    * select participants
+    * schedule meeting
+    * assign roles
+    * specify artifact
+    * distribute materials
+1. __Preperation__ - participants study material individually, detect defects on their own
+1. __Review__ - meeting that lasts no more than two hours
+    * collect individually noticed defects
+1. __Rework__ - artifacts author investigates raised issues and fixes or logs them
+1. __Follow up__
+    * author reports results to moderator
+    * moderator confirms that fixes have been implemented
+    * moderator collects review data(defects, participants, time spent)
+    * review data should be recorded and saved
+    * moderator suggests improvements to review process
+
+Roles:
+* __Moderator__
+    * preparation
+    * follow up
+    * determine if participants are prepared
+    * evaluate whether artifact is ready for review
+    * runs the meeting
+    * technically competent but not necessarily experts
+* __Recorder__
+    * records the issues and defects
+    * proactively clarify raised issues
+    * ask for clarification
+    * makes use of __Recording Form__[location, artifact, description, type(predefined), severity(predefined)]
+* __Reader__
+    * leads participants through artifact
+    * enforces thoroughness
+    * impersonal pronouns(refer to artifact not its author)
+* __Reviewers__[3-6]
+    * raise the issues
+    * issues should be raised by asking questions
+    * should not explicitly suggest improvements(ask if author though about ...)
+
+Review Structure:
+1. introduce participants
+1. statement of objectives(moderator)
+1. evaulation of preparedness(moderator)
+1. systematic review
+1. recording of results
+1. summarization(recorder)
+1. determination of responsiblities
+
+Review Styles:
+* __Fagan Review__ - a review process structured as above
+* __Pair Programming__ - review is performed synchronously with coding
+* __Pass-around Review__ - conducted by email, participants react to alerts generated by the source code management system
+* __Tool-assisted Review__ - source control management systems, differencers, static analysis tools(lint, code-check)
+
+Guidelines:
+* raise issues without causing an emotionally driven discussion
+* do not use reviews for personnel evaluations
+* managers should not attend review meetings
+* dont allow non-participant observers
+* author of artifact should not be moderator or recorder
+* topics:
+    * avoid discussions of style
+    * avoid problem solving
+    * avoid phrases that raise defensiveness(like "you")
+* process:
+    * should be formerly defined
+    * spread out reviews across time
+    * each type of review has own criteria for thoroughness
+    * treat review as a go/no-go decision activity
+    * reviewers should sign off on acceptability of artifact
+* thoroughness is paramount
+    * line by line coverage
+    * visual element coverage
+    * coverage of all use cases
+    * checklist of common defect types
+    * verification conditions(for example if loop always terminates under various conditions)
+* __metrics__ - measure to see how effective the review is
+    * review rate [(lines reviewed) / (per staff hour spent)]
+    * defect rate [(defect detected) / (per staff hour spent)]
+    * defect density [(defects) / (lines of artifact)]
+    * process yield [comparison of review deteced defects to total defects]
+
+&nbsp;
+# Design Patterns
 > A general reusable solution to a commonly occurring problem in software development.
 
 Design patterns can be categorized into:
-* __Creational Patterns__ - focus on class and object instantiation
-* __Structural Patterns__ - focus on class and object composition
+* __Creational Patterns__ - focus on object instantiation
+* __Structural Patterns__ - focus on object composition
 * __Behavioral Patterns__ - focus on communication between objects
 * __Functional Patterns__ - focuses on subroutines
 * __Concurrency Patterns__ - focuses on dealing with multiple threads of execution
 
+Design Pattern disadvantages:
+* extra complexity
+* __object schizophrenia__ - or the __self problem__ refers to delegating certain operations to a group of objects. It is hard to assess which object in a group actually performed the operation.
+* refactoring could be complicated if the wrong pattern was chosen
+* obligation during development to properly document and convey that a certain pattern was used
+
 Source: 
 * [sourcemaking](https://sourcemaking.com/design_patterns)
+    * they have excellent checklists which I blatently coppied
 * [wikipedia](https://en.wikipedia.org/wiki/Architectural_pattern)
 
-### Creational Patterns
-<u>Abstract Factory</u>\
+## Creational Patterns
+
+### Abstract Factory
+__Intent__:
+* using an interface for creating families of related or dependent objects without specyfing their concrete classes
+* instantiation without the use of the `new` operator
+
+__Motivation__: encapsulating the construction of a __suite__ of products
+ 
+__Applicability__: 
+* portable applications that need to work in various environments
+* composite classes that can make use of a wide variety of related objects
+
+__Structure__:\
+![Abstract Factory UML](abstract_factory_uml.png)
+
+__Participants__:
+* __Client__ - the application that uses the products
+* __AbstractFactory__ - an common interface that defines a method for instantiating products
+* __Factory__ - a class with methods that perform the actual instantiation of products. Implements the AbstractFactory interface
+* __ProductInterface__ - a common interface that defines how the products are operated on
+* __ProductClass__ - a variation of a product that can be instantiated by a factory
+
+__Process__:
+1. the Client refers to the AbstractFactory for creating objects
+1. the Factory instantiates the Product
+1. the Product is made available to the Client through a ProductInterface
+
+__Check list__:
+1. Decide if "platform independence" and creation services are the current source of pain.
+1. Map out a matrix of "platforms" versus "products".
+1. Define a factory interface that consists of a factory method per product.
+1. Define a factory derived class for each platform that encapsulates all references to the new operator.
+1. The client should retire all references to new, and use the factory methods to create the product objects.
+
+__Consequences__:
+* `[+]` portable solution - platform indepenedence
+* `[+]` low coupling
+* `[+]` encapsulation of `new` operation
+
+__Collaboration__:
+* `[+]` Singleton - lots of clients can make use of one abstract factory - limiting its instances can improve memory usage
+* `[+]` Factory Method - start out with factory method and evolve into abstract factory if needed
+* `[+]` Prototype
+* `[-]` Facade - abstract factory can be an alternative to hide specific product classes
+
+### Builder
+__Intent__: 
+* seperate construction of a complex object from its representation
+* create a unified construction process for various representations
+* parse a complex representation and create one of several targets
+
+__Motivation__: 
+* simplifying creation of a complex object
+* unified process for creation of a complex object
+
+__Applicability__:
+* encapsulate creating and assembling parts of a complex object
+* delegation of object creation
+
+__Structure__:\
+![Builder UML](builder_uml.png)
+
+__Participants__:
+* __Director__ - invokes builder services
+* __BuilderInterface__ - a unified interface for various build classes
+* __BuilderClass__ - responsible for instantiating a group of products
+* __Product__ - a part of the complexObject
+* __ComplexObject__ - an composite object that is built out of various products
+
+__Process__:
+* Director invokes Builder services
+* Builder instantiates Products each time it is called
+* Builder stores information on all intermediate state
+* when the ComplexObject is assembled the Director retrieves it from the Builder 
+
+__Check list__:
+1. Decide if a common input and many possible representations (or outputs) is the problem at hand.
+1. Encapsulate the parsing of the common input in a Reader class.
+1. Design a standard protocol for creating all possible output representations. Capture the steps of this protocol in a Builder interface.
+1. Define a Builder derived class for each target representation.
+1. The client creates a Reader object and a Builder object, and registers the latter with the former.
+1. The client asks the Reader to "construct".
+1. The client asks the Builder to return the result.
+
+__Consequences__:
+* `[+]` encapsulates construction and representation
+* `[+]` control over construction process
+* `[+]` variable internal representation of product
+* `[-]` overhead - seperate builder for each type of product
+* `[-]` complexity - builder class needs to be immutable
+* `[-]` difficult dependency injection
+
+__Collaboration__:
+* `[+]` Singleton - limit the number of builder objects
+* `[+]` Composite - builder often builds composites
+* `[+]` Factory Method - start out with factory method and evolve into builder if needed
+* `[-]` Abstract Factory - builder focuses on returning an object once its complete while abstract factory returns it immediately
+
+### Dependency Injection
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]`  
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+### Factory Method
+__Intent__: 
+* defer instantiation to subclasses
+* defines a virtual constructor
+
+__Motivation__:
+* the `new` operator is considered harmful
+* creating an object in a way where subclasses can redefine which class to instantiate
+
+__Applicability__: 
+* define a seperate operation for creating an object
+* creating an object by calling a method(not constructor)
+
+__Structure__:\
+![Factory Method UML](factory_method_uml.png)
+
+__Participants__:
+* __Creator__ - requires a Product instance
+* __Subclass__ - responsible for instantiating a Product instance
+* __Product__ - product that is used by the Creator
+* __ProductInterface__ - an interface through which available Product operations are defined
+
+__Process__:
+* Creator requires a Product
+* Create refers to a seperate factoryMethod() to create the Product
+* A Subclass invokes the factoryMethod() and instantiates a Product
+* Creator makes use of the Product through a ProductInterface
+
+__Check list__:
+1. If you have an inheritance hierarchy that exercises polymorphism, consider adding a polymorphic creation capability by defining a static factory method in the base class.
+1. Design the arguments to the factory method. What qualities or characteristics are necessary and sufficient to identify the correct derived class to instantiate?
+1. Consider designing an internal "object pool" that will allow objects to be reused instead of created from scratch.
+1. Consider making all constructors private or protected.
+
+__Consequences__:
+* `[+]` flexibility - can easily implement object pools, can return various types of objects
+* `[+]` reusability
+* `[+]` memory - can recycle objects
+* `[+]` decoupling - object creation
+
+__Collaboration__:
+* `[+]` Abstract Factory - often implemented with Factory Methods
+* `[+]` Prototype - often implemented with Factory Methods
+* `[+]` Builder - often implemented with Factory Methods
+* `[-]` Prototype - creation through delegation, where Factory Methods create through inheritance
 
 
-<u>Builder</u>\
+### Lazy Initialization
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+### Multiton
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]`  
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+### Object Pool
+__Intent__:
+* 
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Check list__:
+1. Create ObjectPool class with private array of Objects inside
+1. Create acquire and release methods in ObjectPool class
+1. Make sure that your ObjectPool is Singleton
+
+__Consequences__:
+* `[+]`  
+* `[-]`  
+
+__Collaboration__:
+* `[+]` Singleton - the ObjectPool needs be a singleton
+* `[+]` Factory Method - can be used to encapsulate creation of objects in an Object Pool
+
+### Prototype
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]`
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Dependency Injection</u>\
+### RAII
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]`  
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Factory Method</u>\
+### Singleton
+__Intent__: Make sure a class has only one instance. Provide a global reference to that instance.
+
+__Motivation__: 
+* when number of instances of a class should be restricted
+* when we need to perform lazy allocation and initialization
+* as an alternative to global variables
+
+__Applicability__:
+* must be only one instance of a class
+* that instance must be accessible
+
+__Structure__:\
+![Composite Pattern UML](singleton_uml.png)
+
+__Participants__:
+* __Singleton__ - a class that provides access to an instance of itself
+
+__Process__: clients access the unique instance of a class through an accessor method
+
+__Consequences__:
+* `[+]` controlled access
+* `[+]` reduced namespace
+* `[+]` support for subclassing
+* `[+]` can be modified to provide a fixed number of instances
+* `[+]` both eager and lazy construction possible
+* `[-]` introduces global state
+* `[-]` restricts usage of class
+* `[-]` complicated multithreaded operations on instance
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Lazy Initialization</u>\
+## Structural Patterns
+
+### Adapter
+__Intent__: 
+
+__Motivation__: converts an interface to improve interoperability
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Multiton</u>\
+### Bridge
+__Intent__:
 
+__Motivation__: decouple abstraction and implementation
 
-<u>Object Pool</u>\
+__Applicability__: 
+* in languages that dont support interfaces
 
+__Structure__:\
 
-<u>Prototype</u>\
+__Participants__:
 
+__Process__:
 
-<u>RAII</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Singleton</u>\
+### Composite
+__Intent__: Deals with organizing whole-parts relationships into tree structures. Allows treating individual objects and compositions of objects uniformly by creating a common interface for them.
 
+__Motivation__: If there is no reason for differentiating between a leaf-node and a branch then they should be treated uniformly.
 
-### Structural Patterns
-<u>Adapter</u>\
+__Applicability__: 
+* clients ignore difference between individual and composite objects
+* when multiple objects are used in the same way
+* for a lowest common denominator interface
 
-
-<u>Bridge</u>\
-
-
-<u>Composite</u>\
-Deals with organizing information in whole-parts relationships between a composite class and its component classes.
-
-Class model:
-* __Client Class__ - 
-* __Component Class__ - 
-* __Leaf Class__ - 
-* __Composite Class__ - 
-
+__Structure__:\
 ![Composite Pattern UML](composite_uml.png)
 
-<u>Decorator</u>\
+__Participants__:
+* __Client__ - represents all possible uses of the component interface
+* __Component__ - an abstract interface through which the client communicates with the whole-part objects.
+* __Leaf__ - individual object
+* __Composite__ - composite object
 
+__Process__: both composite and leaf objects implement a method defined by the component interface. The client iterates through them treating them as intances of the component interface.
 
-<u>Delegation</u>\
+__Consequences__:
+* `[+]` simplification
+* `[-]` security
 
+### Decorator
+__Intent__:
 
-<u>Facade</u>\
+__Motivation__: attaching additional functionalities to an object dynamically
 
+__Applicability__: 
 
-<u>Flyweight</u>\
+__Structure__:\
 
+__Participants__:
 
-<u>Front Controller</u>\
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
-<u>Marker Interface</u>\
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Module</u>\
+### Delegation
+__Intent__:
 
+__Motivation__:
 
-<u>Proxy</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Twin</u>\
+__Participants__:
 
+__Process__:
 
-### Behavioral Patterns
-<u>Chain of responsibility</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Command</u>\
 
+### Facade
+__Intent__:
 
-<u>Interpreter</u>\
+__Motivation__: a higher level interface for a subsystem
 
+__Applicability__:
+* non OO legacy applications
 
-<u>Iterator</u>\
+__Structure__:\
 
+__Participants__:
 
-<u>Mediator</u>\
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
-<u>Memento</u>\
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Null Object</u>\
+### Flyweight
+__Intent__:
 
+__Motivation__: use sharing to support large numbers of fine-grained objects
 
-<u>Observer</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Servant</u>\
+__Participants__:
 
+__Process__:
 
-<u>Specification</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>State</u>\
 
+### Front Controller
+__Intent__:
 
-<u>Strategy</u>\
+__Motivation__:
 
+__Applicability__: 
 
-<u>Template Method</u>\
+__Structure__:\
 
+__Participants__:
 
-<u>Visitor</u>\
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
-### Functional Patterns
-<u>Closure</u>\
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Currying</u>\
+### Marker Interface
+__Intent__:
 
+__Motivation__:
 
-<u>Function composition</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Functor</u>\
+__Participants__:
 
+__Process__:
 
-<u>Monad</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Generator</u>\
 
+### Module
+__Intent__:
 
-### Concurrency Patterns
+__Motivation__:
 
-<u>Active object</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Actor</u>\
+__Participants__:
 
+__Process__:
 
-<u>Balking</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Barrier</u>\
 
+### Proxy
+__Intent__:
 
-<u>Binding properties</u>\
+__Motivation__: control access to an object
 
+__Applicability__: 
 
-<u>Coroutine</u>\
+__Structure__:\
 
+__Participants__:
 
-<u>Compute kernel</u>\
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
-<u>Double-checked locking</u>\
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Event-based asynchronous</u>\
+### Twin
+__Intent__:
 
+__Motivation__:
 
-<u>Fiber</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Futex</u>\
+__Participants__:
 
+__Process__:
 
-<u>Futures and promises</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Guarded suspension</u>\
 
+## Behavioral Patterns
 
-<u>Immutable object</u>\
+### Chain of responsibility
+__Intent__: 
 
+__Motivation__: seperate a request from a handler
 
-<u>Join</u>\
+__Applicability__: 
+* where a request is handled by multiple handlers
 
+__Structure__:\
 
-<u>Lock</u>\
+__Participants__:
 
+__Process__:
 
-<u>Messaging</u>\
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
-<u>Monitor</u>\
 
+### Command
+__Intent__:
 
-<u>Nuclear</u>\
+__Motivation__: turns a request into an object
 
+__Applicability__: 
+* logging
+* rollback functionality
 
-<u>Proactor</u>\
+__Structure__:\
 
+__Participants__:
 
-<u>Reactor</u>\
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
-<u>Read write lock</u>\
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 
-<u>Scheduler</u>\
+### Interpreter
+__Intent__:
 
+__Motivation__: represent a grammar and interpret its instances
 
-<u>Thread pool</u>\
+__Applicability__: 
 
+__Structure__:\
 
-<u>Thread-local storage</u>\
+__Participants__:
 
+__Process__:
 
+__Consequences__:
+* `[+]` 
+* `[-]` 
 
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
+
+### Iterator
+__Intent__:
+
+__Motivation__: access elements of a collection without exposing the underlying representation
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Mediator
+__Intent__:
+
+__Motivation__: encapsulating object interactions
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Memento
+__Intent__:
+
+__Motivation__: capture objects internal state for later usage
+
+__Applicability__:
+* rollback functionality
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Null Object
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Observer
+__Intent__:
+
+__Motivation__: notify dependents when an object changes
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Servant
+__Intent__:
+
+__Motivation__: 
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Specification
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### State
+__Intent__:
+
+__Motivation__: have an object that tracks state
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Strategy
+__Intent__:
+
+__Motivation__: family of algorithms with the same purpose and interface
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Template Method
+__Intent__:
+
+__Motivation__: skeleton of algorithm with hooks for specific steps
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Visitor
+__Intent__: vary operations performed on a composite structure without modifying the structure itself
+
+__Motivation__: decoupling structural elements of a composite structure from the operations performed on them
+
+__Applicability__:
+* perform various categories of operations on elements of a complex structure
+* simplify code by factoring out operations
+* decouple data structures from operations
+
+__Structure__:\
+![Visitor Pattern UML](visitor_uml.png)
+
+__Participants__:
+* __Client__ - represents all possible uses of the visitor interface
+* __Visitor__ - an abstract class declaring various operations that can be performed on structural elements
+* __ConcreteVisitor__ - a specialized operation that can be performed on structural elements; may store state
+* __Element__ - an abstract class for various structural elements that declares an `Accept` operation that takes a Visitor as an argument
+* __ConcreteElement__ - a structural element that implements the `Accept` method
+* __Object Structure__ - the composite structure that enumerates elements
+
+__Behavior__:\
+![Visitor Sequence UML](visitor_seq_uml.png)
+
+__Process__:
+* Client creates instances of ConcreteVisitor
+* Client traverses ObjectStructure
+* visited ConcreteElements call the `Visit` operation with self as argument
+
+__Consequences__:
+* `[+]` adding new operations is simplified
+* `[+]` visitors can accumulate state(like collecting statistics)
+* `[-]` adding new element types is complicated(would need to be adjusted to visitor model)
+* `[-]` violates encapsulation by seperating operations from elements structure
+* `[-]` __double dispatch__, what operation is performed depends both on the Element and the Visitor
+* `[?]` what is responsible for tree traversal of the Object Structure(an iterator, visitor or the object itself)?
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+## Functional Patterns
+
+### Closure
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]`  
+* `[-]`  
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Currying
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Function composition
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Functor
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Monad
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Generator
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+## Concurrency Patterns
+
+### Active object
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Actor
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Balking
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Barrier
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Binding properties
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Coroutine
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Compute kernel
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Double-checked locking
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Event-based asynchronous
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Fiber
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Futex
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Futures and promises
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Guarded suspension
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Immutable object
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Join
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Lock
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Messaging
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Monitor
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Nuclear
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Proactor
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Reactor
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Read write lock
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Scheduler
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Thread pool
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
+
+
+### Thread-local storage
+__Intent__:
+
+__Motivation__:
+
+__Applicability__: 
+
+__Structure__:\
+
+__Participants__:
+
+__Process__:
+
+__Consequences__:
+* `[+]` 
+* `[-]` 
+
+__Collaboration__:
+* `[+]` 
+* `[-]` 
 
 &nbsp;
 # Documentation
@@ -1362,7 +3047,7 @@ A large part of architecture is system architecture documentation as well as com
 * __Dependencies__ - what external components are used
 * __Issues__ - possible issues and how they would be handled
 
-<u>Design Study</u>\
+__Design Study__\
 Rigorous and systematic evaluation of the factors that influence a design. Involves creating a report which should consist of:
 1. __Context__ - background, motivation, specialized vocabulary definition
 1. __Research Questions__ - regarding the tradeoffs between non-functional requirements formulated in a neutral fashion
@@ -1377,18 +3062,18 @@ Rigorous and systematic evaluation of the factors that influence a design. Invol
 ## Specification
 Describing a system using quantifiable attributes and optionally mathematical logic(ex. FOL, predicate calculus). Specification is a broad term that pertains to anything from physical parameters of hardware to detailed documentation of particular components. Specifications are based on Requirements.
 
-<u>Important properties</u>:
+__Important properties__:
 * input type
 * output type
 * relation between input and ouput
 
-<u>Mathematical Specification</u>
+__Mathematical Specification__
 1. __Signature__ - name of program, name/type input values, name/type result
     * `Array<float> X = SORT(Array<float> Y)`
 1. __Precondition__ - any conditions that must be met before the flow/function is executed
 1. __Postcondition__ - any conditions that must be met after the flow/function is executed and any __side-effects__
 
-<u>OCL for specification</u>
+__OCL for specification__
 1. class invariants(statement that is always true)
 1. operation pre and post conditions
 1. derivation rules

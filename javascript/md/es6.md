@@ -682,11 +682,19 @@ __Constructor__
 * `new TypedArrName(obj)` - creates a typed array out of an array-like object
 * `new TypedArrName(typedArr)` - creates a typed array from another typed array
 
+TypedArray are often constructed using an `ArrayBuffer`.
+
 ``` javascript
 let int16 = new Int16Array(5);
     //> [0, 0, 0, 0, 0]
 let int8 = new Uint8Array([-10, -129, -130, 130, 0.123]);
     //> Uint8Array(5) [246, 127, 126, 130, 0]
+
+let buffer = new ArrayBuffer(8)
+    // creates an 8 byte buffer
+    // the buffer cannot be manipulated directly
+
+let int32 = new Int32Array(buffer);
 ```
 
 &nbsp;

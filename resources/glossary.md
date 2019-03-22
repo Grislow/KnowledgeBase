@@ -21,6 +21,15 @@ graph databases
     -https://neo4j.com/developer/graph-db-vs-nosql/
 published interfaces, indirection, wrapping, security kernels
 
+CSRF exploits - https://www.npmjs.com/package/csrf
+
+XSS attacks
+
+Virtual Domains
+
+SSO
+
+Fingerprint url
 
 &nbsp;
 # A
@@ -113,6 +122,24 @@ A signal passed between communicating processes that signifies receipt of a mess
 
 ## AJAX
 **A**synchronous **J**avascript **A**nd **X**ML is a technique that makes use of various technologies such as HTML, CSS, JavaScript, DOM, XML, XSLT and XMLHttpRequest object to update a web application through XML or JSON documents without reloading the entire page.
+
+## Amdahl's Law
+A formula that predicts the overall imporvement in execution speed one can achieve through parallelizing tasks. 
+
+Amdahl's Law shows that no matter how much you parallelize, execution speed will always be limited by tasks that can't be parallelized.
+
+## API Gateway
+A central point through which various microservices can connect. An API Gateway usually handles protocol translations and message routing to enable communication between disparate components.
+
+Popular API gateway features:
+* authentication
+* security policy enforcement
+* load balancing
+* cache management
+* dependency resolution
+* contract and service level agreement management
+
+Source: [whatis.techtarget.com](https://whatis.techtarget.com/definition/API-gateway-application-programming-interface-gateway)
 
 ## Argument
 Value that is passed to a function. 
@@ -270,6 +297,19 @@ A theorum stating that a distributed data store can only provide at most two of 
 ## Cardinality
 The number of elements in a collection of elements as a property of that collection.
 
+## Character Encoding
+Maps a code point to a concrete binary representation.
+
+__Examples__: UTF-8, UTF-16, UTF-32
+
+## Character Set
+A collection of characters that are mapped to [code points](#code-point).
+
+__Examples__: [Unicode](#unicode), [ASCII](#ascii)
+
+## Chunk
+A piece of data being sent through a stream.
+
 ## Clause
 An incomplete fragment of a statement.
 
@@ -292,8 +332,16 @@ This can be achieved through various means. Some of the most popular options are
 ## Closure
 A function that has its own lexical environment.
 
+## Clustering
+The ability of several servers to connect to a single database.
+
+Advantages:
+* __fault tolerance__ - if a server crashes another can resume operations on its behalf
+* __load balancing__ - can allocate users to the server with the least load
+
+
 ## Code point
-A unique number assigned to each Unicode character.
+A unique number assigned to a character in a character set.
 
 This Bento Box &#127857; is a Unicode character with the code point `U+1F371`. __U+__ is a prefix meaning Unicode.
 
@@ -441,6 +489,9 @@ An example is a UI Form that is controlled by state.
 ## Data Buffer
 A region of physical memory that temporarily stores data that is being moved from one place to another.
 
+## Data Stream
+A sequence of data made available over time. The sequence combines into a whole.
+
 ## Data Structures
 Data structures are ways of grouping data which define how this data is related and how you you can work with it.
 
@@ -521,6 +572,30 @@ Official Webpage: http://ecma-international.org/
 
 ## Encapsulation
 Grouping data and into a single unit(like an object). Allows restricting access to the state of that unit.
+
+## Endpoint
+One end of a communcation channel. Usually associated with a URI.
+
+This could be in a file system:
+``` 
+/endpoint
+C:\\ProgramFiles\some-endpoint
+/account
+```
+
+A domain specific endpoint:
+```
+https://example.com/endpoint
+https://example.com/app/login/some-endpoint
+```
+
+Different HTTP methods form different endpoints
+```
+GET /item/{endpoint}
+PUT /item/{endpoint}
+```
+## Environment Variable
+A global variable specific to an environment on which code is being executed.
 
 ## Error
 Faults in an application. Can be grouped as:
@@ -634,6 +709,15 @@ The act of loading some resources to memory prior to code execution irrespective
 ## Horizontal Scaling
 Adding more machines into the pool of resources available to a system.
 
+## HTTP
+THe Hyper Text Transfer Protocol is a standard format for sending data across TCP/IP. 
+
+A typical HTTP message contains: 
+* __status code__ regarding success or failure of the transmission
+* __http method__ type of performed operation, like GET or POST
+* __headers__ with metadata
+* __message body__ containing the payload
+
 &nbsp;
 # I
 
@@ -688,16 +772,35 @@ Source:
 * [wikipedia](https://en.wikipedia.org/wiki/In-memory_database)
 * [comparison](https://medium.com/@Alibaba_Cloud/redis-vs-memcached-in-memory-data-storage-systems-3395279b0941)
 
-
-
 ## Inheritance
 Passing down properties and methods between objects or classes.
 
 ## Initialization
 Allocation of memory for a variable.
 
+## Internet Protocol
+__IP__ is a protocol that standardizes how datagrams are transmitted across network boundaries. Its purpose is to encapsulate delivered data and label it with a source and destination address. This makes routing the data and delivering the data possible.
+
+An __IP Address__ is a unique identifier for resources connected to a computer network using the Internet Protocol.
+
 ## Interpreter
 A program that directly executes instructions written in a programming language without prior compilation.
+
+## Inter-Process Communication(IPC)
+A mechanism an operating system provides to allow sharing data between processes.
+
+IPC comes in various flavors:
+|Method|Description|
+|------|-----------|
+|__File__|A record stored on disk which can be shared across processes|
+|__Signal__|A system message sent by one process to control another process|
+|__Socket__|Sending data over a network interface between processes on the same computer or on the same network|
+|__Message Queue__|A data stream from which multiple processes can read and write without being interconnected|
+|__Pipe__|A unidirectional data stream|
+|__Shared Memory__|A block of memory that serves as a buffer from which multiple processes can read and write|
+|__Message passing__|Communication between multiple processes using a message queues and non-OS managed channels|
+
+Source: [wikipedia](https://en.wikipedia.org/wiki/Inter-process_communication#Remote_procedure_call_interfaces)
 
 &nbsp;
 # J
@@ -794,6 +897,11 @@ An algorithm that checks the validity of various identification numbers like a c
 ## Machine Code
 A programming language that can be directly translated to processor instructions. All applications are finally compiled to some form of machine code.
 
+## Magic String
+A string that has special meaning that determines how the code works. Strings should never be the basis for logic in an application thus magic strings should be avoided. 
+
+Instead, use encapsulated constant values in place of magic strings.
+
 ## Marshalling
 Transforming data into a standard format that can be transmitted over a network and decoded by other applications. 
 
@@ -846,6 +954,12 @@ __Cons__
 * __complex shared functionilty__ - cross-cutting concers will need to either be handled in seperate modules or in a service layer that all traffic is routed through
 * __more expensive__ - microservices are frequently on seperate VMs requiring configuration and maintenance overhead - this can be automated with container fleet management tools.
 
+## MIME Type
+**M**ultipurpose **I**nternet **M**ail **E**xternsions is a standard for specifying a type of data being sent over a computer network. 
+
+## Minimum Viable Product(MVP)
+A version of a product with minimum functionality needed to sell and use the product. The goal of an MVP is encouraging early adopters to start using the product and enhancing the product based on the feedback they provide.
+
 ## Module
 An independent software component designed to group features performing a given task. An application is usually composed of many components.
 
@@ -879,6 +993,7 @@ __JavaScript__: Object and arrays are mutable data types.
 
 ## Mutator
 Also called a _Mutator Method_ or _Setter_ are methods that allow changing an objects state data.
+
 
 &nbsp;
 # N
@@ -1016,6 +1131,12 @@ Excess resources needed to perform a task.
 &nbsp;
 # P
 
+## Package
+A namespace that organizes a set of related features.
+
+## Package Manager
+A program that automates installing, versioning, updating packages and managing dependencies.
+
 ## Parallel Programming
 Pertaining to executing multiple threads at the same time.
 
@@ -1034,11 +1155,32 @@ Parsers are often components of compilers and interpreters(JavaScript, Java, HTM
 
 Credit: https://www.techopedia.com/definition/3854/parser
 
+## Pipe
+Connecting the output of one entity to the input of another.
+
+For example reading data from one text file and writing it to another.
+
 ## Point-free Style
 A function that does not reference its arguments. Usually achieved by composing simple functions that only take one argument and return one value.
 
 ## Polyfill
 A [shim](#shim) specific to browsers. Used to introduce newer features to a browser that doesn't support them by combining features it does support.
+
+## Port
+An endpoint in communication that allows identification of a single process on a single machine. This works in conjunction with IP to enable process specific connection over a single IP.
+
+## Proof of Concept(POC)
+A realization of an idea to prove its feasability. A PoC is usually incomplete and doesn't necessarily abide by good coding standards. 
+
+## Protocol
+A set of rules two sides agree to when communicating. A standardized template for communication in various environments.
+
+## Proxy Server
+A server that acts as a gateway between a client and a server he makes requests to. A proxy intercepts connection between a sender and reciever providing an additional abstraction layer.
+
+Types of proxy servers:
+* __forward proxy__ - used by the client. Can work as a cache server for frequently downloaded resources or as a mechanism for hiding your identity by scrambling the clients IP.
+* __reverse proxy__ - used by the server. Provides a layer responsible for forwarding a request to the appropriate server. This can be very useful for load balancing or increasing availability. For example it is common practice to run a reverse proxy in `nginx` to forward requests to one of many NodeJS servers.
 
 ## Primitive
 Any data type that is not an object and has no methods. 
@@ -1147,6 +1289,11 @@ Rule of thumb:
 * if the regular expression is too long think of a different approach
 * don't try to solve all cases in a single regular expression(all valid emails could take a reg exp of over 1000 characters)
 
+## 
+
+## Remote Procedure Call(RPC)
+A [Session Layer](#osi-model) protocol that uses the [client-server model](#client-server-architecture). RPC allows a computer to a request a service from a remote entity without having to understand the networks details. 
+
 ## REPL
 A __Read-eval-print-loop__ is a simple programming environment where you can easily run and execute your code without the hastle of installing extra software. 
 
@@ -1202,8 +1349,8 @@ Mechanism that resends data that has been corrupted or lost during transmission 
 ## RFC
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
 
-## Remote Procedure Call(RPC)
-A [Session Layer](#osi-model) protocol that uses the [client-server model](#client-server-architecture). RPC allows a computer to a request a service from a remote entity without having to understand the networks details. 
+## Routing
+Mapping a specific http request to a specific response.
 
 ## Runtime
 See [Execution Phase](#execution-phase).
@@ -1231,6 +1378,8 @@ A very popular tool for SSH is OpenSSH(preinstalled on macOS).
 ## Semantic Versioning
 Versioning software in a way where different components of the version number have a standardized meaning.
 
+Source: [semver](https://semver.org/)
+
 ## SEO
 Search engine optimization.
 
@@ -1243,6 +1392,9 @@ Source: [it-consultis](https://it-consultis.com/blog/best-seo-practices-for-reac
 Symbols that structure a program. 
 
 Like a semicolon `;` to mark the end of a statement or braces {} that mark the beginning and end of a function body.
+
+## Serialization
+Converting an object into a format that can be stored in memory, a database or a file. These formats could be a stream of bytes, JSON, CSV or XML.
 
 ## Server
 A program(logical) or device(physical) that manages network resources and performs services.
@@ -1331,7 +1483,7 @@ Main categories are:
     * minimalism is essential
     * needs determine technology
     * product growth is feature growth, not size growth
-    * dont push beyond limits
+    * dont push team beyond limits
 * __Scrum__ - focuses on team productivity. Features include:
     * backlog of prioritized work
     * completing a predetermined set of backlog items in a series of sprints
@@ -1442,6 +1594,20 @@ Popular task runners include:
 Comparison:
 * [gulp vs npm-scripts](https://gist.github.com/elijahmanor/179e47828bf760c218bb3820d929836d)
 
+## Template
+A file containing placeholders that are replaced with values during runtime.
+
+## Transmission Control Protocol(TCP)
+__TCP__ is a standard that defines how two devices communicate over an IP network. TCP is responsible for providing rules on:
+* establish and maintaining a connection between devices
+* how transmitted data is broken up into pieces(packets)
+* sending and accepting packets from the network layer
+* managing flow control
+* retransmission
+* transmission acknowledgement
+
+Every operating system is TCP capable.
+
 ## TCP/IP Model
 Also called the __Internet Protocol Suite__ or __Department of Defense model__ is a layered representation of how a computer network operates. Consists of 4 layers which create a hirarchical structure with the top layer being closest to the end user.
 
@@ -1476,7 +1642,7 @@ __JavaScript__: You can only convert to __string__, __boolean__ or __number__. F
 # U
 
 ## Unicode
-An encoding standard that provides a unique number([code point](#code-point)) for characters in most modern languages, diacritics, symbols, emojis and more. These unique numbers are hexadecimals ranging from __0000__ to __10FFFF__ which results in __1,114,112__ different values. As of Unicode Version 9.0 __128,237__ of these are in use. 
+A character set that provides a unique number([code point](#code-point)) for characters in most modern languages, diacritics, symbols, emojis and more. These unique numbers are hexadecimals ranging from __0000__ to __10FFFF__ which results in __1,114,112__ different values. As of Unicode Version 9.0 __128,237__ of these are in use. 
 
 Some popular implementations of Unicode are __UTF-8__, __UTF-16__ and __UTF-32__. These are called character encodings and work by mapping Unicode numbers to a bit sequence called a [code unit](#code-unit).
 

@@ -7,6 +7,10 @@ Various handy checklists and best practices for developers or project managers.
 * [Databases](#databases)
     * [Database Design Checklist](#database-design-checklist)
     * [MongoDB Checklist](#mongoDB-checklist)
+* [Interviews](#interviews)
+    * [Python](#python)
+    * [Tester](#tester)
+    * [Javascript](#javascript)
 * [Backend Development Checklist](#backend-development-best-practices)
 * [NodeJS Best Practices](#nodejs-best-practices)
 * [OWASP Security Guidelines](#owasp-security-guidelines)
@@ -77,6 +81,45 @@ Source: [MongoDB Security Checklist](https://docs.mongodb.com/manual/administrat
 
 ### Operations Checklist
 Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administration/production-checklist-operations/)
+
+&nbsp;
+# Interviews
+
+## Python
+- [ ] What is Python?
+    * interpreted language, does not need to compile before execution
+    * dynamically typed
+    * OOP - supports classes, composition, inheritance, no access specifiers
+    * classes are first class citizens
+    * functions are first class citizens
+    * execution is slow(interpreter language), so Python allows C based extensions to optimize bottlenecks
+- [ ] How do you keep track of different versions of your code?
+    * versioning tools
+    * pull requests
+- [ ] What are *args, **kwargs?
+    * *args is a collection of all arguments passed to a function
+    * **kwargs* is a collection of all keyword arguments passed to a function
+- [ ] What paradigms(paradygmaty) does Python support and how?
+    * OOP - classes, composition, inheritance
+    * Functional - first class functions
+- [ ] How does garbage collection in Python work?
+    * makes use of reference counting
+    * can clean up reference cycles
+    * newer objects are prioritized
+- [ ] What would make you a good candidate for this project?
+- [ ] What do you feel are your weaknesses?
+- [ ] Do you have any personal projects?
+- [ ] How long does one have to learn to become a good developer?
+    -jak dlugo czlowiek musi sie uczyc zeby byc dobrym deweloperem? ile trwa ten proces nauki
+- [ ] Do you like programming?
+- [ ] What was your road to a career in programming?
+
+
+## Tester
+- [ ] something
+
+## Javascript
+- [ ] something
 
 
 &nbsp;
@@ -182,6 +225,7 @@ Source: [dev.to](https://dev.to/backendandbbq/what-does-a-tech-lead-do-1cpj)
     * how it changed design
     * dev notes
     * interactive rebasing
+- [ ] bug identification (type(style, missing, wrong), severity(minor, medium, major), location(line num), description)
 
 <u>EOD Contributions</u>
 - [ ] __Hot Fixes__
