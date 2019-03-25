@@ -2,69 +2,246 @@ Python 3 reference.
 
 Source:
 * [quora](https://www.quora.com/What-are-some-best-Python-references)
-* [python docs](https://docs.python.org/3.7/tutorial/index.html)
+* [python tutorial](https://docs.python.org/3.7/tutorial/index.html)
 
 #### Table of contents
 
-* [Conceptual](#conceptual)
-	* [Data types](#data-types)
-	* [Expressions](#expressions)
-	* [Statements](#statements)
-	* [Declaration](#declaration)
-	* [Naming Convention](#naming-convention)
-	* [Dynamically Typed](#dynamically-typed)
-	* [Type Coercion](#Type-Coercion)
-		* [Implicit](#implicit)
-		* [Explicit](#explicit)
-		* [Falsy values](#falsy-values)
-		* [Gotchas](#gotchas)
-	* [Mutability](#mutability)
-		* [Mutable Variable Types](#mutable-variable-types)
-		* [Immutable Variable Types](#immutable-variable-types)
+* [Python Interpreter](#python-interpreter)
+* [Package Manager](#package-manager)
+* [Virtual Environments](#virtual-environments)
 * [Operators](#Operators)
-    * [Arithmetic operators](#arithmetic-operators)
-    * [Operator precedence](#operator-precedence)
-    * [Unary operators](#unary-operators)
-    * [Comparison operators](#comparison-operators)
-    * [Logical operators](#logical-operators)
-    * [Ternary operator](#ternary-operator)
-    * [Bitwise operators](#bitwise-operators)
-    * [Assignment operators](#assignment-operators)
-    * [Membership operators](#membership-operators)
-* [Statements](#statements-1)
-    * [Control Flow](#control-flow)
-		* [#if...elif...else](#if...elif...else)
-		* [try...catch...finally](#try...catch...finally)
-		* [break](#break)
-		* [continue](#continue)
+    * [Mathematics](#mathematics)
+    * [Comparison](#comparison)
+    * [Floating Point Arithmetics](#floating-point-arithmetics)
+* [Control Flow](#control-flow)
     * [Iteration](#iteration)
-	    * [while](#while)
-	    * [do...while](#do...while)
-	    * [for](#for)
-	    * [for...in](#for...in)
-* [Text](#Text)
+* [Functions](#functions)
+* [Data Structures](#data-structures)
+    * [Lists](#lists)
+        * [Tools](#tools)
+    * [Tuples](#tuples)
+    * [Sequences](#sequences)
+    * [Sets](#sets)
+    * [Dictionaries](#dictionaries)
+    * [Looping Techniques](#looping-techniques)
+* [Modules](#modules)
+* [I/O](#i/o)
     * [Strings](#strings)
-        * [Valid Strings](#valid-strings)
-        * [Concatenation](#concatenation)
-        * [String Properties](#string-properties)
-        * [String Methods](#string-methods)
-        * [Escape sequences](#escape-sequences)
-        * [Unicode](#unicode)
-        * [Lexicographical Comparison](#lexicographical-comparison)
-    * [Regular Expressions](#regular-expressions)
-        * [Initialization](#initialization)
-* [Lists](#lists)
-	* [List Initialization](#list-initialization)
-	* [List Indexes](#list-indexes)
-    * [List Properties](#list-properties)
-	* [List Methods](#list-methods)
-	* [List type coercion](#list-type-coercion)
-* [Functions](#Functions)
-* [Objects](#Objects)
-* [Multithreading](#multithreading)
+        * [Regexp](#regexp)
+    * [Read and Write](#read-and-write)
+    * [File Objects](#file-objects)
+* [Errors and Exceptions](#errors-and-exceptions)
+    * [Error Ouput](#error-ouput)
+* [Classes](#classes)
+    * [Scope](#scope)
+    * [Inheritance](#inheritance)
+    * [Iterators](#iterators)
+    * [Generators](#generators)
+* [Standard Library](#standard-library)
+    * [Wildcards](#wildcards)
+    * [Command Line Arguments](#command-line-arguments)
+    * [Dates and Time](#dates-and-time)
+    * [Compression](#data-compression)
+    * [Output Formatting](#output-formatting)
+    * [Templating](#templating)
+    * [Binary Data](#binary-data)
+* [Internet Access](#internet-access)
+    * [Networking](#networking)
+    * [Internet Data Handling](#internet-data-handling)
+    * [Internet Protocols](#internet-protocols)
+* [Multimedia](#multimedia)
+* [OS](#os)
+* [Performance](#performance)
+* [Quality Control](#quality-control)
+* [Concurrent Execution](#multi-threading)
+* [Logging](#logging)
+* [Garbage Collection](#garbage-collection)
+* [Development Tools](#development-tools)
+* [Debugging and Profiling](#debugging-and-profiling)
 
 
-* [Python Interpreter](#Python-interpreter)
+&nbsp;
+# Python Interpreter
+
+
+&nbsp;
+# Package Manager
+
+
+&nbsp;
+# Virtual Environments
+
+
+&nbsp;
+# Operators
+
+
+## Mathematics
+
+
+## Comparison
+
+
+## Floating Point Arithmetics
+
+
+&nbsp;
+# Control Flow
+
+
+## Iteration
+
+
+&nbsp;
+# Functions
+
+
+&nbsp;
+# Data Structures
+
+
+## Lists
+
+
+### Tools
+
+
+## Tuples
+
+
+## Sequences
+
+
+## Sets
+
+
+## Dictionaries
+
+
+## Looping Techniques
+
+
+&nbsp;
+# Modules
+
+
+&nbsp;
+# I/O
+
+
+## Strings
+
+
+
+### Regexp
+
+
+## Read and Write
+
+
+## File Objects
+
+
+&nbsp;
+# Errors and Exceptions
+
+
+## Error Ouput
+
+
+&nbsp;
+# Classes
+
+
+## Scope
+
+
+## Inheritance
+
+
+## Iterators
+
+
+## Generators
+
+
+&nbsp;
+# Standard Library
+
+
+## Wildcards
+
+
+## Command Line Arguments
+
+
+## Dates and Time
+
+
+## Compression
+
+
+## Output Formatting
+
+
+## Templating
+
+
+## Binary Data
+
+
+&nbsp;
+# Internet Access
+
+
+## Networking
+
+
+## Internet Data Handling
+
+
+## Internet Protocols
+
+
+&nbsp;
+# Multimedia
+
+
+&nbsp;
+# OS
+
+
+&nbsp;
+# Performance
+
+
+&nbsp;
+# Quality Control
+
+
+&nbsp;
+# Concurrent Execution
+
+
+&nbsp;
+# Logging
+
+
+&nbsp;
+# Garbage Collection
+
+
+&nbsp;
+# Development Tools
+
+
+&nbsp;
+# Debugging and Profiling
+
+
+
+
+
 
 
 

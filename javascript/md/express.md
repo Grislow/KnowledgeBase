@@ -22,6 +22,7 @@ Source:
 * [Request Object](#request-object)
     * [Request Properties](#request-properties)
     * [Request Methods](#request-methods)
+    * [Request Data](#request-data)
 * [Response Object](#response-object)
     * [Response Properties](#response-properties)
     * [Edit Response Methods](#edit-response-methods)
@@ -57,6 +58,26 @@ const express = require('express');
 
 const app = express();
 ```
+
+Express also has a generator for creation of boilerplate code.
+
+__Installation__:
+``` shell
+npm install express-generator -g
+```
+
+__Generate__:
+``` shell
+# help
+express -h
+
+# create boilerplate
+express myappname
+
+# install dependencies
+npm install
+```
+
 
 &nbsp;
 # Listening on a port
@@ -572,6 +593,50 @@ app.all('/methods', (req, res) => {
     // array
     console.log(req.accepts(['text', 'json', 'xml']));
                                                     // xml
+})
+```
+
+## Request Data
+Extracting data from requests to use in your app is possible through:
+* querystrings
+* route parameters
+* request body
+
+``` javascript
+const express = require('express');
+const app = express();
+
+/* QUERY STRINGS
+    Route: http://localhost:3000/querystring?name=gregory&id=123456
+*/
+app.get('/querystring', (req, res) => {
+    for(let prop in req.query){
+        console.log(prop + ': ' + req.query[prop]);
+            //> name: gregory
+            //> id: 123456   
+    }
+    res.end();
+})
+
+/* ROUTE PARAMETERS
+    Route: http://localhost:3000/params/gregory/123456
+*/
+app.get('/params/:name/:postid', (req, res) => {
+    console.log(`${req.params.name} requested post ${req.params.postid}`);
+        //> gregory requested post 123456
+    res.end();
+})
+
+/* REQUEST BODY
+
+*/
+const bodyParser = require('body-parse');
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+app.post('/person', urlencodedParser, (req, res) => {
+    res.end();
+    console.log(req.body.name);
+    console.log(req.body.email);
 })
 ```
 
@@ -1356,7 +1421,6 @@ Set of best practices for security and performance in a production environment.
 1\. __Avoid deprecated or vulnerable versions of Express__\
 Only use version __4+__ of Express. Previous versions are no longer maintained.
 
-
 2\. __Use TLS__\
 Make sure to encrypt your HTTP requests when dealing with sensitive data.
 * free digital certificate at [letsencrypt](https://letsencrypt.org/about/)
@@ -1398,28 +1462,209 @@ If you dont use Helmet at least add the following:
 app.disable('x-powered-by');
 ```
 
-4\. __Use cookies securly__\
+4\. __Use cookies securly__
 
+__Do not use default session cookie names__ \
+These could be used by attackers to fingerprint the server and target attacks accordingly.
 
+Below is an example fix through generic cookie names using the [express-session](https://www.npmjs.com/package/express-session) library.
+``` javascript
+const session = require('express-session');
 
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+    secret: 's3Cur3',
+    name: 'sessionId'
+}))
+```
+
+__Set cookie security options appropriately__\
+For enhanced security set following cookie options:
+* `secure` - ensures cookie is sent over HTTPS
+* `httpOnly` - ensures the cookie is sent over HTTP(s), not client side JS
+* `domain` - domain of the cookie; compare against domain of server
+* `path` - path of the cookie; compare against request path; if path and domain match send the cookie
+* `expires` - set expiration date for persistant cookies
+
+Below is an example using the [cookie-session](https://www.npmjs.com/package/cookie-session) library.
+``` javascript
+const session = require('cookie-session')
+const express = require('express')
+const app = express()
+
+const expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+app.use(session({
+    name: 'session',
+    keys: ['key1', 'key2'],
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        domain: 'example.com',
+        path: 'foo/bar',
+        expires: expiryDate
+    }
+}));
+```
 
 5\. __Prevent brute force attacks against authorization__\
+Protect login endpoints by blocking authorization based on two metrics:
+* consecutive failed attempts by same user name and IP address
+* number of failed attempts by same IP address over a long period of time
 
-
-
+Great tool for this is the [node-rate-limiter-flexible](https://github.com/animir/node-rate-limiter-flexible) library. The creators also provide a [guide](https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#login-endpoint-protection) on securing endpoints.
 
 6\. __Ensure dependencies are secure__\
+The security of your app is only as strong as the weakest links in your dependencies.
 
+Analyze your dependency tree:
+``` shell
+npm audit
+```
 
+For more security use [snyk](https://snyk.io/).
+``` shell
+npm install -g snyk
+cd your-app
 
+# test for vulnerabilities
+snyk test
+
+# wizard for applying updates and patches
+snyk wizard
+```
 
 7\. __Avoid known vulnerabilities__\
+Stay on top of known vulnerabilities:
+* [OWASP](https://www.owasp.org/index.php/Top_10-2017_Top_10)
+* [snyk db](https://snyk.io/vuln/)
+* [npm security advisories](https://www.npmjs.com/advisories)
 
-
-
-
-
+Additional:
+* use [csurf] to protect against _CSRF_
+* filter and sanitize user input to protect against _XSS_ and _command injection_
+* use __parameterized queries__ or __prepared statements__ to protect against _SQL Injection_
+* use [sqlmap](http://sqlmap.org/) to detect _SQL Injection_ vulnerabilities
+* use [nmap](https://nmap.org/) and [sslyze](https://github.com/nabla-c0d3/sslyze) to check SSL ciphers, keys, renegotitation, validity of certificate
+* use [safe-regex](https://www.npmjs.com/package/safe-regex) do protect against _ReDoS_
 
 
 ## Performance
 
+1\. __Development Practices__
+
+* Use __gzip__ [compression](https://www.npmjs.com/package/compression)
+```javascript
+var compression = require('compression')
+var express = require('express')
+var app = express()
+app.use(compression())
+```
+* dont use synchronous functions
+* perform logging - for app activity logging use libraries like:
+    * [winston](https://www.npmjs.com/package/winston)
+    * [bunyan](https://www.npmjs.com/package/bunyan)
+    * [comparison](https://strongloop.com/strongblog/compare-node-js-logging-winston-bunyan/)
+* proper exception handling - a nice [article](https://strongloop.com/strongblog/robust-node-applications-error-handling/)
+    * do not listen for `uncaughtException` event
+    * use `try ... catch` for synchronous exception handling
+    * use promises `catch()` method to catch asynchronous exceptions. Caveats in this approach:
+        * all async code must return promises - convert if needed through [promisifyAll](http://bluebirdjs.com/docs/api/promise.promisifyall.html) utility function
+        * handle event emitter exceptions
+```javascript
+/* 
+    TRY ... CATCH
+*/
+app.get('/search', function (req, res) {
+    setImmediate(function () {
+        let jsonStr = req.query.params
+        try {
+            let jsonObj = JSON.parse(jsonStr)
+            res.send('Success')
+        } catch (e) {
+            res.status(400).send('Invalid JSON string')
+        }
+    })
+})
+
+/* 
+    PROMISES
+*/
+app.get('/', function (req, res, next) {
+    // do some sync stuff
+    queryDb()
+    .then(function (data) {
+        // handle data
+        return makeCsv(data)
+    })
+    .then(function (csv) {
+        // handle csv
+    })
+    .catch(next)
+})
+
+app.use(function (err, req, res, next) {
+    // handle error
+})
+
+/*
+    EVENT EMITTER EXCEPTION HANDLING
+*/
+const wrap = fn => (...args) => fn(...args).catch(args[2])
+
+app.get('/', wrap(async (req, res, next) => {
+    let company = await getCompanyById(req.query.id)
+    let stream = getLogoStreamById(company.id)
+    stream.on('error', next).pipe(res)
+}))
+
+```
+
+2\. __Operations Practices__
+
+* set `NODE_ENV=production`. This makes express:
+    * cache view templates
+    * cache CSS files generated from CSS extensions
+    * generate less verbose error messages
+* to initiate environment variables use OS's init system(not `export` or `.bash_profile`)
+    * [Upstart](http://upstart.ubuntu.com/cookbook/#environment-variables)
+    * [systemd](https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html)
+``` shell
+# example with Upstart
+# /etc/init/env.conf
+env NODE_ENV=production
+```
+* make sure app automatically restarts
+    * use a __process manager__ to restart the app
+        * [comparison](http://strong-pm.io/compare/) of process managers
+        * [StrongLoop PM](http://strong-pm.io/) is a feature packed process manager:
+            * __build__ and __package__ application locally
+            * __secure deployment__ to production system
+            * manage clusters remotely
+            * view CPU profiles, heap snapshots for performance optimization and memory leak diagnosis
+            * view performance metrics
+            * integrated control for Nginx load balancer
+            * automatic restart on system restart
+    * use the OS __init system__ to start the process manager when the system restarts. Main init systems in use:
+        * [Upstart](http://upstart.ubuntu.com/cookbook/#environment-variables)
+        * [systemd](https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html)
+* run app in a cluster. 
+    * To share memory between instances use an IMDB like Redis
+    * clusters can be achieved through:
+        * NodeJS cluster module - libraries that use it [node-pm](https://www.npmjs.com/package/node-pm) or [cluster-service](https://www.npmjs.com/package/cluster-service)
+        * using a process manager like StrongLoop PM
+* cache request results
+    * use a caching service like [Varnish](https://varnish-cache.org/) or [nginx-caching](https://serversforhackers.com/c/nginx-caching)
+* use a load balancer
+    * usually a reverse proxy that orchestrates traffic to and from application instances and servers
+    * set up load balancer using [nginx](http://nginx.org/en/docs/http/load_balancing.html) or [HAProxy](https://www.digitalocean.com/community/tutorials/an-introduction-to-haproxy-and-load-balancing-concepts)
+* use a reverse proxy
+    * it is recommended to handle tasks that do not require knowledge on app state through reverse proxy
+    * free up Express to perform specialized application tasks
+* perform health checks and graceful shutdown. 
+    * __graceful shutdown__ - make sure the application:
+        * finishes ongoing requests
+        * clean up used resources
+        * terminate database connections
+        * terminate file locks
+    * __health checks__ - determine if an application is healthy and can accept new requests
+    * available open-source solutions include [Terminus](https://github.com/godaddy/terminus) or [Lightship](https://github.com/gajus/lightship)

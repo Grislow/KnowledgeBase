@@ -3,14 +3,13 @@ Various handy checklists and best practices for developers or project managers.
 #### Table of contents
 
 * [Containerization](#containerization)
-    * [Can App Be Containerized](#can-app-be-containerized)
+    * [Can An App Be Containerized](#can-app-be-containerized)
 * [Databases](#databases)
     * [Database Design Checklist](#database-design-checklist)
     * [MongoDB Checklist](#mongoDB-checklist)
 * [Interviews](#interviews)
-    * [Python](#python)
-    * [Tester](#tester)
-    * [Javascript](#javascript)
+    * [Python Engineer](#python-engineer)
+    * [Quality Assurance Engineer](#quality-assurance-engineer)
 * [Backend Development Checklist](#backend-development-best-practices)
 * [NodeJS Best Practices](#nodejs-best-practices)
 * [OWASP Security Guidelines](#owasp-security-guidelines)
@@ -85,7 +84,7 @@ Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administr
 &nbsp;
 # Interviews
 
-## Python
+## Python Engineer
 - [ ] What is Python?
     * interpreted language, does not need to compile before execution
     * dynamically typed
@@ -98,7 +97,7 @@ Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administr
     * pull requests
 - [ ] What are *args, **kwargs?
     * *args is a collection of all arguments passed to a function
-    * **kwargs* is a collection of all keyword arguments passed to a function
+    * **kwargs is a collection of all keyword arguments passed to a function
 - [ ] What paradigms(paradygmaty) does Python support and how?
     * OOP - classes, composition, inheritance
     * Functional - first class functions
@@ -110,16 +109,69 @@ Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administr
 - [ ] What do you feel are your weaknesses?
 - [ ] Do you have any personal projects?
 - [ ] How long does one have to learn to become a good developer?
-    -jak dlugo czlowiek musi sie uczyc zeby byc dobrym deweloperem? ile trwa ten proces nauki
+    * jak dlugo czlowiek musi sie uczyc zeby byc dobrym deweloperem? ile trwa ten proces nauki?
 - [ ] Do you like programming?
 - [ ] What was your road to a career in programming?
 
+## Quality Assurance Engineer
+- [ ] Difference betweeen __Quality Assurance__, __Quality Control__ and __testing__?
+    * __Quality Assurance__ => planning/defining how tests are implemented/monitored and quality standards
+    * __Quality Control__ => process of finding defects and providing suggestions to improve quality
+    * __testing__ => process of finding bugs and defects
+- [ ] When should QA activities start?
+    * as soon as possible
+    * delay of QA activities can cost a lot of time, money and efforts
+- [ ] What is the difference between the __Test Plan__ and __Test Strategy__?
+    * __Test Plan__ => higher level established by PM that demonstrates the overall approach to testing
+    * __Test Strategy__ => 
+- [ ] Explain the software testing lifecycle?
+    *
+- [ ] Define a format of writing a good test case?
+    *
+- [ ] What is a good test case?
+    *
+- [ ] What would you do if you had to execute a large suite in little time?
+    *
+- [ ] Should QA's participate to resolve production issues?
+    *
+- [ ] How would you make sure a bug you found in production was not introduced again?
+    *
+- [ ] What is the difference between __functional__ and __nonfunctional__ testing?
+    * __functional testing__ -
+    * __nonfunctional testing__ -
+- [ ] What is __negative testing__? How is it different from __positive testing__?
+    * __negative testing__ - 
+    * __positive testing__ - 
+- [ ] How do you ensure testing is complete and has good coverage?
+    *
+- [ ] What are different artifacts you refer when you write test cases?
+    * __Functional Requirement Specification__ -
+    * __Requirement understanding document__ -
+    * __Use Cases__ -
+    * __Wireframes__ -
+    * __User Stories__ -
+    * __Acceptance criteria__ -
+    * __Many a time UAT test cases__ -
+- [ ] Have you ever wrote test cases without having documents?
+    *
+- [ ] What is __Verification__ and __Validation__?
+    * __Verification__ -
+    * __Validation__ - 
+- [ ] Name different verification techniques you know?
+    * __review__ -
+    * __inspection__ -
+    * __walkthrough__ -
+- [ ] What is the difference between __Load testing__ and __Stress Testing__?
+    * __Load testing__ -
+    * __Stress Testing__ - 
+- [ ] What do you dont when you have doubts about the project?
+    *
+- [ ] Have you used any Automation Tools?
+    *
+- [ ] How do you determine which piece of software requires how much testing?
+    *
 
-## Tester
-- [ ] something
 
-## Javascript
-- [ ] something
 
 
 &nbsp;
@@ -137,6 +189,8 @@ Source: [futurice](https://github.com/futurice/backend-best-practices#bill-of-ma
 # NodeJS Best Practices
 Source: [i0natan](https://github.com/i0natan/nodebestpractices)
 
+# NodeJS Security Checklist
+Source: [Gergely Nemeth](https://blog.risingstack.com/node-js-security-checklist/)
 
 
 &nbsp;

@@ -499,6 +499,9 @@ Knowing Data Structures is important because they are proven and tested ways of 
 
 ![Data Structure Choice Graph](data_structures.png)
 
+## Data Base
+> A structured set of computerized data with an accessible interface.
+
 ## Debugging
 Finding and fixing errors in source code.
 
@@ -1168,6 +1171,12 @@ A [shim](#shim) specific to browsers. Used to introduce newer features to a brow
 
 ## Port
 An endpoint in communication that allows identification of a single process on a single machine. This works in conjunction with IP to enable process specific connection over a single IP.
+
+## POSIX
+A family of standards for providing a uniform API to UNIX and UNIX-based operating systems.
+
+Making your application conform to POSIX standards ensures it will easily port to a large family of systems(example Linux, macOS).
+
 
 ## Proof of Concept(POC)
 A realization of an idea to prove its feasability. A PoC is usually incomplete and doesn't necessarily abide by good coding standards. 

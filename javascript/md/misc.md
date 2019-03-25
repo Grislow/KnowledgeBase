@@ -7,6 +7,7 @@ __TODO__:
 
 #### Table of contents
 * [Algorithms](#algorithms)
+* [Asynchronous Error Handling](#asynchronous-error-handling)
 * [Data Structures](#data-structures)
 * [Design Patterns](#design-patterns)
 * [Function Decorators](#function-decorators)
@@ -38,7 +39,11 @@ Credit to:
 
 ## Sort
 
-
+&nbsp;
+# Asynchronous Error Handling
+Source: 
+* [strongloop - async error handling](https://strongloop.com/strongblog/async-error-handling-expressjs-es7-promises-generators/#cleaner-code-with-generators)
+* [strongloop - promises](https://strongloop.com/strongblog/promises-in-node-js-with-q-an-alternative-to-callbacks/)
 
 
 &nbsp;

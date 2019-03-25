@@ -46,7 +46,7 @@ __NoSQL DB Types__
 # Choosing
 Choosing between __NoSQL__ and __SQL__:
 * <u>Query Complexity</u>
-    * __SQL__ - provides a more powerful langua
+    * __SQL__ - provides a more powerful querying language
 * <u>Data Storage</u>
     * __hirarchical data__ - NoSQL DB's are better equiped to handle hirarchical data
     * __volume__ - NoSQL is the best choice for extreme variations and high volume

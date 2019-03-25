@@ -4,6 +4,11 @@ In a client-server architecture an HTTP server is run using node. Node listens f
 
 __TODO__:
 * [web scraping](https://blog.bitsrc.io/https-blog-bitsrc-io-how-to-perform-web-scraping-using-node-js-5a96203cb7cb)
+* [skim official guide](https://nodejs.org/en/docs/guides/)
+
+Source:
+* [nodejs docs](https://nodejs.org/api/)
+* [nodejs guide](https://nodejs.org/en/docs/guides/)
 
 #### Table of contents
 
@@ -18,12 +23,37 @@ __TODO__:
 * [Events](#events)
     * [Custom Events](#custom-events)
     * [System Events](#system-events)
-* [Native Modules](#native-modules)
-    * [Buffer](#buffer)
-    * [File System](#file-system)
-    * [HTTP](#http)
-    * [Util](#util)
-
+* [Assert](#Assert)
+* [Buffer](#buffer)
+* [C/C++ Addons](#c/c++-addons)
+* [Child Process](#child-process)
+* [Cluster](#Cluster)
+* [Console](#console)
+* [Crypto](#crypto)
+* [Debugger](#debugger)
+* [DNS](#dns)
+* [Errors](#errors)
+* [File System](#file-system)
+* [HTTP and HTTPS](#HTTP-and-HTTPS)
+* [Net](#net)
+* [OS](#os)
+* [Path](#path)
+* [Process](#process)
+* [Query String](#query-string)
+* [Readline](#readline)
+* [REPL](#repl)
+* [Stream](#stream)
+* [String Decoder](#string-decoder)
+* [Timers](#timers)
+* [TLS](#tls)
+* [UDP](#udp)
+* [URL](#url)
+* [Util](#util)
+* [V8](#v8)
+* [VM](#vm)
+* [Zlib](#Zlib)
+* [Security](#security)
+* [Database Integration](#database-integration)
 * [Misc](#misc)
 
 
@@ -55,6 +85,8 @@ __Error First Callbacks__\
 NodeJS makes heavy usage of error first callbacks, which are simply callback functions with the error object as their first parameter.
 
 ## Environment Variables
+SKIM: [John Papa](https://medium.com/the-node-js-collection/making-your-node-js-work-everywhere-with-environment-variables-2da8cdf6e786)
+
 Variables that store runtime or environment data.
 
 Environment variables are stored in the `process.env` object.
@@ -66,6 +98,8 @@ const PORT = process.env.PORT;
 ```
 
 ## Global and Module Objects
+Source: [globals](https://nodejs.org/api/globals.html)
+
 Objects that are available either globally in NodeJS or in all modules.
 
 Module Objects:
@@ -91,11 +125,15 @@ When deploying a node server to a cloud service below is an example checklist of
 
 &nbsp;
 # CLI
+Source: [cli](https://nodejs.org/api/cli.html)
+
 `node` - runs a JavaScript repl
 `node example.js` - runs example.js in the node runtime environment
 
 &nbsp;
 # Modules
+Source: [modules](https://nodejs.org/api/modules.html)
+
 NodeJS supports the CommonJS module syntax natively. ES6 modules can be used if transpiled using babel.
 
 ## CommonJS
@@ -225,10 +263,18 @@ This mechanism makes request handling non-blocking in NodeJS. This is especially
 Events comming from libuv are usually linked with an event emitter for custom handling.
 
 &nbsp;
-# Native Modules
-NodeJS comes with a lot of useful native utility modules. The full list can be found [here](https://nodejs.org/api/).
+# Assert
+Source: [assert](https://nodejs.org/api/assert.html)
 
-## Buffer
+A module for performing assertion tests to test invariants.
+
+``` javascript
+const assert = require('assert');
+```
+
+
+&nbsp;
+# Buffer
 Enables reading and manipulating streams of data. Buffers are available globally in NodeJS. Buffers are usually not manipulated directly, but rather used by NodeJS internally.
 
 Buffers represent a fixed amount of data. Its length is a constant. Writing values beyond that length results in overwriting starting from the buffers first element.
@@ -258,7 +304,94 @@ buffer.write('J');
     // Jello
 ```
 
-## File System
+&nbsp;
+# C/C++ Addons
+Source: [addons](https://nodejs.org/api/addons.html)
+
+C or C++ modules integrated into a NodeJS app.
+
+
+&nbsp;
+# Child Process
+Source: [child_process](https://nodejs.org/api/child_process.html)
+
+A module that enables spawning child processes.
+
+``` javascript
+const { spawn } = require('child_process');
+const ls = spawn('ls', ['-lh', '/usr']);
+```
+
+
+&nbsp;
+# Cluster
+Source: [cluster](https://nodejs.org/api/cluster.html)
+
+A module that allows creation of child processes that all use the same port and can run on seperate processing units.
+
+``` javascript
+const cluster = require('cluster');
+```
+
+
+&nbsp;
+# Console
+Source: [console](https://nodejs.org/api/console.html)
+
+A debugging console like the one available in web browsers.
+
+
+&nbsp;
+# Crypto
+Source: [crypto](https://nodejs.org/api/crypto.html)
+
+Cryptographic functionalities for:
+* OpenSSL hash
+* HMAC
+* cipher
+* decipher
+* sign
+* verify functions
+
+``` javascript
+const crypto = require('crypto');
+```
+
+&nbsp;
+# Debugger
+Source: [debugger](https://nodejs.org/api/debugger.html)
+
+Debugging utility accessible through built-in debugging client.
+
+
+&nbsp;
+# DNS
+Source: [dns](https://nodejs.org/api/dns.html)
+
+Contains functions:
+* `dns.lookup()` - uses os to perform name resolution without necessarily performing network communication.
+* functions that connect to DNS server to perform name resolution
+
+``` javascript
+const dns = require('dns');
+```
+
+
+&nbsp;
+# Errors
+Source: [errors](https://nodejs.org/api/errors.html)
+
+NodeJS applications experience 4 kinds of errors:
+* __JavaScript Errors__ 
+* __System Errors__
+* __User-specific Errors__
+* __Assertion Errors__
+
+
+&nbsp;
+# File System
+Source: [fs](https://nodejs.org/api/fs.html)
+
 For I/O operations the NodeJS fs library is used.
 
 ``` javascript
@@ -277,11 +410,19 @@ fs.readFile(__dirname + 'test.txt', (err, data) => {
 fs.readFileSync(__dirname + 'test.txt');
 ```
 
-## HTTP
+&nbsp;
+# HTTP and HTTPS
+Source:
+* [http](https://nodejs.org/api/http.html)
+* [http/2](https://nodejs.org/api/http2.html#http2_http_2)
+* [https](https://nodejs.org/api/https.html)
+
 A module for handling HTTP requests and sending HTTP responses.
 
 ``` javascript
 const http = require('http');
+const http2 = require('http2');
+const https = require('https');
 ```
 __HTTP classes__:
 * `http.Agent` - manages connection persistance and reuse for HTTP clients. Has a queue of pending requests for a given host and port. 
@@ -314,7 +455,86 @@ http.createServer((req, res) => {
 
 ```
 
-## Stream
+&nbsp;
+# Net
+Source: [net](https://nodejs.org/api/net.html)
+
+An asynchronous network API for creation of stream-based TCP server, IPC servers and clients.
+
+``` javascript
+const net = require('net');
+```
+
+
+&nbsp;
+# OS
+Source: [os](https://nodejs.org/api/os.html)
+
+Collection of operating system utility methods.
+
+``` javascript
+const os = require('os');
+```
+
+
+&nbsp;
+# Path
+Source: [path](https://nodejs.org/api/path.html#path_path)
+
+Enables working with file and directory paths.
+
+``` javascript
+const path = require('path');
+```
+
+
+&nbsp;
+# Process
+Source: [process](https://nodejs.org/api/process.html)
+
+A global object containing a set of properties and methods that provide information and control over the current NodeJS process.
+
+Features:
+* is an instance of EventEmitter.
+
+
+&nbsp;
+# Query String
+Source: [querystring](https://nodejs.org/api/querystring.html)
+
+Utility module for parsing and formatting URL query strings.
+
+``` javascript
+const querystring = require('querystring');
+```
+
+
+&nbsp;
+# Readline
+Source: [readline](https://nodejs.org/api/readline.html)
+
+An interface for reading data one line at a time from a Readable stream.
+
+``` javascript
+const readline = require('readline');
+```
+
+
+&nbsp;
+# REPL
+Source: [repl](https://nodejs.org/api/repl.html)
+
+A REPL that is available as a standalone program or as a component embedded in an application.
+
+``` javascript
+const repl = require('repl');
+```
+
+
+&nbsp;
+# Stream
+Source: [stream](https://nodejs.org/api/stream.html)
+
 Provides an interface for working with stream data. This is important to control the amount of data the is being processed at a given time.
 
 __Features__:
@@ -361,15 +581,101 @@ Stream methods:
     * `readable` - when there is data available to be read
 * `Stream.prototype.pipe(writable)` - pipes the read data to a writable stream. Pipe can be chained
 
-``` javascript
 
+&nbsp;
+# String Decoder
+Source: [string_decoder](https://nodejs.org/api/string_decoder.html)
+
+Enables decoding `Buffer` objects into strings preserving encoded multi-byte UTF-8 and UTF-16 characters.
+
+``` javascript
+const { StringDecoder } = require('string_decoder');
 ```
 
-## Util
+
+&nbsp;
+# Timers
+Source: [timers](https://nodejs.org/api/timers.html)
+
+A global API for scheduling function calls built around the NodeJS event loop.
+
+
+&nbsp;
+# TLS
+Source: [tls](https://nodejs.org/api/tls.html)
+
+An implementation of TLS and SSL protocols built on top of OpenSSL.
+
+``` javascript
+const tls = require('tls');
+```
+
+
+&nbsp;
+# UDP
+Source: [dgram](https://nodejs.org/api/dgram.html)
+
+An implementation of UDP Datagram sockets.
+
+``` javascript
+const dgram = require('dgram');
+const server = dgram.createSocket('udp4');
+```
+
+
+&nbsp;
+# URL
+Source: [url](https://nodejs.org/api/url.html)
+
+Collection of utilities for parsing and resolving URL's.
+
+``` javascript
+const url = require('url');
+```
+
+
+&nbsp;
+# Util
+Source: [util](https://nodejs.org/api/util.html)
+
+Various utilities depeneded upon heavily by NodeJS internals.
+
+``` javascript
+const util = require('util');
+```
 
 `util.inherits(const, superConst)` - deprecated
 
-## Zlib
+
+&nbsp;
+# V8
+Source: [v8](https://nodejs.org/api/v8.html)
+
+Module exposing NodeJS V8 engine specific APIs. 
+
+Changes often, thus should be used with caution and avoided in production.
+
+``` javascript
+const v8 = require('v8');
+```
+
+&nbsp;
+# VM
+Source: [vm](https://nodejs.org/api/vm.html)
+
+Module for compiling and running code in a V8 Virtual Machine.
+
+__Warning__: this does not provide a secure isolation layer - should not be used for sandboxing
+
+``` javascript
+const vm = require('vm');
+```
+
+
+&nbsp;
+# Zlib
+Source: [stream](https://nodejs.org/api/stream.html)
+
 Built in compression functionality. Allows gzip, deflate/inflate and brotli compression.
 
 ``` javascript
@@ -382,6 +688,127 @@ const gzip = zlib.createGzip();
 readStream.pipe(gzip).pipe(compressedFile);
 ```
 
+
+&nbsp;
+# Security
+Source: 
+* [risingstack security tips](https://blog.risingstack.com/node-js-security-tips/)
+* [risingstack security checklist](https://blog.risingstack.com/node-js-security-checklist/)
+* [OWASP Security Cheat Sheet](https://github.com/OWASP/CheatSheetSeries)
+
+__Basic Guidelines__
+1. don't use eval
+    * slows down application and opens to injection attacks
+    * eval is used by `eval()`, `setInterval()`, `setTimeout()`, `new Function()`
+1. use __strict mode__
+1. use __static code analysis__
+    * JSLint, JSHint or ESLint
+1. perform tests
+    * lots of unit tests
+    * moderate amount of integration tests
+    * small amount of E2E tests
+1. use an HTTP server/proxy
+    * allows listening on port 80 or 443
+    * use nginx or Apache
+1. avoid command injection
+    * especially when use child_process
+1. use stream for temp files
+    * large files can use up massive amounts of disk space
+1. be aware of __Reflected Cross Site Scripting__
+    * never insert untrusted data into the DOM
+    * HTML escape before inserting
+1. stop __cookie theft__
+    * set the `HttpOnly` flag on cookies
+1. enable __Content Security Policy__
+    * done through `Content-Security-Policy` HTTP header
+1. prevent __Cross-Site Request Forgery__
+    1. upon `GET` request check for CSRF token
+    1. create the token if one is not present
+    1. when user input is shown add a hidden input with the CSRF tokens value
+    1. when form is submitted make sure the token value from the form and session are a match
+1. use [helmet](https://github.com/helmetjs/helmet) for express apps
+1. use [retire.js](https://retirejs.github.io/retire.js/) to check for vulnerabilities across dependencies
+
+__Configuration Management__
+1. __Security HTTP headers__ - all can be set using [helmet](https://github.com/helmetjs/helmet) or in web server configuration when using a backward proxy like [nginx](https://gist.github.com/plentz/6737338)
+    * `Strict-Transport-Security` - enforces secure (HTTP over SSL/TLS) connections to the server
+    * `X-Frame-Options` - clickjacking protection
+    * `X-XSS-Protection` - enables the Cross-site scripting (XSS) filter
+    * `X-Content-Type-Options` - prevents browsers from MIME-sniffing a response away from the declared content-type
+    * `Content-Security-Policy` - prevents a wide range of attacks, including Cross-site scripting and other cross-site injections
+1. __Sensitive Data Client-Side__ - make sure to never expose API secrets and credentials in source code
+    * use of pull requests
+    * regular code reviews
+
+__Authentication__
+1. __Brute Force Protection__ - login endpoints are often susceptible to brute force attacks
+    * implement [rate-limiting](https://www.npmjs.com/package/ratelimiter)
+    * use a penetration test like [hydra](https://github.com/vanhauser-thc/thc-hydra)
+
+__Session Management__
+1. __Cookie Flags__
+    * __secure__ - only sends cookie over HTTPS
+    * __HttpOnly__ - blocks access to cookies through scripts
+1. __Cookie Scope__
+    * __domain__ - compares against the domain the cookie is being requested at
+    * __path__ - compares against the path the cooie is being requested at
+    * __expires__ - sets persistant cookies
+1. __CSRF__
+    * use a module for mitigating these attacks like [csrf](https://www.npmjs.com/package/csrf) for pure NodeJS and [csurf](https://www.npmjs.com/package/csurf) if using Express
+
+__Data Validation__
+1. __XSS__ - can be JS injected into HTML response or JS injected into stored user input
+    * always filter/sanitize user input
+1. __SQL Injection__
+    * use parametrized queries
+    * use prepared statements
+    * use a sql penetration test like [sqlmap](http://sqlmap.org/)
+1. __Command Injection__ - technique used to run OS commands on a remote web server
+    * filter and sanitize user input
+    * use `child_process.execFile` over `child_process.exec` when using the [Child Process](#child-process) module.
+
+__Secure Transmisssion__
+1. __SSL Version, Algorithms, Key Length__
+    * check that cipher, key and renegotiation are properly configured
+    * test certificate validity
+    * this can be achieved through the use of [nmap](https://nmap.org/) and [sslyze](https://github.com/iSECPartners/sslyze)
+    ``` shell
+    nmap --script ssl-cert,ssl-enum-ciphers -p 443,465,993,995 www.example.com
+
+    ./sslyze.py --regular example.com:443
+    ```
+1. __HSTS__
+    * test the `Strict-Transport_Security` header
+    ``` shell
+    curl -s -D- https://example.com/ | grep -i Strict
+    ```
+
+__Denial of Service__
+1. __Account Lockout__ - mitigate brute force guessing attacks prohibiting login after a small number of unsuccessful login attempts
+    * use the rate-limiter pattern
+1. __Regular Expression__ - mitigate harmful `Evil Regexes` that have grouping with repetition and alternation with overlapping
+    * use tools like [safe-regex](https://www.npmjs.com/package/safe-regex)
+
+__Error Handling__
+* an error stack may leak sensitive data
+* always log errors
+* do not show them to the users
+
+__NPM__\
+Packages can often contain vulnerabilities. Use with caution and audit them with various tools
+1. __Node Security Project__ - a tool that allows checking used packages for known vulnerabilities
+    ``` shell
+    npm i nsp -g
+
+    # either audit the shrinkwrap
+    nsp audit-shrinkwrap
+
+    # or the package.json
+    nsp audit-package
+    ```
+1. __Snyk__ - detects vulnerabilities and attempts to fix them - [snyk.io](https://snyk.io/)
+
+&nbsp;
 # Database Integration
 Popular database integrations.
 
@@ -806,6 +1233,16 @@ client.search({
 &nbsp;
 # Misc
 
+## Experimental API's
+* [async hooks](https://nodejs.org/api/async_hooks.html)
+* [inspector](https://nodejs.org/api/inspector.html)
+* [performance hooks](https://nodejs.org/api/perf_hooks.html)
+* [policies](https://nodejs.org/api/policy.html)
+* [report](https://nodejs.org/api/report.html)
+* [tracing](https://nodejs.org/api/tracing.html)
+* [worker_threads](https://nodejs.org/api/worker_threads.html)
+
+
 ## Simple API Gateway
 Source: [hackernoon](https://hackernoon.com/creating-simple-api-gateway-using-node-js-6d5933c214b8)
 
@@ -828,9 +1265,11 @@ A tool that facilitates:
     * statistics on runtime performance, resource consumption
     * dynamically modify settings
 
-
 It is important to use a __Process Manager__ when running a NodeJS application. Some popular solutions are:
 * [Forever](https://github.com/foreverjs/forever) - cli tool for running a script continuously
 * [PM2](https://github.com/Unitech/pm2) - built-in load balancer, keep-alive, automatic reload, logging, monitoring, clustering
 * [Strong-PM](http://strong-pm.io/) - load balancing, monitoring, mult-host deployment, cli tool for building, packaging and deploying node apps
 * [SystemD](https://www.axllent.org/docs/view/nodejs-service-with-systemd/) - native Linux process manager
+
+## Integration with Python
+__Source__: [Laurence Holmes](https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272)
