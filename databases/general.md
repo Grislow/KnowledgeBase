@@ -18,6 +18,7 @@ Source: [panoply.io](https://blog.panoply.io/postgresql-vs.-mysql)
     * load balancing
     * 2-safe replication - synchronous replication
     * one-way asynchronous replication
+    * replica set
 * Clustering
 * Sharding
     * autosharding - Partitioning

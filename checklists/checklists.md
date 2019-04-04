@@ -83,6 +83,12 @@ Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administr
 
 &nbsp;
 # Interviews
+Source: [awesome-interview-questions](https://github.com/MaximAbramchuck/awesome-interview-questions)
+
+
+## React Developer
+Source: [edureka.com](https://www.edureka.co/blog/interview-questions/react-interview-questions/)
+
 
 ## Python Engineer
 - [ ] What is Python?
@@ -122,56 +128,108 @@ Source: [MongoDB Operations Checklist](https://docs.mongodb.com/manual/administr
     * as soon as possible
     * delay of QA activities can cost a lot of time, money and efforts
 - [ ] What is the difference between the __Test Plan__ and __Test Strategy__?
-    * __Test Plan__ => higher level established by PM that demonstrates the overall approach to testing
-    * __Test Strategy__ => 
+    * __Test Strategy__ => higher level established by PM that demonstrates the overall approach to testing
+    * __Test Plan__ => how an application in a particular project should be tested
 - [ ] Explain the software testing lifecycle?
-    *
+    * STLC is a process which has specific steps that are executed in a sequence to ensure quality goals have been met:
+        1. __Requirements phase__ - study reqs, determine if testable, scope of testing
+        1. __Planning phase__ - identify resources/activities to meet testing objectives. Identify metrics, method of gathering and tracking metrics. Take into account:
+            * requirements
+            * test strategy
+            * risk analysis / risk management / risk mitigation
+        1. __Analysis phase__ - "WHAT" to test, identify test conditions:
+            * levels and depth of testing
+            * complexity of the product
+            * product and project risks
+            * software development life cycle
+            * test management
+            * skills and knowledge of team
+            * availability of stakeholders
+        1. __Design phase__ - "HOW" to test
+            * break down conditions into multiple sub conditions
+            * identify and get test data
+            * create requirement traceability metrics
+            * create test coverage metrics
+        1. __Implementation phase__
+            * test case priorities
+            * identify which test cases become part of regression suite
+            * review test cases
+            * select which test cases can be automated
+            * script those test cases
+        1. __Execution phase__
+            * execute test cases
+            * log defects
+            * fill your traceability metrics to track progress
+        1. __Conclusion phase__
+            * exit criteria
+            * reporting
+            * DSR - daily status report
+            * WSR - weekly status report
+        1. __Closure phase__ - check for completion, lessons learnt meeting, lessons learnt document
 - [ ] Define a format of writing a good test case?
-    *
+    * test case id
+    * test case description
+    * severity
+    * priority
+    * environment
+    * build version
+    * steps to execute
+    * expected results
+    * actual results
 - [ ] What is a good test case?
-    *
+    * one which finds defects, or one which is detailed with high coverage
 - [ ] What would you do if you had to execute a large suite in little time?
-    *
+    * execute high priority test cases first
 - [ ] Should QA's participate to resolve production issues?
-    *
+    * yes, especially for environmental issues(restarting services, clearing logs)
 - [ ] How would you make sure a bug you found in production was not introduced again?
-    *
+    * create a test case for the defect and include it in the regression suite
 - [ ] What is the difference between __functional__ and __nonfunctional__ testing?
-    * __functional testing__ -
-    * __nonfunctional testing__ -
+    * __functional testing__ - tests if application behaves as per the requirement and specification 
+    * __nonfunctional testing__ - tests environmental factors like performance, load, stress
 - [ ] What is __negative testing__? How is it different from __positive testing__?
-    * __negative testing__ - 
-    * __positive testing__ - 
+    * __negative testing__ - checks if system behaves gracefully in case of invalid inputs
+    * __positive testing__ - checks if system behaves appropriately in case of valid inputs
 - [ ] How do you ensure testing is complete and has good coverage?
-    *
+    * through requirement traceability matrix and test coverage matrices
 - [ ] What are different artifacts you refer when you write test cases?
-    * __Functional Requirement Specification__ -
-    * __Requirement understanding document__ -
-    * __Use Cases__ -
-    * __Wireframes__ -
-    * __User Stories__ -
-    * __Acceptance criteria__ -
-    * __Many a time UAT test cases__ -
+    * __Functional Requirement Specification__
+    * __Requirement understanding document__
+    * __Use Cases__
+    * __Wireframes__
+    * __User Stories__
+    * __Acceptance criteria__
+    * __Many a time UAT test cases__
 - [ ] Have you ever wrote test cases without having documents?
-    *
+    * yes, best approach is:
+        * collaborate with BA and development team
+        * look for information in mails
+        * dig into older test cases/regression suites
+        * if feature is new read wiki or documentation
+        * sit with developer and understand changes
+        * identify test case and send to BA or stakeholders for review
 - [ ] What is __Verification__ and __Validation__?
-    * __Verification__ -
-    * __Validation__ - 
+    * __Verification__ - evaluating intermediary work products of Software development lifecycle
+    * __Validation__ - evaluating the final product to determine if it meets business needs
 - [ ] Name different verification techniques you know?
-    * __review__ -
-    * __inspection__ -
-    * __walkthrough__ -
+    * __review__ - code/test cases are reviewed by someone other than the author
+    * __inspection__ - technical and disciplined review to examine and correct defects. Roles:
+        * moderator - facilitates inspection meeting
+        * recorder - records minutes of the meeting
+        * reader - reads out document/code
+        * producer - the author of the tested artifact
+        * reviewer - experts reviewing the artifact
+    * __walkthrough__ - author reads the content and gets feedback
 - [ ] What is the difference between __Load testing__ and __Stress Testing__?
-    * __Load testing__ -
-    * __Stress Testing__ - 
+    * __Load testing__ - validate under expected load - concurrent users or resources accessing the system
+    * __Stress Testing__ - validates behavior of system under stress
+        * gradually reduce system resources to check behavior and find limit
 - [ ] What do you dont when you have doubts about the project?
-    *
+    * read through available artifacts/documentation
+    * then ask immediate supervisor or friend
 - [ ] Have you used any Automation Tools?
-    *
 - [ ] How do you determine which piece of software requires how much testing?
-    *
-
-
+    * cyclomatic complexity
 
 
 &nbsp;

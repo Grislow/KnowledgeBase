@@ -247,6 +247,29 @@ JSDocs is a documentation generator. It uses tags to describe characteristics of
 
 You can find its full documentation [here](http://usejsdoc.org/).
 
+``` shell
+# Installation
+npm i jsdocs -g
+
+# Generating Docs
+jsdoc someFile.js someOtherFile.js fileN.js
+
+# Generating Docs with Markdown Readme
+jsdoc someFile.js fronPage.md
+```
+
+## Command Line
+
+
+``` shell
+
+```
+
+
+``` javascript
+
+```
+
 &nbsp;
 # Mobile Devices
 Detecting various mobile devices.

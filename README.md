@@ -35,9 +35,12 @@ Welcome to my Knowledge Base! This is and hopefully always will be work in progr
 * [Webpack](/tools/webpack.md)
 
 ### KnowHow
+* [Jenkins](/tools/jenkins.md)
+* [JIRA](/management/jira.md)
 * [Scrum](/management/scrum.md)
 * [Security](/security/security.md)
 * [Software Architecture and Design](/architecture/architecture.md)
+* [Testing](/testing/testing.md)
 * [Web Design](/webdesign/webdesign.md)
 
 ### General
