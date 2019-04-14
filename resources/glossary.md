@@ -343,6 +343,8 @@ Advantages:
 * __fault tolerance__ - if a server crashes another can resume operations on its behalf
 * __load balancing__ - can allocate users to the server with the least load
 
+## Code Coverage
+Or __test coverage__ is the percent of the entire code base that was executed when a test suite runs. 
 
 ## Code point
 A unique number assigned to a character in a character set.

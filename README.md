@@ -36,7 +36,7 @@ Welcome to my Knowledge Base! This is and hopefully always will be work in progr
 
 ### KnowHow
 * [Jenkins](/tools/jenkins.md)
-* [JIRA](/management/jira.md)
+* [JIRA and Confluence](/management/jira.md)
 * [Scrum](/management/scrum.md)
 * [Security](/security/security.md)
 * [Software Architecture and Design](/architecture/architecture.md)

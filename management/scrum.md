@@ -1,4 +1,4 @@
-A quick guide to the SCRUM framework.
+# Scrum and Agile Guide
 
 Source:
 * [scrumguides.org](https://www.scrumguides.org/scrum-guide.html)
@@ -23,7 +23,11 @@ Source:
     * [Sprint Backlog](#sprint-backlog)
     * [Increment](#increment)
     * [User Story](#user-story)
+        * [INVEST](#INVEST)
 * [Definition of Done](#definition-of-done)
+    * [Example DOD](#Example-DOD)
+* [Definition of Ready](#Definition-of-Ready)
+* [Development Team Process](#Development-Team-Process)
 
 
 &nbsp;
@@ -276,20 +280,180 @@ The sum of all the Product Backlog items completed during the current Sprint and
 __Responsiblity__ - Development Team
 
 ## User Story
-Smallest unit of work representing a single feature or item in the Scrum Backlog.
+Smallest unit of work representing a single feature or item in the Scrum Backlog described from the users perspective.
 
 > As a {type_of_user}, i want a {goal} so that I can {reason}
 
+Guidelines:
+* __User Stories != Tasks__ - tasks are about implementation, user stories are definitions
+* __Simple and Solid__ - use simple and accurate language so that all parties can understand it
+* __Understand the Users__ - capture the users profiles, points of view, expectations and pain points to properly create user stories
+* __Think as a User__ - the whole scrum team need to create user stories based on how a user would use the product
+* __Think Big__ - its better to have more than less in the backlog. Administration overhead is small while this increases product clarity, visions and opportunities.
+* __Use Epics__ - use epics as a form of higher-level story that encompasses various lower level stories
+* __Dont discard stories__ - manage noise from large amount of user stories by prioritizing, not discarding
+* __Prioritize skillfully__ - prioritizing is a complicated process and requires:
+    * estimate value of story for the user and for the business
+    * size the complexity
+    * estimate the feasability
+    * estimate the cost/effort to build and release feature
+    * identify cross-dependencies in backlog
+* __Tag stories__ - for easier navigation and administration always tag your stories
+
+Source: [George Krasadakis](https://medium.freecodecamp.org/how-and-why-to-write-great-user-stories-f5a110668246)
+
+### INVEST
+A set of criteria to assess the quality of user stories.
+
+A good user story should be:
+* `I`ndependent - of all othe user stories
+* `N`egotiable - not a specific contract for features
+* `V`aluable
+* `E`stimable - to a good approximation
+* `S`mall - to fit within an iteration
+* `T`estable - in principal
+
+Source: [agilealliance](https://www.agilealliance.org/glossary/invest/#q=~(infinite~false~filters~(postType~(~'page~'post~'aa_book~'aa_event_session~'aa_experience_report~'aa_glossary~'aa_research_paper~'aa_video)~tags~(~'invest))~searchTerm~'~sort~false~sortDirection~'asc~page~1))
 
 &nbsp;
 # Definition of Done
-What a "Done" product or item is must be transparently defined and understood by all members of the Scrum Team.
+The Definition of Done(DoD) is a set of conditions(acceptance criteria) a product needs to satisfy to be accepted by a user/customer/team.
 
-This can include conventions, standards, guidelines which must be followed.
+__Characteristics__:
+* must be transparently defined and understood by all members of the Scrum Team
+* includes conventions, standards, guidelines which must be followed
+* should be determined for a product, not as a standard for the whole company
+* develops with each increment to include more stringent criteria for higher quality
 
-What "Done" means should be determined for a product, not as a standard for the whole company. 
-
-Definition of Done develops with each increment to include more stringent criteria for higher quality.
+__Types__
+* Feature DoD
+* Sprint DoD
+* Release DoD
 
 ## Example DOD
-* write automated tests to validate the work
+__User Story DoD Short__
+* Unit Tests Passed
+* Code Reviewed
+* Acceptance criteria met
+* Functional Tests passed
+* Non-Functional requirements met
+* Product Owner accepts the User Story
+
+__Feature DoD__
+* Acceptance criteria met
+* Integrated into a clean build
+* Promoted to higher level environment
+* Automated regression test passed
+* Feature level functional tests passed
+* Non-Functional requirements met
+* Meets compliance requirements
+* Documented in user documentation
+
+__Epics DoD__
+* Non-Functional requirements met
+* End-to-end integration completed
+* Regression test pass
+* Promoted to production environment
+* Meets defined market expectations
+
+Source: [George Krasadakis](https://medium.freecodecamp.org/how-and-why-to-write-great-user-stories-f5a110668246)
+
+__User Story DoD__
+* `produced code` for presumed functionalities
+* `assumptions` of User Story met
+* project `builds` without error
+* `unit Tests` written and passing
+* `deployed` on test environment identical to production platform
+* tests on `devices/browsers` listed in project assumptions passed
+* feature approved by `UX designer`
+* `QA performed` and issues resolved
+* feature tested against `acceptance criteria`
+* feature approved by `Product Owner`
+* `refactoring` completed
+* `configuration` and `build` changes `documented`
+* `documentation` updated
+* `Peer Code Review` performed
+
+__Sprint DoD__
+* `DoD` of each user story met
+* `to do's` complete
+* all `unit tests` passing
+* product `backlog updated`
+* project `deployed` on test environment
+* tests on `devices/browsers` passed
+* `regression tests` passed
+* `performance` tests passed
+* all `bugs` fixed
+* sprint marked as ready for `production deployment`
+
+__Release DoD__
+* `code` complete
+* `environments` prepared for release
+* unit and functional `tests` green
+* `acceptance criteria` are met
+* `QA` done and issue resolved
+* `To Do` annotations resolved
+* `approved` by team: UX designer, developer, software architect, project manager, product owner, QA
+* check that `no unintegrated work` is in progress in any development/staging environment
+* check that `TDD` and `CI` is verified and working
+
+Source: [apiumhub.com](https://apiumhub.com/tech-blog-barcelona/definition-of-done-examples-software-projects/)
+
+&nbsp;
+# Definition of Ready
+A set of conditions that a backlog item needs to meet in order to be `Ready` for implementation. 
+
+The DoR provides clarity to:
+* __product owner__ - how to create backlog items
+* __development team__ - what they can expect from a backlog item
+
+__Characteristics__:
+* specific to an organization
+* can evolve over time
+* clarity in the backlog
+
+
+__Example DoR__
+1. All stories meet the INVEST criteria
+1. A clearly defined user
+1. An estimate
+1. Acceptance criteria with examples
+    * could be in a given format
+1. Context information
+    * user journeys that provide context for the backlog
+    * screen mockups
+    * architectural drawings
+    * business rules
+
+&nbsp;
+# Development Team Process
+A management methodology that focuses on improving team member interaction and interpersonal skills.
+
+Focus:
+1. Provide a set of `Inputs`
+    * Project(resource) management plan
+    * Project documents
+        * project schedule
+        * team assignments
+        * team charter
+        * lessons learned
+    * Enterprise environmental factors
+    * Organizational process assets
+1. Use a set of `Tools & Techniques`
+    * Colocation and virtual teams
+    * Communication technology
+    * Interpersonal and team skills
+        * motivation
+        * conflict management
+        * negotation
+        * team building
+    * recognition and rewards
+    * individual and team assessment meetings
+    * training
+1. Manage a set of `Outputs`
+    * team performance assessment
+    * updates for all `Inputs`
+    * Change requests
+
+
+Source: [Nataliia Peterheria](https://entrepreneurshandbook.co/how-to-form-a-successful-software-development-team-d45f19c3a38e)
