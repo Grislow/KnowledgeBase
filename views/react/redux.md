@@ -1,9 +1,9 @@
+# Redux Guide
+
 __Source__: 
 * [official guide](https://redux.js.org/introduction/getting-started)
 
 #### Table of contents
-
-
 * [Introduction](#introduction)
     * [Installation](#installation)
     * [Core Concepts](#core-concepts)

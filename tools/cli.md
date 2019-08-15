@@ -1,4 +1,100 @@
-Cli tools for a mac(and linux).
+# Cli tools for a mac(and linux).
+
+#### Table of contents
+* [bit](#bit)
+* [git and github](#git-and-github)
+* [ifconfig](#ifconfig)
+* [ping](#ping)
+* [netstat](#netstat)
+* [nmap](#nmap)
+* [npm-scripts](#npm-scripts)
+* [ssh](#ssh)
+
+# bit
+Docs: [bit documentation](https://docs.bit.dev/)
+
+Tool for tracking and sharing reusable components.
+
+Follow steps:
+* `install` bit-bin globally
+* `initialize` bit-bin in a project
+* `track` your reusable components
+* `define` a compiler and testing framework
+* `tag` the components with an immutable version number
+* `authenticate` your bit bin account to connect the components to a remote collection
+* `export` your components to a bit collection
+* `consume` components in other projects
+
+## Installation
+``` shell
+$ npm install bit-bin -g
+```
+
+## Init
+``` shell
+$ cd project-directory
+$ bit init
+```
+
+## Track
+``` shell
+$ bit add src/components/*
+```
+
+## Status
+Check the status of all tracked components
+``` shell
+$ bit status
+```
+
+## Compiler
+Define a compiler for the components. Find a list of available compilers [here](https://bit.dev/bit/envs)
+``` shell
+$ bit import bit.envs/compilers/babel --compiler
+```
+
+## Testing
+Define a testing framework if one is used. Find a list of available testing frameworks [here](https://bit.dev/bit/envs)
+``` shell
+$ bit import bit.envs/testers/jest --tester
+```
+
+## Tag
+Tag you components to provide them with a version number
+``` shell
+$ bit tag --all 1.0.0
+```
+
+## Authentication
+Authenticate you bit bin account locally
+``` shell
+$ bit login
+```
+
+## Export
+Export your local components to a remote collection
+``` shell
+$ bit export user-name.collection-name
+```
+
+## Consume
+Use your bit components in other projects
+
+Configure Bit as a scoped registry
+``` shell 
+$ npm config set '@bit:registry' https://node.bit.dev
+```
+
+Install components with a package manager
+``` shell
+$ npm i @bit/mui-org.material-ui.button
+```
+
+Import a component if you want to develop it from the consuming repository
+``` shell
+$ bit import user-name.collection-name/component-name
+```
+
 
 # git and github
 Source: [post on interactive rebase](https://stackoverflow.com/questions/1186535/how-to-modify-a-specified-commit)

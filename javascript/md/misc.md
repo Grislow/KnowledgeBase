@@ -4,6 +4,8 @@ __TODO__:
 * https://medium.freecodecamp.org/make-your-code-easier-to-read-with-functional-programming-94fb8cc69f9d
 * https://medium.com/@cristisalcescu/learn-immutability-with-javascript-6a67e4a48d7f
 * https://medium.com/@trungluongquang/10-simple-effective-tips-to-master-javascript-c365aa176852
+* https://medium.com/javascript-scene/transducers-efficient-data-processing-pipelines-in-javascript-7985330fe73d
+* https://blog.sessionstack.com/how-javascript-works-under-the-hood-of-css-and-js-animations-how-to-optimize-their-performance-db0e79586216
 
 #### Table of contents
 * [Algorithms](#algorithms)
@@ -256,6 +258,12 @@ jsdoc someFile.js someOtherFile.js fileN.js
 
 # Generating Docs with Markdown Readme
 jsdoc someFile.js fronPage.md
+```
+
+You can use extensions like [jsdoc2md](https://github.com/jsdoc2md/jsdoc-to-markdown/blob/master/docs/API.md) to automatically generate markdown from your jsdoc comments
+
+```shell
+jsdoc2md someFile.js > README.md
 ```
 
 ## Command Line

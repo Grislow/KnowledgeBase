@@ -97,6 +97,16 @@ Environment variables are stored in the `process.env` object.
 const PORT = process.env.PORT;
 ```
 
+A common practice is to store environment variables in a `.env` file and excluding them in `.gitignore`.
+``` shell
+# This is a comment and is ignored
+SOME_ENV_VAR="this can be reference through process.env.SOME_ENV_VAR"
+PAY_API_LOGIN="greg"
+PAY_API_TOKEN="asdasdasd12312312"
+```
+
+
+
 ## Global and Module Objects
 Source: [globals](https://nodejs.org/api/globals.html)
 

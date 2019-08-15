@@ -1,7 +1,7 @@
 Various handy checklists and best practices for developers or project managers.
 
 #### Table of contents
-
+* [Backend Development Checklist](#backend-development-best-practices)
 * [Containerization](#containerization)
     * [Can An App Be Containerized](#can-app-be-containerized)
 * [Databases](#databases)
@@ -10,12 +10,26 @@ Various handy checklists and best practices for developers or project managers.
 * [Interviews](#interviews)
     * [Python Engineer](#python-engineer)
     * [Quality Assurance Engineer](#quality-assurance-engineer)
-* [Backend Development Checklist](#backend-development-best-practices)
 * [NodeJS Best Practices](#nodejs-best-practices)
 * [OWASP Security Guidelines](#owasp-security-guidelines)
+* [Requirements Checklists](#requirements-checklists)
+    * [Functional Requirements](#functional-requirements)
+    * [Nonfunctional Requirements](#nonfunctional-requirements)
+    * [Requirements Quality](#Requirements-Quality)
 * [RODO](#rodo)
 * [Tech Lead Checklist](#tech-lead-checklist)
 * [Web Application Checklist](#web-application-checklist)
+
+&nbsp;
+# Backend Development Best Practices
+Source: [futurice](https://github.com/futurice/backend-best-practices#bill-of-materials)
+
+## Development Environment
+- [ ] 
+- [ ] 
+
+## Data
+
 
 &nbsp;
 # Containerization
@@ -231,18 +245,6 @@ Source: [edureka.com](https://www.edureka.co/blog/interview-questions/react-inte
 - [ ] How do you determine which piece of software requires how much testing?
     * cyclomatic complexity
 
-
-&nbsp;
-# Backend Development Best Practices
-Source: [futurice](https://github.com/futurice/backend-best-practices#bill-of-materials)
-
-## Development Environment
-- [ ] 
-- [ ] 
-
-## Data
-
-
 &nbsp;
 # NodeJS Best Practices
 Source: [i0natan](https://github.com/i0natan/nodebestpractices)
@@ -256,6 +258,88 @@ Source: [Gergely Nemeth](https://blog.risingstack.com/node-js-security-checklist
 Source: 
     * [OWASP Security PDF](https://www.owasp.org/images/0/08/OWASP_SCP_Quick_Reference_Guide_v2.pdf)
     * [OWASP Secure Coding Practices](https://www.owasp.org/index.php/OWASP_Secure_Coding_Practices_-_Quick_Reference_Guide)
+
+&nbsp;
+# Requirements Checklists
+Source: [Code Complete](https://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670)
+
+## Functional Requirements
+
+<u>Inputs</u>
+- [ ] All inputs
+- [ ] Source of inputs
+- [ ] Accuracy of inputs
+- [ ] Range of input values
+- [ ] Format of inputs
+- [ ] Frequency of inputs
+
+<u>Outputs</u>
+- [ ] All outputs
+- [ ] Destination of outputs
+- [ ] Accuracy of outputs
+- [ ] Range of output values
+- [ ] Frequency of outputs
+- [ ] Formats of outputs
+- [ ] Formats for web pages and reports
+
+<u>Interfaces</u>
+- [ ] External software interfaces
+- [ ] External hardware interfaces
+- [ ] External communication interfaces(hand-shaking, error-checking, protocols)
+
+<u>User</u>
+- [ ] Tasks the user want to perform
+- [ ] Data used in each task
+- [ ] Data resulting from each task
+
+## Nonfunctional Requirements
+Or Quality requirements.
+
+<u>Performance</u>
+- [ ] Expected response time from user's perspective
+- [ ] Expected processing time
+- [ ] Datatransfer rate
+- [ ] System throughput
+
+<u>Security</u>
+- [ ] Level of required security
+
+<u>Reliability</u>
+- [ ] Consequences of software failure
+- [ ] Vital information that needs to be protected from failure
+- [ ] Error detection strategy
+- [ ] Error recovery strategy
+
+<u>Volume</u>
+- [ ] Minimum machine memory
+- [ ] Minimum free disk space
+
+<u>Maintainability</u>
+- [ ] Ability to adapt to changes in functionality
+- [ ] Ability to adapt to changes in operating environment
+- [ ] Ability to adapt to changes in interfaces with other software
+
+<u>Project</u>
+- [ ] Definition of success
+- [ ] Definition of failure
+- [ ] Definition of done
+
+## Requirements Quality
+- [ ] Are requirements written in user's language
+- [ ] Do requirements avoid conflicts with other requirements
+- [ ] Are tradeoffs between competing attributes specified
+- [ ] Do requirements avoid specifying desing
+- [ ] Should the requirements be specified in more details
+- [ ] Should the requirements be specified in less details
+- [ ] Are the requirements clear enough to be understood by developers
+- [ ] Is each item relevant to the problem and solution
+- [ ] Is each requirement testable
+- [ ] Are possible changes to requirements documented
+- [ ] Is likelihood of each change specified
+- [ ] Are areas of requirements incompleteness specified
+- [ ] Will the product be acceptable if it satisfies each requirement
+- [ ] Have you eliminated requirements that are impossible to implement
+- [ ] Have you eliminated requirements that are included just to appease the customer/boss
 
 
 

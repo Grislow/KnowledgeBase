@@ -5,6 +5,7 @@ Remaining:
 * [mvvm, mvp](#model-view-presenter(mvp)-pattern)
 * [design patterns](#design-patterns)
 * [study non-functional requirements](https://en.wikipedia.org/wiki/Non-functional_requirement)
+* [system quality attributes](https://en.wikipedia.org/wiki/List_of_system_quality_attributes)
 
 Books to consider:
 * [Refactoring: Improving the Design of Existing Code](https://www.amazon.com/Refactoring-Improving-Design-Existing-Code/dp/0201485672)
@@ -20,6 +21,7 @@ Sources:
 * [towardsdatascients.com](https://towardsdatascience.com/10-common-software-architectural-patterns-in-a-nutshell-a0b47a1e9013)
 
 #### Table of contents
+* [Requirements](#Requirements)
 * [Software Architecture](#software-architecture)
     * [Concerns](#concerns)
     * [Architectural Entities](#architectural-entities)
@@ -87,6 +89,19 @@ Sources:
     * [UML](#UML)
 
 &nbsp;
+# Requirements
+Source: [Code Complete](https://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670)
+
+Software architecture is created based on what business needs the application needs to satisfy. Based on these business needs(which are known thanks to __problem definition__) the requirements are created.
+
+Requirements are usually specified by a party or person that specializes in the products business domain. This could be the client, a product owner or product manager. Requirements should be specified in a language understandable by the end-user, hence technical terminology and implementation details should be avoided at all costs. In turn, the application solves specific business problems, from the perspective of a domain specialist rather than an engineer.
+
+It's essential to [properly formulate requirements](/checklists/checklists.md#Requirements-Checklists) and identify requirements that might change, since the earlier a defect is introduced into a project the higher the cost of fixing it will be as the project progresses. Assuming the main phases in a software project are(in the following order) __requirements__, __architecture__, __construction__ and __system testing__, an error introduced at the very beggining would on average take 15 times longer to fix if spotted during the last phase than if spotted in the same phase it was introduced.
+
+To stress the point, let's reiterate:
+> The cost to fix defects increases the longer the time between when it was introduced and when it was detected
+
+&nbsp;
 # Software Architecture
 __Software Architecture__ regards the system as a whole, its components and how those components are interconnected. In other words it is the systematic creation of the blueprint for a system that meets business and functional requirements. Usually starts with a broad overview and works its way down to specifics that are used in developing a solution. 
 
@@ -133,6 +148,14 @@ Architecture has to define:
 * __trade-offs__ - why one architecture, design pattern or technology over another
 * __aesthetic__ - how the GUI looks and how intuitive is it
 
+Architecture does not concern actual __Construction__ which comprises of:
+* detailed component design
+* coding
+* debugging
+* integration
+* developer testing(unit tests, integration tests)
+
+Construction is the central part of the Software Development Lifecycle and the only guarenteed activity in a software project. In an ideal project construction activities will always be based on the architecture, but the architecture will never impose construction details.
 
 ## Architectural Entities
 Different elements that an application is comprised of.

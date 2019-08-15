@@ -1,3 +1,5 @@
+# IT Terminology
+
 Glossary describing core concepts and phrases regarding Software Development and Information Technology in general. Ordered alphabetically.
 
 Be aware that many of these definitions have been overly simplified to provide what is essential with as few words as possible. For a deeper understanding always do your own research.
@@ -8,32 +10,29 @@ I provide credit where its do. This provides you with an alternative formulation
 [K](#k)  [L](#l)  [M](#m)  [N](#n)  [O](#o)  [P](#p)  [Q](#Q)  [R](#r)  [S](#s)  [T](#t)
 [U](#u)  [V](#v)  [W](#w)  [X](#x)  [Y](#y)  [Z](#z)
 
-Lexical Scope
-ASI
-    (http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
-TDZ
-    https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
-http request
-route
-functional programming in js
-    https://medium.com/javascript-scene/master-the-javascript-interview-what-is-functional-programming-7f218c68b3a0
-graph databases
-    -https://neo4j.com/developer/graph-db-vs-nosql/
-published interfaces, indirection, wrapping, security kernels
-
-CSRF exploits - https://www.npmjs.com/package/csrf
-
-XSS attacks
-
-Virtual Domains
-
-SSO
-
-Fingerprint url
-
-wire protocol
-
-collation
+# TODO
+* Lexical Scope
+* ASI - (http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
+* TDZ - https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6
+* http request
+* route
+* functional programming in js - https://medium.com/javascript-scene/master-the-javascript-interview-what-is-functional-programming-7f218c68b3a0
+* graph databases -https://neo4j.com/developer/graph-db-vs-nosql/
+* published interfaces
+* indirection
+* wrapping
+* security kernels
+* CSRF exploits - https://www.npmjs.com/package/csrf
+* XSS attacks
+* Virtual Domains
+* SSO
+* Fingerprint url
+* wire protocol
+* collation
+* containerization
+* container-orchestration
+* app performance monitoring
+* traffic routing
 
 &nbsp;
 # A
@@ -329,7 +328,7 @@ For example a browser could be a client. You type in a url and hit enter. This s
 Storing data on a users device. 
 
 This can be achieved through various means. Some of the most popular options are:
-* __Cookies__ - stores a small amount of data(up to 5KB) that is exchanged between client and server. An expiration duration can be set on a cookie. Cookies can be set(httpOnly flah) to only be accessible server-side.
+* __Cookies__ - stores a small amount of data(up to 5KB) that is exchanged between client and server. An expiration duration can be set on a cookie. Cookies can be set(httpOnly flag) to only be accessible server-side.
 * __Local Storage__ - data is cached on client side and persists until it is manually (cache clear) or programatically(client-side scripting) removed. Maximum data size is greater than in session storage. Local storage can only be accessed client-side.
 * __Session Storage__ - data is cached on the client side only while a given context is active(browser tab is open). Maximum data size is greater than a cookie(over 5MB). Session storage can only be accessed client-side.
 
@@ -709,6 +708,11 @@ A good example is the letter `ą` which is a grapheme that could be represented 
 &nbsp;
 # H
 
+## Handshaking
+An initial message sent by one device to another when attempting to establish communication over a network.
+
+This is followed by a series of messages that establishing a protocol through which they will communicate. 
+
 ## Higher Order Function
 A function that returns another function.
 
@@ -729,6 +733,11 @@ A typical HTTP message contains:
 
 &nbsp;
 # I
+
+## IaaS
+__Infrastructure as a Service__ is a cloud computing service model where the user is provided access to a computing infrastructure. The provider is responsible for Storage, Networking, Servers and Virtualization while the consumer is responsible for configuring, installing and maintaining an OS, Middlewares, a runtime environment, any applications and data.
+
+__Example__: Amazon EC2, Windows Azure, Google Compute Engine
 
 ## Identifier
 Names that identify different elements of a program like variables, functions or classes.
@@ -912,7 +921,11 @@ A string that has special meaning that determines how the code works. Strings sh
 Instead, use encapsulated constant values in place of magic strings.
 
 ## Marshalling
-Transforming data into a standard format that can be transmitted over a network and decoded by other applications. 
+Transforming data into a standard format that can be transmitted over a network and decoded by other applications.
+
+Decoding marshalled data is called unmarshalling.
+
+__Example__: Transforming client stub parameters during an RPC before trasnferring them to the server stub.
 
 ## Memoization
 Storing the result of a function call. When the function is called again with the same input the cached result is returned instead of calling the function again.
@@ -962,6 +975,52 @@ __Pros__
 __Cons__
 * __complex shared functionilty__ - cross-cutting concers will need to either be handled in seperate modules or in a service layer that all traffic is routed through
 * __more expensive__ - microservices are frequently on seperate VMs requiring configuration and maintenance overhead - this can be automated with container fleet management tools.
+
+![3 Principles of Modeling Microservices](microservices.png)
+
+### Implementation Strategies
+Credits: [Xiao Ma](https://medium.engineering/microservice-architecture-at-medium-9c33805eb74f)
+
+* __Build new services with clear value__
+  * dont create a service if it has no clear product or developmentvalue
+  * its ok to leave some app components in a monolith
+* __Monolithic Persistent Storage is Harmful__
+  * avoid shared persistent storage where possible
+  * shared data violates loose coupling - changes to data formats, technology, caching etc have to be reflected in all services
+  * shared data violates high cohesion - behaviors in one service are leaked into other services and have to be handled/replciated
+* __Decouple "Building a Service" and "Runnning a Service"__
+  * running services is harder than building services because of networking, communication protocols, deployment, observability
+  * make running services technology agnostic
+  * tools for this are containerization, container-orchestration, service mesh, app performance monitoring
+  * __Networking__ - use a [service mesh](#service-mesh) to handle communication between services
+  * __Communication__ - use a mature, typed RPC framework for handling communication. While REST is great for client-server communication, RPC excels in server-server communication since it requires less boilerplate and is better with large volumes of requests.
+  * __Deployment__ - make sure you have a consistant way of building, testing, packaging and deploying your services. Containerize and manage your container through tools like Kubernetes and/or AWS ECS
+* __Thorough and Consistent Observability__
+  * make sure you understand how your system is working
+  * methods that facilitate this are: logging, performance tracking, metrics, dashboards, alerting
+  * observability becomes especially hard in distributed systems
+* __Not Every New Service Needs to be Built from Scratch__
+  * try to peel of as much as you can from an existing monolith
+  * prognod development overhead should be a key factor when deciding to build a new service
+* __Respect Failure Because They Will Happen__
+  * more things can fail in a distributed environment
+  * assume everything will fail at some point
+  * put extra effore to secure mission-critical services, especially RPC calls
+  * good observibility helps you detect and understand failures
+  * testing failures should always be done when implementing a new service
+  * build __auto recovery__
+* __Avoid Microservice Syndromes from Day One__
+  * be aware of what problems microservices may cause
+  * be aware from __day one__
+  * services need to be well modeled, especially when in abundance
+  * do not overly expand the tech stack - this increases operational costs and fragments engineering organization
+  * decouple building and running
+  * focus on data modeling so that each service has its own persistance layer
+  * implement observability to detect and understand failures and performance
+  * create services with the holistic picture in mind
+
+
+
 
 ## MIME Type
 **M**ultipurpose **I**nternet **M**ail **E**xternsions is a standard for specifying a type of data being sent over a computer network. 
@@ -1034,6 +1093,10 @@ These protocols can be grouped by the network layer in which they operator:
 * __Security protocols__ - secure network communication -> HTTPS, SSL, SFTP
 * __Management protocols__ - network governance and maintenance -> SNMP, ICMP
 
+## Networking
+The process of designing, building and maintaining a computer network. Computer networks are usually divided into various types of wireless and wired networks. 
+
+Networking includes the hardware infrastructure(routers, switches, cables) and protocols that standardize the transfer of data over the infrastructure.
 
 &nbsp;
 # O
@@ -1090,6 +1153,23 @@ To fix a problem or introduce a new feature in a series of classes coupled by in
 ### __Tight Coupling Problem__
 A parent and child class are tightly coupled. Any changes made to one of these classes could in effect break the other class.
 
+## Observability
+Processes, convention and tooling that allows us to track how the system is working.
+
+This includes:
+* logging
+* performance tracking(profiling)
+* collecting metrics
+* dashboards
+* alerting
+
+Popular tools:
+* [datadog](https://www.datadoghq.com/) - monitoring and analytics tool that works on any tech stack
+* [lightstep](https://lightstep.com/) - gain insights and diagnostics on any type of application
+
+## Off-by-one Error
+A common logic error that occurs when a boundary condition is miscalculated by a measure of 1 unit. A good example is when a loop iterates 1 time too many or 1 time too few.
+
 ## Operand
 The object of an operation.
 
@@ -1139,6 +1219,11 @@ Excess resources needed to perform a task.
 
 &nbsp;
 # P
+
+## PaaS
+__Platform as a Service__ is a cloud computing service model where the user is provided access to a computing platform which includes an OS, a runtime and any middleware. The user than installs, configures and manages any applications or data on that platform.
+
+__Examples__: AWS, Heroku, Windows Azure
 
 ## Package
 A namespace that organizes a set of related features.
@@ -1307,7 +1392,9 @@ Rule of thumb:
 ## 
 
 ## Remote Procedure Call(RPC)
-A [Session Layer](#osi-model) protocol that uses the [client-server model](#client-server-architecture). RPC allows a computer to a request a service from a remote entity without having to understand the networks details. 
+A remote procedure call is when a client calls a procedure on a server located on another computer or network without having to understand the underlying network details.
+
+A popular RPC framework - [grpc](https://grpc.io/about/).
 
 ## REPL
 A __Read-eval-print-loop__ is a simple programming environment where you can easily run and execute your code without the hastle of installing extra software. 
@@ -1365,7 +1452,9 @@ Mechanism that resends data that has been corrupted or lost during transmission 
 Request for Comments is a publication from the technology community regarding how the internet works or could work.
 
 ## Routing
-Mapping a specific http request to a specific response.
+In the context of Server Side Scripting it is mapping a specific http request to a specific response.
+
+It the context of networking it is selecting a path for traffic within a network or across several networks.
 
 ## Runtime
 See [Execution Phase](#execution-phase).
@@ -1375,6 +1464,11 @@ An environment in which a program is executed. Think of it as a layer between wr
 
 &nbsp;
 # S
+
+## SaaS
+__Software as a Service__ is a cloud computing service model where the user is provided with access to application software while the provider takes care of installing, setup and running the application.
+
+__Examples__: Atlassian Suite, Google Apps
 
 ## Search Engine
 A program that searches for items in a database based on querries submitted by users.
@@ -1424,6 +1518,17 @@ There are various server types:
     * __Oracle WebLogic__ - durable and easy to use application server released by Oracle
 * <u>Database Server</u> - focuses on data persistance
 
+## Service Discovery
+The automatic detection of services available on various devices on a computer network. This is usually done through a Service Discovery Protocol(SDP).
+
+__Example__: DHCP is a Service Discovery Protocol.
+
+## Service Mesh
+An infrastructure layer that handles communication between various parts of an application.
+
+__Examples__:
+* [istio](https://istio.io/)
+* [envoy](https://www.envoyproxy.io/)
 
 ## Service Worker
 A script that is run by the browser outside of a web page.
@@ -1597,6 +1702,23 @@ A surrogate pair is comprised of a:
 
 &nbsp;
 # T
+
+## Technical Debt
+The later cost(additional rework, refactor) for implementing a faster/easier/incomplete solution now. 
+
+__Common causes__:
+* poorly defined product/functionality at implementation phase
+* pressure from product owner / stakeholders
+* lack of understanding the possibility of technical debt
+* tightly coupled components
+* no test suite
+* no documentation
+* no collaboration
+* parallel development - later merging increases technical debt
+* delayed refactoring
+* poor coding practices
+* poor technological leadership
+* last minute changes to specification
 
 ## Task Runner
 Allow automating various tasks required during software development. Anything that can be executed from the command line can be bundled into a script. Task runners control how and when these scripts are executed.

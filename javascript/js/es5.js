@@ -1,5 +1,4 @@
 // THIS IS A DOCUMENT I MADE DURING MY BEGINNING WITH JS - ITS FULL OF MISTAKES
-// I WILL REFACTOR THIS BUT IT IS NOT A TOP PRIORITY 
 
 /*==========================================================================
 	VARIABLES AND DATA TYPES
@@ -138,7 +137,6 @@ var LastItem = randomThings.pop(); //returns last item and removes from array
 randomThings.shift('inserts at beginning of array');
 var FirstItem = randomThings.unshift(); //returns first item and removes from array
 var indexOfItem = randomThings.indexOf('Javascript'); //returns -1 if non-existant
-
 
 
 /*==========================================================================
