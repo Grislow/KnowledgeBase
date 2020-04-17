@@ -1,10 +1,20 @@
 Interesting and useful resources regarding mostly software development and design.
 
 #### Table of contents
+* [Backend](#backend)
 * [General](#general)
 * [Javascript](#javascript)
+* [Quant Trading](#quant-trading)
 * [Web Design](#web-design)
 * [Web Development](#web-development)
+
+# Backend
+* Encryption
+    * [best cipher suites](https://wiki.mozilla.org/Security/Server_Side_TLS#Cipher_names_correspondence_table)
+    * [ssl configuration generator](https://ssl-config.mozilla.org/)
+    * [ssl configuration analysis](https://www.ssllabs.com/ssltest/)
+    * [free TLS certificates](https://letsencrypt.org/)
+    * [automatic certificate renewal](https://letsencrypt.org/)
 
 # General
 * Gifs
@@ -37,6 +47,19 @@ Interesting and useful resources regarding mostly software development and desig
 	* [ECMAScript Guide](https://flaviocopes.com/ecmascript/)
 * Regular Expressions
     * [Tool for testing regular expressions](https://www.regexpal.com)
+
+# Quant Trading
+* Integrated Trading Software
+    * [AlgoTrader](https://www.algotrader.com/)
+    * [Deltix](https://www.deltixlab.com/)
+    * [FlexTrade](https://flextrade.com/)
+    * [MarketCetera](https://www.marketcetera.com/)
+    * [MetaTrader](https://www.metatrader4.com/en)
+    * [NinjaTrader](https://ninjatrader.com/)
+    * [ProTrader](https://protrader.com/)
+    * [QuantHouse](https://www.quanthouse.com/)
+    * [RightEdge](https://www.rightedgesystems.com/)
+    * [TradeStation](https://www.tradestation.com/)
 
 # Web Design
 * Conceptual

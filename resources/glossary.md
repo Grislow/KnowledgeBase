@@ -10,6 +10,8 @@ I provide credit where its do. This provides you with an alternative formulation
 [K](#k)  [L](#l)  [M](#m)  [N](#n)  [O](#o)  [P](#p)  [Q](#Q)  [R](#r)  [S](#s)  [T](#t)
 [U](#u)  [V](#v)  [W](#w)  [X](#x)  [Y](#y)  [Z](#z)
 
+A full table of contents is available [at the end](#table-of-contents)
+
 # TODO
 * Lexical Scope
 * ASI - (http://www.bradoncode.com/blog/2015/08/26/javascript-semi-colon-insertion/),
@@ -59,7 +61,7 @@ Hiding complexities of a system by only exposing what is needed to the users.
 ## Abstraction Layer
 The definition depends on the context. Below are two popular cases in which you'll see this phrase used.
 
-### Computer Architecture
+### AL Computer Architecture
 In computer architecture they are elements grouped by how they can be manipulated or what operations can be performed on them. Each layer is independent of other layers and has a clearly defined way of communicating with them. This allows for __interoperability__ between different layers disregarding their exact __implementation__ or place in the __hierarchy__. 
 
 For example a computer system could be divided into the following layers:
@@ -71,7 +73,7 @@ You can run different operating systems on the same hardware and use different h
 
 When you run an application you don't have to worry about how it is allocated CPU resources. The program makes a system call and the OS takes care of the rest.
 
-### Software Architecture
+### AL Software Architecture
 In software architecture it is a way of exposing only a part of something complex. This way you can: 
 * provide only what is needed without exposing how it is implemented
 * simplify something otherwise complex
@@ -127,7 +129,7 @@ A signal passed between communicating processes that signifies receipt of a mess
 **A**synchronous **J**avascript **A**nd **X**ML is a technique that makes use of various technologies such as HTML, CSS, JavaScript, DOM, XML, XSLT and XMLHttpRequest object to update a web application through XML or JSON documents without reloading the entire page.
 
 ## Amdahl's Law
-A formula that predicts the overall imporvement in execution speed one can achieve through parallelizing tasks. 
+A formula that predicts the overall improvement in execution speed one can achieve through parallelizing tasks. 
 
 Amdahl's Law shows that no matter how much you parallelize, execution speed will always be limited by tasks that can't be parallelized.
 
@@ -161,10 +163,10 @@ American Standard Code for Information Interchange is a 7-bit character encoding
 Assigning a specific value to a variable.
 
 ## Asynchronous Programming
-Running a process seperate from the main thread, outside of the general flow of the application.
+Running a process separate from the main thread, outside of the general flow of the application.
 
 ## Authentication
-Comfirming a users identity. Can be thought of as a contract between the server and the user agent.
+Confirming a users identity. Can be thought of as a contract between the server and the user agent.
 
 <u>Concepts</u>:
 * __Multi-factor Authentication__ - using a combination of factors and/or methodologies to authenticate a user. For example through a login/password and a secret phrase or phone number.
@@ -173,14 +175,14 @@ Comfirming a users identity. Can be thought of as a contract between the server 
 * __Token__ - some data stored on the client side that can be directly or indirectly matched with some data stored on the server side.
 
 <u>Methodologies</u>:
-* <u>__Basic Authentication__</u> - or basic HTTP authentication is when a user name and password are included in the HTTP request header. Credentials are stored in base64 format seperated by a semicolon. Does not require cookies, session identifiers, login pages, handshakes
+* <u>__Basic Authentication__</u> - or basic HTTP authentication is when a user name and password are included in the HTTP request header. Credentials are stored in base64 format separated by a semicolon. Does not require cookies, session identifiers, login pages, handshakes
     * `https://johndoe:pass123@www.example.com/index.html`
 * <u>__Cookie Authentication__</u> - server verifies credentials sent through an HTTP request. If verified a session id is created server side and sent back to client via cookie. When the user logs out session id is cleared from server and client cookies.
 * <u>__Token Authentication__</u> - upon verifying credentials received from the client the server generates a signed web token and sends it back to the client. The server does not store the token, only verifies it. The client stores the token in local storage, session storage or cookies. A popular implementation is the __JSON Web Token(JWT)__. The token usually consists of 3 parts which are Base65Url encoded and dot delimited:
     * __Header__ - token type(ex. JWT), signing algorithm(ex. HMAC, SHA256, RSA)
     * __Payload__ -  consists of _claims_ - user data. Payload is not encrypted so dont store sensitive data in it. Three types of claims:
         * __Registered__ - set of predefined claims like __iss__(issuer), __exp__(expiration date), __sub__(subject) or __aud__(audience)
-        * __Public__ - custom public claims. Can cause namespace collision(unless defined appropriatly)
+        * __Public__ - custom public claims. Can cause namespace collision(unless defined appropriately)
         * __Private__ - custom private claims. Allow sharing information between parties that agree to use that type of claim
     * __Signature__ - the result of signing encoded header, encoded payload and a secret using the tokens algorithm. This verifies the message wasnt changed along the way.
 * <u>__3rd Party Authentication__</u> -  authentication happens through a 3rd party called an __identity provider__. The identity provider generates a token based on passed credentials.
@@ -208,7 +210,7 @@ Providing an authenticated user access to resources based on their permissions a
 __OAuth__\
 An authorization protocol that relies on HTTPS for security and is implemented by Google, Facebook, Twitter and more giants of the IT world. 
 * after authentication an OAuth Token is generated for authorization purposes
-* The OAuth token is stored on the client side for a set amount of time(not indefinetly or until manual deletion)
+* The OAuth token is stored on the client side for a set amount of time(not indefinitely or until manual deletion)
 * OAuth in effect delegates authorization to a 3rd party(like Google)
 * OAuth is not an authentication method - it deals with permissions and rights of a verified user, not verification itself. 
 * OAuth 1.0 is not compatible with OAuth 2.0. Use 2.0 whenever possible - its easier to configure
@@ -242,7 +244,10 @@ Sequential execution of a collection of programs that require no human interacti
 A type of AB testing where an application is run on two identical environments. One envrionment is __active__ and the other __idle__. The active environment serves the users while the idle environment runs a newer version of the application. Once the newer version is thoroughly tested the idle environment is activated and the former active environment becomes idle and awaits a new version of the application.
 
 ## Breakpoint
-A moment that pauses the execution of a progra for inspection by a debugger tool.
+A moment that pauses the execution of a program for inspection by a debugger tool.
+
+## Busybox
+A software suite containing most common Unix utilities. Very lightweight, often used in embedded systems.
 
 &nbsp;
 # C
@@ -289,16 +294,16 @@ A function passed as an argument.
 ## Canary Deployment
 Pushing application changes to a few users who are unaware of it. This minimizes damage caused if the code is buggy since it doesn't affect the whole user base. 
 
-## CAP Theorum
+## CAP Theorem
 Source: [wikipedia](https://en.wikipedia.org/wiki/CAP_theorem)
 
-A theorum stating that a distributed data store can only provide at most two of three quarentess:
+A theorem stating that a distributed data store can only provide at most two of three guarantees:
 * __Consistency__ - every read either receives the most recent write or an error
-* __Availability__ - every request receives a non-error response, but not neccessarily the latest data
+* __Availability__ - every request receives a non-error response, but not necessarily the latest data
 * __Partition Tolerance__ - system continues to operate even if nodes in it fail 
 
 ## Cardinality
-The number of elements in a collection of elements as a property of that collection.
+The number of elements in a collection as a property of that collection.
 
 ## Character Encoding
 Maps a code point to a concrete binary representation.
@@ -359,7 +364,7 @@ Lets take this burger &#127828; Unicode character as an example:
 
 If a code point can't be encoded in one UTF-16 code unite it is store in a [surrogate pair](#surrogate-pair).
 
-## Comman Line Interface(CLI)
+## Command Line Interface(CLI)
 A program in which you type commands for the operating system to execute.
 
 ## Concurrent Programming
@@ -463,7 +468,7 @@ A character that is used to perform an action and has no literal meaning. Some p
 * `^C` - __End of Text__ is used in command line interfaces to terminate a program
 * `^D` - __End of Transmission__ is used in Unix based command line interfaces to indicate the end-of-file 
 
-For a full list vist [wikipedia](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C0_controls)
+For a full list visit [wikipedia](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C0_controls)
 
 ## Conversion Rate
 Ratio of visitors of a website that complete a desired goal.
@@ -474,8 +479,28 @@ M. Conway:
 
 Social boundaries reflect how well a system or component is designed. Authors must communicate with eachother frequently to achieve a high level of quality. 
 
+## Cryptography
+A method of protecting information so that it can only be processed by those it was intended for. It revolves around 3 key concepts:
+* **Confidentiality** - information is protected from third parties. This is achieved by encrypting data. In order for two parties to successfully exchange encrypted data they need to:
+  * choose a common encryption algorithm
+  * choose parameters, passwords or rules(secret) that will be used by the encryption algorithm
+* **Integrity** - assurance that the entire information was transferred successfully and unaltered. In order to achieve this **message digest algorithms** are used to tag the data(**cryptographic hashing**) with the senders and receivers **message authentication codes(MAC)**. This makes it infeasible to:
+  * change the message without affecting the tag
+  * generate the same tag form two different messages
+  * obtain the original message from the tag by reversing the process
+* **Authentication** - assurance that both parties are who they say they are. This is achieved, through a trusted third party that proves participants identities, called a **Certificate Authority(CA)**. The CA:
+  * issues a certificate stating that `domain.com` is associated with a specific public key - this is called HTTPS certificate(a specific CA certifies that a specific domain is under a specific public key for a specific amount of time)
+  * sometimes checks whether a legal entity is the domain owner
+
+**Chain of trust** is a mechanism in which all certificates are checked against CA's approved by your browser or OS. Trust is passed on, meaning if an entity trusted by one of your CA's verifies a certificate then your OS/Browser trusts that certificate as well.
+
+Certificates can involve two different key types:
+* **Elliptic Curve Cryptography (ECC)** certificates - faster, uses less CPU, lighter(256-bit) but not supported by many services
+* **Rivest Shamir Adleman (RSA)** certificates - slower, compatible with old servers, larger(2048-bit minimal)
+
+
 ## Currying
-Seperating a function that takes multiple arguments into several functions that take a part of those arguments.
+Separating a function that takes multiple arguments into several functions that take a part of those arguments.
 
 &nbsp;
 # D
@@ -518,6 +543,9 @@ A programming paradigm that focuses on describing what needs to be done over how
 
 __Examples__: SQL, Prolog
 
+## Dependency Injection
+https://www.freecodecamp.org/news/a-quick-intro-to-dependency-injection-what-it-is-and-when-to-use-it-7578c84fa88f/
+
 ## Domain Naming System(DNS)
 Source: [ns1.com](https://ns1.com/resources/dns-types-records-servers-and-queries)
 
@@ -549,7 +577,7 @@ __Advanced DNS Solutions__
 * __Multi CDN__ - routing users to the nearest CDN
 * __Geographical Routing__ - routing users to the nearest resources
 * __Cloud Migration__ - migrating local data to a cloud resource
-* __Internet Traffice Management__ - reducing network congestion
+* __Internet Traffic Management__ - reducing network congestion
 
 
 __Time to Live__(TTL) - when a domain name is resolved the DNS Server to which the request was originally made caches the mapping for a faster future resolution. TTL is how long that mapping is stored.
@@ -557,7 +585,7 @@ __Time to Live__(TTL) - when a domain name is resolved the DNS Server to which t
 __8.8.8.8__ is the ip address of Google's DNS Server. If you ever have DNS related problems try configuring your DNS settings to that server.
 
 ## DRY
-"Don't Repeat Yourself" is a coding principle which states that if you catch yourself writing the same code over and over again then you are probably doing something wrong. Try to group repeated logic into a seperate function.
+"Don't Repeat Yourself" is a coding principle which states that if you catch yourself writing the same code over and over again then you are probably doing something wrong. Try to group repeated logic into a separate function.
 
 ## Duck typing
 Checking if an object is of a certain type by checking its properties.
@@ -581,8 +609,17 @@ Official Webpage: http://ecma-international.org/
 ## Encapsulation
 Grouping data and into a single unit(like an object). Allows restricting access to the state of that unit.
 
+## Encryption
+The process of turning readable information into cyphered(scrambled and unreadable) information.
+
+There are two main types of encryption:
+* **symmetric** - both parties share a common secret key
+* **asymmetric** - one of the parties holds a pair of public and secret key(PKI - public key infrastructure)
+
+Usually both methods are used. Asymmetric encryption is slower, hence it is used to exchange a secret key between client and serve(called **key exchange**). Thereafter information exchanged between client is server is encrypted symmetricly(through **cypher methods**) since it is faster and both parties already share a secret key.
+
 ## Endpoint
-One end of a communcation channel. Usually associated with a URI.
+One end of a communication channel. Usually associated with a URI.
 
 This could be in a file system:
 ``` 
@@ -619,7 +656,6 @@ A runtime error that disrupts a programs flow.
 
 ## Execution Phase
 Or runtime is the process of executing a program on a computer or virtual machine. This usually involves a [runtime environment](#runtime-environment) which is responsible for supplying all the resources a program needs to properly execute. 
-
 
 ## Expression
 A unit of code that produces a single value.
@@ -723,13 +759,166 @@ The act of loading some resources to memory prior to code execution irrespective
 Adding more machines into the pool of resources available to a system.
 
 ## HTTP
-THe Hyper Text Transfer Protocol is a standard format for sending data across TCP/IP. 
+The Hyper Text Transfer Protocol is a standard format for sending data across TCP/IP. 
 
 A typical HTTP message contains: 
 * __status code__ regarding success or failure of the transmission
 * __http method__ type of performed operation, like GET or POST
 * __headers__ with metadata
 * __message body__ containing the payload
+
+## HTTPS
+Hyper Text Transfer Protocol Secure is a protocol used for secure communication over a computer network. Exchanged information is encrypted and communicating parties are validated through HTTPS certificates.
+
+There are many types of HTTPS certificates:
+* **Identity Validation**
+  * Domain Validated(**DV**) - most common type, verifies a specific domain matches a specific public key
+  * Extended Validation(**EV**) - verifies a specific legal entity owns a specific domain. The organizations information can be easily accessed by domain clients. This is the most trustworthy type of certificate and is checked through:
+    * domain control(ex. a DV cert)
+    * government records of the legal entity
+    * independent business directories(like connect.data.com or Yellow Pages)
+    * a verification phone call
+  * Organization Validated(**OV**) - like EV, but without displaying the organizations information
+* **Domain Coverage**
+  * Single Domain - most common type of cert, validates a single domain name such as `mysite.com`, `www.mysite.com`
+  * Multiple Domains - also knowns as Unified Communications Certificate(**UCC**) or Subjective Alternative Names(**SAN**) can validate a limited list of domains and subdomains.
+  * Wildcard - covers a main domain and unlimited number of subdomains
+
+Free DV certificates are available through [Lets Encrypt](https://letsencrypt.org/). Certificates always have an expiration date - you can automate renewal through tools like [certbot](https://certbot.eff.org/). For best practices when working with SSL and TLS visit [ssllabs](https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices)
+
+### HTTPS Configuration
+For secure communication the following HTTPS components need to be encrypted:
+* initial key exchange(asymmetric algorithms)
+* identity certification issued by a CA(asymmetric algorithms)
+* actual transferred information AKA the message payload(symmetric algorithms)
+* message digesting(hashing algorithms)
+
+There is a multitude of different cipher combinations aka cipher suites(set of algorithms used for the aforementioned encryption). For best combinations based on target user agent refer to [mozilla wiki](https://wiki.mozilla.org/Security/Server_Side_TLS#Cipher_names_correspondence_table). Choosing a combination is usually a trade-off between security(newer are more secure) and compatibility(older browsers cant handle all cipher suites).
+
+Example configuration `ECDHE-RSA-AES256-GCM-SHA384`
+* key exchange -> Elliptic Curve Diffie-Hellman Ephemeral (ECDHE) cipher
+* identity certification -> signed by CA using Rivest-Shamir-Adleman (RSA) cipher
+* message encryption -> 256-bit key and GCM mode of operation Advanced Encryption Standard (AES) cipher
+* message digesting -> SHA using 384-bit digests
+
+### HTTPS Procedures
+The following steps must be taken to obtain a HTTPS certificate:
+1. Create a private-public key pair
+```bash
+sudo apt-get install openssl
+openssl req -newkey rsa:2048 -nodes -keyout example.com.key -out example.com.csr
+# to create a self-signed certificate for development purposes
+openssl x509 -signkey example.com.key -in example.com.csr -req -days 365 -out example.com.crt
+```
+2. Prepare a CSR(Certificate Signing Request) that includes information about the organization and the public key
+3. Contact a CA and request a HTTPS Certificate based on the CSR
+4. Obtain the signed certificate and install it on your webserver
+```bash
+cp example.com.crt /etc/ssl/certs/
+cp example.com.key /etc/ssl/private/
+cp example.com.csr /etc/ssl/private/
+```
+
+The private and public key, CSR and signed HTTPS certificate are stored in one of two formats:
+* **DER** - a binary file used by default on Windows platforms
+* **PEM** - a base64-encoded DER file, most popular on open source platforms like Linux
+* you can use tools to convert between formats such as [OpenSSL](https://www.openssl.org/)
+
+Example PEM-formatted file containing the **private key**:
+```
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAm+036O2PlUQbKbSSs2ik6O6TYy6+Zsas5oAk3GioGLl1RW9N
+i8kagqdnD69Et29m1vl5OIPsBoW3OWb1aBW5e3J0x9prXI1W/fpvuP9NmrHBUN4E
+S17VliRpfVH3aHfPC8rKpv3GvHYOcfOmMN+HfBZlUeKJKs6c5WmSVdnZB0R4UAWu
+Q30aHEBVqtrhgHqYDBokVe0/H4wmwZEIQTINWniCOFR5UphJf5nP8ljGbmPxNTnf
+b/iHS/chjcjF7TGMG36e7EBoQijZEUQs5IBCeVefOnFLK5jLx+BC//X+FNzByDil
+Tt+l28I/3ZN1ujhak73YFbWjjLR2tjtp+LQgNQIDAQABAoIBAEAO2KVM02wTKsWb
+dZlXKEi5mrtofLhkbqvTgVE7fbOKnW8FJuqCl+2NMH31F1n03l765p4dNF4JmRhv
+/+ne4vCgOPHR/cFsH4z/0d5CpHMlC7JZQ5JjR4QDOYNOpUG51smVamPoZjkOlyih
+XGk/q72CxeU6F/gKIdLt6Dx03wBosIq9IAE8LwdMnioeuj18qaVg195OMeIOriIn
+tpWP4eFya5rTpIFfIdHdIxyXsd6hF/LrRc9BMWTY1/uOLrpYjTf7chbdNaxhwH7k
+buvKxBvCvmXmd6v/AeQQAXbUkdSnbTKDaB9B7IlUTcDJyPBJXvFS1IzzjN6vV+06
+XBwHx5ECgYEAyRZLzwnA3bw8Ep9mDw8JHDQoGuQkFEMLqRdRRoZ+hxnBD9V9M0T6
+HRiUFOizEVoXxf6zPtHm/T7cRD8AFqB+pA/Nv0ug6KpwUjA4Aihf5ADp0gem0DNw
+YlVkCA6Bu7c9IUlE0hwF7RLB7YrryJVJit9AymmUTUUHCQTWW2yBhC8CgYEAxoHS
+HGXthin5owOTNPwLwPfU2o7SybkDBKyW69uTi0KxAl3610DjyA/cV2mxIcFlPv1y
+HualGd9eNoeCMBy/AUtjzI0K77yeRpjj321rj6k8c8bYWPHH539SiBXLWTY/WQ0w
+pxfT3d/Z4QMh5d6p+p5f3UIrXESYQd+fAaG5tNsCgYEAksTdTB4YUT9EsWr6eN9G
+jPlclFQUKV3OMvq77bfYvg8EJORz32nnDDmWS7SUjoOtemwutBlMeWbaKk25aMp3
+5JNMXuV6apeMJ9Dd8GU7qBUqlIvVK31/96XPvzmnYzWZPqRVwO2HPcRFG3YcJmkg
+JmZQyexJvCQ3wFNxiYUm+y0CgYBXQSMhFnCUg4jWbbDcHlnwRT+LnjHrN2arPE3O
+eKLfGL6DotmqmjxFaStaRPv2MXMWgAMUsB8sQzG/WEsSaOBQaloAxJJlFIyhzXyE
+bi1UZXhMD8BzQDu1dxLI/IN4wE6SDykumVuocEfuDxlsWDZxEgJjWD2E/iXK9seG
+yRa+9wKBgEydVz+C1ECLI/dOWb20UC9nGQ+2dMa+3dsmvFwSJJatQv9NGaDUdxmU
+hRVzWgogZ8dZ9oH8IY3U0owNRfO65VGe0sN00sQtMoweEQi0SN0J6FePiVCnl7pf
+lvYBaemLrW2YI2B7zk5fTm6ng9BW/B1KfrH9Vm5wLQBchAN8Pjbu
+-----END RSA PRIVATE KEY-----
+```
+
+Example PEM-formatted file containing the **public key**:
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+036O2PlUQbKbSSs2ik
+6O6TYy6+Zsas5oAk3GioGLl1RW9Ni8kagqdnD69Et29m1vl5OIPsBoW3OWb1aBW5
+e3J0x9prXI1W/fpvuP9NmrHBUN4ES17VliRpfVH3aHfPC8rKpv3GvHYOcfOmMN+H
+fBZlUeKJKs6c5WmSVdnZB0R4UAWuQ30aHEBVqtrhgHqYDBokVe0/H4wmwZEIQTIN
+WniCOFR5UphJf5nP8ljGbmPxNTnfb/iHS/chjcjF7TGMG36e7EBoQijZEUQs5IBC
+eVefOnFLK5jLx+BC//X+FNzByDilTt+l28I/3ZN1ujhak73YFbWjjLR2tjtp+LQg
+NQIDAQAB
+-----END PUBLIC KEY-----
+```
+
+Example PEM-formatted file containing the **CSR**:
+```
+-----BEGIN CERTIFICATE REQUEST-----
+MIICzjCCAbYCAQAwgYgxFDASBgNVBAMMC2V4YW1wbGUuY29tMQswCQYDVQQLDAJJ
+VDEPMA0GA1UECAwGTG9uZG9uMRIwEAYDVQQKDAlBQ01FIEluYy4xIDAeBgkqhkiG
+9w0BCQEWEWFkbWluQGV4YW1wbGUuY29tMQswCQYDVQQGEwJHQjEPMA0GA1UEBwwG
+TG9uZG9uMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+036O2PlUQb
+KbSSs2ik6O6TYy6+Zsas5oAk3GioGLl1RW9Ni8kagqdnD69Et29m1vl5OIPsBoW3
+OWb1aBW5e3J0x9prXI1W/fpvuP9NmrHBUN4ES17VliRpfVH3aHfPC8rKpv3GvHYO
+cfOmMN+HfBZlUeKJKs6c5WmSVdnZB0R4UAWuQ30aHEBVqtrhgHqYDBokVe0/H4wm
+wZEIQTINWniCOFR5UphJf5nP8ljGbmPxNTnfb/iHS/chjcjF7TGMG36e7EBoQijZ
+EUQs5IBCeVefOnFLK5jLx+BC//X+FNzByDilTt+l28I/3ZN1ujhak73YFbWjjLR2
+tjtp+LQgNQIDAQABoAAwDQYJKoZIhvcNAQELBQADggEBAGIQVhXfuWdINNfceNPm
+CkAGv4yzpx88L34bhO1Dw4PYWnoS2f7ItuQA5zNk9EJhjkwK8gYspK7mPkvHDbFa
+Um7lPSWsm3gjd3pU7dIaHxQ+0AW9lOw5ukiBlO4t3qgt+jTVZ3EhMbR0jDSyjTrY
+kTgfuqQrGOQSmLb5XviEtCcN0rseWib3fKIl8DM69JiA2AALxyk7DCkS1BqLNChT
+pnbgvtlUhc4yFXNCtwPGskXIvLsCn2LRy+qdsPM776kDLgD36hK0Wu14Lpsoa/p+
+ZRuwKqTjdaV23o2aUMULyCRuITlghEEkRdJsaXadHXtNd5I5vDJOAAt46PIXcyEZ
+aQY=
+-----END CERTIFICATE REQUEST-----
+```
+
+Example PEM-formatted file containing the **HTTPS Certificate**:
+```
+-----BEGIN CERTIFICATE-----
+MIIDjjCCAnYCCQCJdR6v1+W5RzANBgkqhkiG9w0BAQUFADCBiDEUMBIGA1UEAwwL
+ZXhhbXBsZS5jb20xCzAJBgNVBAsMAklUMQ8wDQYDVQQIDAZMb25kb24xEjAQBgNV
+BAoMCUFDTUUgSW5jLjEgMB4GCSqGSIb3DQEJARYRYWRtaW5AZXhhbXBsZS5jb20x
+CzAJBgNVBAYTAkdCMQ8wDQYDVQQHDAZMb25kb24wHhcNMTYwNDE5MTAzMjI1WhcN
+MTcwNDE5MTAzMjI1WjCBiDEUMBIGA1UEAwwLZXhhbXBsZS5jb20xCzAJBgNVBAsM
+AklUMQ8wDQYDVQQIDAZMb25kb24xEjAQBgNVBAoMCUFDTUUgSW5jLjEgMB4GCSqG
+SIb3DQEJARYRYWRtaW5AZXhhbXBsZS5jb20xCzAJBgNVBAYTAkdCMQ8wDQYDVQQH
+DAZMb25kb24wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCb7Tfo7Y+V
+RBsptJKzaKTo7pNjLr5mxqzmgCTcaKgYuXVFb02LyRqCp2cPr0S3b2bW+Xk4g+wG
+hbc5ZvVoFbl7cnTH2mtcjVb9+m+4/02ascFQ3gRLXtWWJGl9Ufdod88Lysqm/ca8
+dg5x86Yw34d8FmVR4okqzpzlaZJV2dkHRHhQBa5DfRocQFWq2uGAepgMGiRV7T8f
+jCbBkQhBMg1aeII4VHlSmEl/mc/yWMZuY/E1Od9v+IdL9yGNyMXtMYwbfp7sQGhC
+KNkRRCzkgEJ5V586cUsrmMvH4EL/9f4U3MHIOKVO36Xbwj/dk3W6OFqTvdgVtaOM
+tHa2O2n4tCA1AgMBAAEwDQYJKoZIhvcNAQEFBQADggEBABwwkE7wX5gmZMRYugSS
+7peSx83Oac1ikLnUDMMOU8WmqxaLTTZQeuoq5W23xWQWgcTtfjP9vfV50jFzXwat
+5Ch3OQUS53d06hX5EiVrmTyDgybPVlfbq5147MBEC0ePGxG6uV+Ed+oUYX4OM/bB
+XiFa4z7eamG+Md2d/A1cB54R3LH6vECLuyJrF0+sCGJJAGumJGhjcOdpvUVt5gvD
+FIgT9B04VJnaBatEgWbn9x50EP4j41PNFGx/A0CCLgbTs8kZCdhE4QFMxU9T+T9t
+rXgaspIi7RA4xkSE7x7B8NbvSlgP79/qUe80Z7d8Oolva6dTZduByr0CejdfhLhi
+mNU=
+-----END CERTIFICATE-----
+```
+
+
+
+Source: [smashing magazine](https://www.smashingmagazine.com/2017/06/guide-switching-http-https/)
 
 &nbsp;
 # I
@@ -925,7 +1114,7 @@ Transforming data into a standard format that can be transmitted over a network 
 
 Decoding marshalled data is called unmarshalling.
 
-__Example__: Transforming client stub parameters during an RPC before trasnferring them to the server stub.
+__Example__: Transforming client stub parameters during an RPC before transferring them to the server stub.
 
 ## Memoization
 Storing the result of a function call. When the function is called again with the same input the cached result is returned instead of calling the function again.
@@ -1019,9 +1208,6 @@ Credits: [Xiao Ma](https://medium.engineering/microservice-architecture-at-mediu
   * implement observability to detect and understand failures and performance
   * create services with the holistic picture in mind
 
-
-
-
 ## MIME Type
 **M**ultipurpose **I**nternet **M**ail **E**xternsions is a standard for specifying a type of data being sent over a computer network. 
 
@@ -1087,8 +1273,8 @@ This includes:
 
 ## Network Protocols
 Sets of rules for communication between network-enabled devices like server, computers or routers.
-
-These protocols can be grouped by the network layer in which they operator:
+asdasd
+These protocols can be grouped by the network layer in which they operate:
 * __Communication protocols__ - basic data interchange -> TCP/IP, HTTP
 * __Security protocols__ - secure network communication -> HTTPS, SSL, SFTP
 * __Management protocols__ - network governance and maintenance -> SNMP, ICMP
@@ -1268,7 +1454,6 @@ A family of standards for providing a uniform API to UNIX and UNIX-based operati
 
 Making your application conform to POSIX standards ensures it will easily port to a large family of systems(example Linux, macOS).
 
-
 ## Proof of Concept(POC)
 A realization of an idea to prove its feasability. A PoC is usually incomplete and doesn't necessarily abide by good coding standards. 
 
@@ -1388,8 +1573,6 @@ Rule of thumb:
 * use [parsers](#parser) for complex data with a clear syntax(source code, urls, etc.)
 * if the regular expression is too long think of a different approach
 * don't try to solve all cases in a single regular expression(all valid emails could take a reg exp of over 1000 characters)
-
-## 
 
 ## Remote Procedure Call(RPC)
 A remote procedure call is when a client calls a procedure on a server located on another computer or network without having to understand the underlying network details.
@@ -1861,3 +2044,251 @@ A coding principle stating that you shouldn't implement a functionality until yo
 &nbsp;
 # Z
 
+
+&nbsp;
+# Table of contents
+* A
+  * [AB Tests](#AB-Tests)
+  * [Abstraction](#Abstraction)
+  * [Abstraction Layer](#Abstraction-Layer)
+  * [Accessor](#Accessor)
+  * [ACID](#ACID)
+  * [Acknowledgement(ACK)](#Acknowledgement(ACK))
+  * [AJAX](#AJAX)
+  * [Amdahl's Law](#Amdahl's-Law)
+  * [API Gateway](#API-Gateway)
+  * [Argument](#Argument)
+  * [Array](#Array)
+  * [ASCII](#ASCII)
+  * [Assignment](#Assignment)
+  * [Asynchronous Programming](#Asynchronous-Programming)
+  * [Authentication](#Authentication)
+  * [Authorization](#Authorization)
+  * [Autoboxing](#Autoboxing)
+* B
+  * [BASE](#BASE)
+  * [Batch Processing](#Batch-Processing)
+  * [Blue/green Deployment](#Blue/green-Deployment)
+  * [Breakpoint](#Breakpoint)
+  * [Busybox](#Busybox)
+* C
+  * [Caching](#Caching)
+  * [Call Stack](#Call-Stack)
+  * [Callback Function](#Callback-Function)
+  * [Canary Deployment](#Canary-Deployment)
+  * [CAP Theorem](#CAP-Theorem)
+  * [Cardinality](#Cardinality)
+  * [Character Encoding](#Character-Encoding)
+  * [Character Set](#Character-Set)
+  * [Chunk](#Chunk)
+  * [Clause](#Clause)
+  * [Client](#Client)
+  * [Client-Server Architecture](#Client-Server-Architecture)
+  * [Client Side Storage](#Client-Side-Storage)
+  * [Closure](#Closure)
+  * [Clustering](#Clustering)
+  * [Code Coverage](#Code-Coverage)
+  * [Code point](#Code-point)
+  * [Code unit](#Code-unit)
+  * [Command Line Interface(CLI)](#Command-Line-Interface(CLI))
+  * [Concurrent Programming](#Concurrent-Programming)
+  * [Confluence](#Confluence)
+  * [Container](#Container)
+  * [Continuous Deployment](#Continuous-Deployment)
+  * [Continuous Integration](#Continuous-Integration)
+  * [Control character](#Control-character)
+  * [Conversion Rate](#Conversion-Rate)
+  * [Conway's Law](#Conway's-Law)
+  * [Cryptography](#Cryptography)
+  * [Currying](#Currying)
+* D
+  * [Data Binding and Flow](#Data-Binding-and-Flow)
+  * [Data Buffer](#Data-Buffer)
+  * [Data Stream](#Data-Stream)
+  * [Data Structures](#Data-Structures)
+  * [Data Base](#Data-Base)
+  * [Debugging](#Debugging)
+  * [Declaration](#Declaration)
+  * [Declarative Programming](#Declarative-Programming)
+  * [Dependency Injection](#Dependency-Injection)
+  * [Domain Naming System(DNS)](#Domain-Naming-System(DNS))
+  * [DRY](#DRY)
+  * [Duck typing](#Duck-typing)
+  * [Dynamic Reconfiguration](#Dynamic-Reconfiguration)
+  * [Dynamic typing](#Dynamic-typing)
+* E
+  * [ECMAScript](#ECMAScript)
+  * [Encapsulation](#Encapsulation)
+  * [Encryption](#Encryption)
+  * [Endpoint](#Endpoint)
+  * [Environment Variable](#Environment-Variable)
+  * [Error](#Error)
+  * [Escape sequence](#Escape-sequence)
+  * [Exception](#Exception)
+  * [Execution Phase](#Execution-Phase)
+  * [Expression](#Expression)
+* F
+  * [Feature Flags(Toggles)](#Feature-Flags(Toggles))
+  * [First Class Citizen](#First-Class-Citizen)
+  * [First Class Functions](#First-Class-Functions)
+  * [Function](#Function)
+  * [Function Composition](#Function-Composition)
+  * [Function Decorator](#Function-Decorator)
+  * [Functional Programming](#Functional-Programming)
+* G
+  * [Garbage Collection](#Garbage-Collection)
+  * [Generic Programming](#Generic-Programming)
+  * [Getter](#Getter)
+  * [Global properties](#Global-properties)
+  * [Graceful Degradation](#Graceful-Degradation)
+  * [Grapheme](#Grapheme)
+* H
+  * [Handshaking](#Handshaking)
+  * [Higher Order Function](#Higher-Order-Function)
+  * [Hoisting](#Hoisting)
+  * [Horizontal Scaling](#Horizontal-Scaling)
+  * [HTTP](#HTTP)
+  * [HTTPS](#HTTPS)
+    * [HTTPS Configuration](#HTTPS-Configuration)
+    * [HTTPS Procedures](#HTTPS-Procedures)
+* I
+  * [IaaS](#IaaS)
+  * [Identifier](#Identifier)
+  * [Immutable](#Immutable)
+  * [Imperative Programming Paradigm](#Imperative-Programming-Paradigm)
+  * [In-memory Database(IMDB)](#In-memory-Database(IMDB))
+  * [Inheritance](#Inheritance)
+  * [Initialization](#Initialization)
+  * [Internet Protocol](#Internet-Protocol)
+  * [Interpreter](#Interpreter)
+  * [Inter-Process Communication(IPC)](#Inter-Process-Communication(IPC))
+* J
+  * [JIRA](#JIRA)
+  * [JSON](#JSON)
+* K
+  * [Keyword](#Keyword)
+  * [KISS](#KISS)
+* L
+  * [Lazy Evaluation](#Lazy-Evaluation)
+  * [Lexical Scope](#Lexical-Scope)
+  * [Licenses](#Licenses)
+  * [Literal](#Literal)
+  * [Load Balancing](#Load-Balancing)
+  * [Locale](#Locale)
+  * [Luhn Algorithm](#Luhn-Algorithm)
+* M
+  * [Machine Code](#Machine-Code)
+  * [Magic String](#Magic-String)
+  * [Marshalling](#Marshalling)
+  * [Memoization](#Memoization)
+  * [Memory Leak](#Memory-Leak)
+  * [Memory Life Cycle](#Memory-Life-Cycle)
+  * [Message Broker](#Message-Broker)
+  * [Metaprogramming](#Metaprogramming)
+  * [Method](#Method)
+  * [Method Overriding](#Method-Overriding)
+  * [Microservice Architecture](#Microservice-Architecture)
+  * [MIME Type](#MIME-Type)
+  * [Minimum Viable Product(MVP)](#Minimum-Viable-Product(MVP))
+  * [Module](#Module)
+  * [Monolithic Architecture](#Monolithic-Architecture)
+  * [Multiplexing](#Multiplexing)
+  * [Mutable](#Mutable)
+  * [Mutator](#Mutator)
+* N
+  * [Namespacing](#Namespacing)
+  * [Naming conflict](#Naming-conflict)
+  * [Native](#Native)
+  * [Network Architecture](#Network-Architecture)
+  * [Network Protocols](#Network-Protocols)
+  * [Networking](#Networking)
+* O
+  * [Object](#Object)
+  * [Object Oriented Programming](#Object-Oriented-Programming)
+  * [Object Oriented Design Problems](#Object-Oriented-Design-Problems)
+  * [Observability](#Observability)
+  * [Off-by-one Error](#Off-by-one-Error)
+  * [Operand](#Operand)
+  * [Operator](#Operator)
+  * [OSI Model](#OSI-Model)
+  * [Overhead](#Overhead)
+* P
+  * [PaaS](#PaaS)
+  * [Package](#Package)
+  * [Package Manager](#Package-Manager)
+  * [Parallel Programming](#Parallel-Programming)
+  * [Parameter](#Parameter)
+  * [Parser](#Parser)
+  * [Pipe](#Pipe)
+  * [Point-free Style](#Point-free-Style)
+  * [Polyfill](#Polyfill)
+  * [Port](#Port)
+  * [POSIX](#POSIX)
+  * [Proof of Concept(POC)](#Proof-of-Concept(POC))
+  * [Protocol](#Protocol)
+  * [Proxy Server](#Proxy-Server)
+  * [Primitive](#Primitive)
+  * [Procedural Programming](#Procedural-Programming)
+  * [Profiling](#Profiling)
+  * [Progressive-Enhancement(PE)](#Progressive-Enhancement(PE))
+  * [Progressive Web Apps(PWA)](#Progressive-Web-Apps(PWA))
+  * [Pure Function](#Pure-Function)
+  * [Push Notification](#Push-Notification)
+* R
+  * [Race Conditions](#Race-Conditions)
+  * [Refactor](#Refactor)
+  * [Reflection](#Reflection)
+  * [Regular Expression](#Regular-Expression)
+  * [Remote Procedure Call(RPC)](#Remote-Procedure-Call(RPC))
+  * [REPL](#REPL)
+  * [Responsive Design](#Responsive-Design)
+  * [REST](#REST)
+  * [Retransmission](#Retransmission)
+  * [RFC](#RFC)
+  * [Routing](#Routing)
+  * [Runtime Environment](#Runtime-Environment)
+* S
+  * [SaaS](#SaaS)
+  * [Search Engine](#Search-Engine)
+  * [Secure Shell(SSH)](#Secure-Shell(SSH))
+  * [Semantic Versioning](#Semantic-Versioning)
+  * [SEO](#SEO)
+  * [Separator](#Separator)
+  * [Serialization](#Serialization)
+  * [Server](#Server)
+  * [Service Discovery](#Service-Discovery)
+  * [Service Mesh](#Service-Mesh)
+  * [Service Worker](#Service-Worker)
+  * [Sharding](#Sharding)
+  * [Shim](#Shim)
+  * [Singleton Pattern](#Singleton-Pattern)
+  * [Slug](#Slug)
+  * [Software Architecture](#Software-Architecture)
+  * [Software Development Methodologies](#Software-Development-Methodologies)
+  * [SOLID](#SOLID)
+  * [Statement](#Statement)
+  * [Static Analysis](#Static-Analysis)
+  * [String Interpolation](#String-Interpolation)
+  * [Stub](#Stub)
+  * [Subdomain](#Subdomain)
+  * [Surrogate Pair](#Surrogate-Pair)
+* T
+  * [Technical Debt](#Technical-Debt)
+  * [Task Runner](#Task-Runner)
+  * [Template](#Template)
+  * [Transmission Control Protocol(TCP)](#Transmission-Control-Protocol(TCP))
+  * [TCP/IP Model](#TCP/IP-Model)
+  * [Token](#Token)
+  * [Type coercion](#Type-coercion)
+* U
+  * [Unicode](#Unicode)
+  * [URI](#URI)
+  * [URL](#URL)
+  * [User Agent](#User-Agent)
+* V
+  * [Vertical Scaling](#Vertical-Scaling)
+* W
+  * [Web Services](#Web-Services)
+  * [Web Sockets](#Web-Sockets)
+  * [Wrapper Type](#Wrapper-Type)
+  * [YAGNI](#YAGNI)
