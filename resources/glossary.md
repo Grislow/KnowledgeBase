@@ -125,6 +125,9 @@ Source: [wikipedia](https://en.wikipedia.org/wiki/ACID_(computer_science))
 ## Acknowledgement(ACK)
 A signal passed between communicating processes that signifies receipt of a message.
 
+## Active Directory
+Authoritative user directory that governs access to basic IT services(emails, file sharing) and broader business applications.
+
 ## AJAX
 **A**synchronous **J**avascript **A**nd **X**ML is a technique that makes use of various technologies such as HTML, CSS, JavaScript, DOM, XML, XSLT and XMLHttpRequest object to update a web application through XML or JSON documents without reloading the entire page.
 
@@ -1009,6 +1012,8 @@ IPC comes in various flavors:
 
 Source: [wikipedia](https://en.wikipedia.org/wiki/Inter-process_communication#Remote_procedure_call_interfaces)
 
+**Example**: a python script performs intensive calculations and sends the results to a backend application that persists them
+
 &nbsp;
 # J
 
@@ -1741,6 +1746,19 @@ __Example__: In `www.example.com/home.html?search=shoes` you could make it more 
 ## Software Architecture
 Defining software components and how they interact in order to meet specific business needs. It can be seen as a __blueprint__ for a system.
 
+## Software Configuration Management(SCM)
+Tracking and controlling changes in software. Consists of:
+* __Configuration identification__ - determining the current state of the software(atributes, documents, plans)
+* __Configuration control__ - a change process that tracks, approves or rejects each change
+* __Configuration status accounting__ - recording and reporting on the status of a change
+* __Configuration auditing__ - ensuring configurations adhere to their specifying documents(requirements, architecture, user manuals)
+* __Build management__ - manageing any processes and tools used to build the application
+* __Process management__ - make sure changes adhere to the organizations development processes
+* __Environment management__ - manageing software and hardware that host the system
+* __Teamwork__ - facilitate team interactions relating to the process
+* __Defect Tracking__ - ensuring defect can be traced to their source
+
+
 ## Software Development Methodologies
 How an IT project is strucutered, planned and controlled during its lifecycle.
 
@@ -2014,6 +2032,14 @@ Software used by a user. For example:
 ## Vertical Scaling
 Adding more power to an existing resource.
 
+## VPN
+A **virtual private network** is a private network that is extended over a public network.
+
+The advantages of a VPN are:
+* **enhanced security** - shared data is encrypted
+
+Source: [ibvpn](https://www.ibvpn.com/2010/02/8-advantages-of-using-vpn/)
+
 &nbsp;
 # W
 
@@ -2054,6 +2080,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [Accessor](#Accessor)
   * [ACID](#ACID)
   * [Acknowledgement(ACK)](#Acknowledgement(ACK))
+  * [Active Directory](#Active-Directory)
   * [AJAX](#AJAX)
   * [Amdahl's Law](#Amdahl's-Law)
   * [API Gateway](#API-Gateway)
@@ -2264,6 +2291,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [Singleton Pattern](#Singleton-Pattern)
   * [Slug](#Slug)
   * [Software Architecture](#Software-Architecture)
+  * [Software Configuration Management(SCM)](#Software-Configuration-Management(SCM))
   * [Software Development Methodologies](#Software-Development-Methodologies)
   * [SOLID](#SOLID)
   * [Statement](#Statement)
@@ -2287,6 +2315,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [User Agent](#User-Agent)
 * V
   * [Vertical Scaling](#Vertical-Scaling)
+  * [VPN](#VPN)
 * W
   * [Web Services](#Web-Services)
   * [Web Sockets](#Web-Sockets)

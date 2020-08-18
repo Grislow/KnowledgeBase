@@ -31,3 +31,9 @@ mkdir ./.ssh
 # 4. Copy public key to .ssh/authorized_keys file on target
 cp ./id_rsa.pub ./.ssh/authorized_keys
 ```
+
+&nbsp;
+# Ubuntu
+
+Software collaboration platforms:
+* [launchpad.net](https://launchpad.net/)

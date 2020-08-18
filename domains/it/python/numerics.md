@@ -18,6 +18,8 @@ Good reads:
 * [Numpy](#numpy)
 * [Pandas](#pandas)
   * [Optimizing](#optimizing)
+  * [Tricks](#ticks)
+    * [mixed dtypes](#mixed-dtypes)
 * [Scipy](#scipy)
 * [Matplotlib](#matplotlib)
 
@@ -164,6 +166,25 @@ A 1-dimensional homogenous array with an immutable size.
 Source: 
 * [realpython](https://realpython.com/fast-flexible-pandas/)
 
+## Tricks
+
+### mixed dtypes
+```python
+print(joined.select_dtypes(include=['object']).applymap(type))
+
+                   mix_id         ticker       mix_type  ... PROD@PRE_SNAPSHOT_INSTANCES PROD@PRE_SNAPSHOT_MIXES       PROD@RAW
+100050_CUR  <class 'int'>  <class 'str'>  <class 'str'>  ...               <class 'int'>           <class 'int'>  <class 'int'>
+100051_CUR  <class 'int'>  <class 'str'>  <class 'str'>  ...               <class 'int'>           <class 'int'>  <class 'int'>
+100049_CUR  <class 'int'>  <class 'str'>  <class 'str'>  ...               <class 'int'>           <class 'int'>  <class 'int'>
+100048_CUR  <class 'int'>  <class 'str'>  <class 'str'>  ...               <class 'int'>           <class 'int'>  <class 'int'>
+100047_CUR  <class 'int'>  <class 'str'>  <class 'str'>  ...               <class 'int'>           <class 'int'>  <class 'int'>
+...                   ...            ...            ...  ...                         ...                     ...            ...
+100004_TAR  <class 'str'>  <class 'str'>  <class 'str'>  ...               <class 'str'>           <class 'str'>  <class 'str'>
+100003_TAR  <class 'str'>  <class 'str'>  <class 'str'>  ...               <class 'str'>           <class 'str'>  <class 'str'>
+100002_TAR  <class 'str'>  <class 'str'>  <class 'str'>  ...               <class 'str'>           <class 'str'>  <class 'str'>
+100001_TAR  <class 'str'>  <class 'str'>  <class 'str'>  ...               <class 'str'>           <class 'str'>  <class 'str'>
+100000_TAR  <class 'str'>  <class 'str'>  <class 'str'>  ...               <class 'str'>           <class 'str'>  <class 'str'>
+```
 
 &nbsp;
 ## This and that

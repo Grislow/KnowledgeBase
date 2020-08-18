@@ -128,6 +128,7 @@ TODO:
 * [Task Runner](#Task-Runner)
 * [Snippets](#snippets)
   * [Pipeline](#pipeline)
+* [GUI](#GUI)
 * [Glossary](#glossary)
 
 &nbsp;
@@ -3626,9 +3627,14 @@ data_pipeline = num_pipeline((add, multiply, exponent))
 ```
 
 &nbsp;
+# GUI
+Use [PyInstaller](https://www.pyinstaller.org/) to make a GUI application an executable.
+
+[PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/) is a simple library that unifies `tkinter`, `Qt` and `WxPython` under a simplified API for fast python GUI development.
+
+&nbsp;
 # Glossary
 Source: [python glossary](https://docs.python.org/3/glossary.html#term-decorator)
-
 
 &nbsp;
 # Alternative Python version Install Python 3.7

@@ -1,7 +1,10 @@
 # Cli tools for a mac(and linux).
 
 #### Table of contents
+* [bash basics](#bash-basics)
+* [awk](#awk)
 * [bit](#bit)
+* [chattr](#chattr)
 * [chmod](#chmod)
 * [cron](#cron)
     * [crontab](#crontab)
@@ -13,9 +16,23 @@
 * [netstat](#netstat)
 * [nmap](#nmap)
 * [npm-scripts](#npm-scripts)
+* [rename](#rename)
 * [sed](#sed)
 * [ssh](#ssh)
+    * [ssh troubleshooting](#ssh-troubleshooting)
+* [stract](#strace)
+* [usermod](#usermod)
 * [misc](#misc)
+
+&nbsp;
+# bash basics
+Basic syntax of shell scripting: https://www.gnu.org/software/bash/manual/bash.html
+
+&nbsp;
+# awk
+```shell
+awk -F':' '{ print $1}' /etc/passwd
+```
 
 &nbsp;
 # bit
@@ -103,12 +120,31 @@ Import a component if you want to develop it from the consuming repository
 $ bit import user-name.collection-name/component-name
 ```
 
+&nbsp;
+# chattr
+* `chattr` - changes the attributes of files and directories
+* `lsattr` - lists the attributes of a file or directory
+
+``` shell
+# list file or directory attributes
+
+# make file immutable
+sudo chattr +i /path/to/file
+# 
+```
+
 
 &nbsp;
 # chmod
 ``` shell
 # make script executable
 chmod +x some_script.sh
+
+# set permissions for specific file and specific user
+setfacl -m u:username:rwx myfolder
+
+# check permissions of file/dir and all intermediate directories
+namei -l <file>
 ```
 
 &nbsp;
@@ -242,6 +278,11 @@ Allows viewing network connections, routing tables, interface statistics and moc
 __Functionality:__
 * `netstat -r` - human readable data regarding network router
 
+```shell
+# lists open ports
+netstat -ap tcp | grep -i "listen"
+```
+
 &nbsp;
 # nmap
 Source: [osxdaily](http://osxdaily.com/2013/03/26/nmap-for-mac-os-x/)
@@ -336,6 +377,19 @@ __Built-in commands and Hooks__
 |`npm view`|view registry info|||
 |`npm whoami`|display npm username|||
 
+
+# rename
+Command-line utility for renaming files and directories.
+
+``` shell
+# -n -> will launch test run without actually making changes
+rename -n 's/(.*)$/$1_APPENDED/' *
+
+# remove -n to actually change names
+rename 's/(.*)$/$1_APPENDED/' *
+```
+
+
 # sed
 A stream editor - enables basic text transformations on an input stream.
 
@@ -416,6 +470,45 @@ git remote add origin git@github.com-company:myuser/repo_name.git
 ``` shell
 # restart server remotely
 ssh –t user@server.com ‘sudo reboot’
+
+# remote login using .pem file
+ssh -i keys.pem user@domain.pl
+
+# add public key to remote server authorized keys
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@server
+
+# restart the ssh agent - DEBIAN / UBUNTU
+sudo systemctl restart ssh
+```
+
+## ssh troubleshooting
+``` shell
+# demanding password after adding key to authorized
+#   1. make sure ~ , ~/.ssh , ~/.ssh/authorized_keys permission on REMOTE are correct
+chmod 700 ~
+chmod 700 ~/.ssh
+chmod 700 ~/.ssh/authorized_keys
+
+# offending key
+#   1. remove offending key from known_hosts
+ssh-keygen -f "/home/edulab/.ssh/known_hosts" -R "172.17.132.10"
+#   2. run ssh  again to add proper key
+ssh user@172.17.132.10
+```
+
+&nbsp;
+# strace
+```shell
+# print stack trace of app
+strace <app_name>
+```
+
+
+&nbsp;
+# usermod
+```shell
+# add user to sudo group
+usermod -aG sudo user-name
 ```
 
 # Misc
@@ -437,3 +530,7 @@ free -m
 # check memory usage of all processes based on regexp
 ps -o pid,user,%mem,command ax | sort -b -k3 -r | grep 'name'
 ```
+
+# 
+
+ awk -F':' '{ print $1}' /etc/passwd

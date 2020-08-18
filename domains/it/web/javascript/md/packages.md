@@ -4,6 +4,14 @@
 * [meta](#meta)
 * [moment](#moment)
 * [nodemon](#nodemon)
+* [rambda](#rambda)
+
+
+# fp-ts
+__GIT__: [gcanti/fp-ts](https://github.com/gcanti/fp-ts)
+__Concerns__: functional programming \
+
+Functional programming in Typescript
 
 
 # meta
@@ -56,3 +64,9 @@ __NPM__: [nodemon](https://www.npmjs.com/package/nodemon)\
 __Concerns__: Dev Tool
 
 A tool that watches files and automatically restarts a node application if a file change is detected.
+
+# rambda
+__NPM__: [rambda](https://www.npmjs.com/package/ramda)\
+__Concerns__: functional programming
+
+A collection of utilities used in functional programming
