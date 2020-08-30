@@ -249,6 +249,9 @@ A type of AB testing where an application is run on two identical environments. 
 ## Breakpoint
 A moment that pauses the execution of a program for inspection by a debugger tool.
 
+## Bus Factor
+Risk involved in losing a key person, who cannot be replaced due to his know-how or technical expertise. Usually the result of very competent person carrying to much responsibility, therefor favoring how fast task are completed over how well they are documented and how easily they can be understood by others. 
+
 ## Busybox
 A software suite containing most common Unix utilities. Very lightweight, often used in embedded systems.
 

@@ -96,6 +96,7 @@ TODO:
     * [Iterators](#iterators)
     * [Generators](#generators)
     * [New Style Classes](#new-style-classes)
+* [Dunders](#dunders)
 * [Package Manager](#package-manager)
 * [Virtual Environments](#virtual-environments)
 * [Standard Library](#standard-library)
@@ -129,6 +130,7 @@ TODO:
 * [Snippets](#snippets)
   * [Pipeline](#pipeline)
 * [GUI](#GUI)
+* [Python C API](#python-c-api)
 * [Glossary](#glossary)
 
 &nbsp;
@@ -3164,6 +3166,10 @@ class A:
 ```
 
 &nbsp;
+# Dunders
+Or magic methods are built-in methods that start and end with double underscores(dunders).
+
+&nbsp;
 # Package Manager
 `pip` is Pythons package manager. You can browse for external packages on there [website](https://pypi.org) or by using the cli - `pip search something`.
 
@@ -3631,6 +3637,14 @@ data_pipeline = num_pipeline((add, multiply, exponent))
 Use [PyInstaller](https://www.pyinstaller.org/) to make a GUI application an executable.
 
 [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/) is a simple library that unifies `tkinter`, `Qt` and `WxPython` under a simplified API for fast python GUI development.
+
+[GUIzero](https://lawsie.github.io/guizero/) is a very minimalistic GUI library that is easy to setup and run but with limited capabilities. Great for teaching
+
+[Gooey](https://github.com/chriskiehl/Gooey) allows turning almost any Python command into a simple GUI application with just a decorator call! Is still very immature but definitely worth keeping an eye on. 
+
+&nbsp;
+# Python C API
+Source: [official docs](https://docs.python.org/3/c-api/index.html)
 
 &nbsp;
 # Glossary
