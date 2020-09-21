@@ -607,6 +607,9 @@ Variables type is determined during runtime. This means any variable can be assi
 &nbsp;
 # E
 
+## EAFP
+`EAFP` stands for `Easier to Ask Forgiveness than Permission` and is a coding style where we prefer to catch and handle errors then to prevent them in the first place.
+
 ## ECMAScript
 The core standard of JavaScript. Not to be confused with JavaScript which is the actual language built according to the standard.
 
@@ -1105,6 +1108,9 @@ List of all [valid language codes](https://www.iana.org/assignments/language-sub
 
 ## Luhn Algorithm
 An algorithm that checks the validity of various identification numbers like a credit card number.
+
+## LBYL
+`LBYL` stands for `Look Before You Leap` and is a coding style that enforces frequently implementing sanity check to reduce the number of runtime errors.
 
 &nbsp;
 # M
@@ -2147,6 +2153,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [Dynamic Reconfiguration](#Dynamic-Reconfiguration)
   * [Dynamic typing](#Dynamic-typing)
 * E
+  * [EAFP](#EAFP)
   * [ECMAScript](#ECMAScript)
   * [Encapsulation](#Encapsulation)
   * [Encryption](#Encryption)
@@ -2206,6 +2213,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [Load Balancing](#Load-Balancing)
   * [Locale](#Locale)
   * [Luhn Algorithm](#Luhn-Algorithm)
+  * [LBYL](#LBYL)
 * M
   * [Machine Code](#Machine-Code)
   * [Magic String](#Magic-String)

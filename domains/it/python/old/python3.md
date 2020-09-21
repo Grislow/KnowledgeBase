@@ -10,10 +10,6 @@ TODO:
 
 #### Table of contents
 
-* [Python Interpreter](#python-interpreter)
-  * [CLI Arguments](#cli-arguments)
-  * [Encoding](#encoding)
-  * [CPython](#cpython)
 * [Naming Convention](#Naming-Convention)
 * [Basic Mechanics](#Basic-Mechanics)
   * [Variable Initialization](#variable-initialization)
@@ -61,6 +57,7 @@ TODO:
     * [Annotations](#annotations)
     * [Built-in Functions](#built-in-functions)
     * [Functional Python](#functional-python)
+    * [Functions - Best Practices](#Functions---Best-Practices)
 * [Data Structures](#data-structures)
     * [Sequence](#sequence)
         * [Sequence Operations](#sequence-operations)
@@ -108,6 +105,7 @@ TODO:
     * [Templating](#templating)
     * [Binary Data](#binary-data)
     * [Regular Expressions](#regular-expressions)
+    * [Functools](#functools)
 * [Internet Access](#internet-access)
     * [Networking](#networking)
     * [Internet Data Handling](#internet-data-handling)
@@ -132,75 +130,7 @@ TODO:
 * [GUI](#GUI)
 * [Python C API](#python-c-api)
 * [Glossary](#glossary)
-
-&nbsp;
-# Python Interpreter
-Python is preinstalled on many unix and unix-like operating systems.
-``` shell
-# Path on most linux distros
-/usr/local/bin
-
-# Path on Mac OS X
-/System/Library/Frameworks/Python.framework 
-
-# Path on Mac OS X from third-party install
-/Library/Frameworks/Python.framework
-```
-
-You can open the interpreter with the `python` command and close it with the `quit()` function.
-
-Python version 3.x is not fully compatible with version 2.x which cause some people to install both versions. Binding the `python3` command to execute v 3.x code is a good option.
-
-To execute a python script from the command-line just use `python somescript.py`
-
-&nbsp;
-## CLI Arguments
-You can pass arguments to a python script from the command-line and use them within the python script through the `sys` library.
-
-``` python
-# hash symbol denotes a comment
-
-# below is an import statement
-import sys
-
-# prints the name of the script
-print(sys.argv[0])
-
-# prints the first argument after the script
-# will throw an error if no argument is passed
-print(sys.argv[1])
-
-# python this_script.py test
-#    ...would print...
-# > this_script.py
-# > test
-```
-
-&nbsp;
-## Encoding
-Python source code is treated as UTF-8 while its standard libraries only use ASCII characters for portability. A different encoding can be set through a special comment line.
-
-``` python
-# -*- coding: UTF-16 -*-
-```
-Or in case you want to make it directly executable on certain unix distros
-``` python
-#!/usr/bin/env python3.7
-# -*- coding: UTF-16 -*-
-```
-
-&nbsp;
-## CPython
-Written in C and Python `CPython` is the default and most popular Python implementation. It is both an intepreter and and compiler - it compiles Python code to bytecode before interpreting it. 
-
-Makes use of `GIL` or `Global Interpreter Lock` which limits a single python process to executing only one thread at any given moment. 
-
-Alternatives:
-* *Cython* - a superset of Python that is statically typed and compiled into C code
-* *Jython* - written in Java, makes use of the JVM, has not GIL implementd
-* *PyPy* - translates Python code into C, has a built in JIT Compiler, also makes use of a GIL
-
-For more information on GIL: [python wiki](https://wiki.python.org/moin/GlobalInterpreterLock)
+* [Alternative Python Installation](#alternative-python-installation)
 
 &nbsp;
 # Naming Convention
@@ -472,7 +402,7 @@ Most important points:
 * put comments on a line of their own
 * use docstrings
 * use spaces around operators and after commas
-* name classes using `UpperCamelCase`
+* name classes using `PascalCase`
 * name functions and methods using `lowercase_with_underscores`
 * use `self` as the first method argument
 * use UTF-8 encoding
@@ -1439,7 +1369,8 @@ Sources:
 * [functional python docs](https://docs.python.org/3/library/functional.html)
 * [kite.com](https://kite.com/blog/python/functional-programming/)
 
-Python has higher order functions
+Python has higher order functions.
+
 
 &nbsp;
 # Data Structures
@@ -2483,7 +2414,7 @@ print(io.DEFAULT_BUFFER_SIZE)
 * `errors = None` - optional strin gon how encoding, decoding errors are handled, more [here](https://docs.python.org/3.7/library/functions.html#open)
 * `newline = None` - how new lines are defined, if `None` uses system default
 * `closefd = True` - if a file descriptor is passed instead of a filename this determines whether the file decriptor is kept open after the file is closed
-  * `file descriptor` - an indicator used to access input/output resources such as a:
+* `file descriptor` - an indicator used to access input/output resources such as a:
     * file
     * network socket
     * pipe
@@ -2494,8 +2425,9 @@ On Windows the path seperator is a  double back-slash `C:\\user\\folder\\somefil
 On MacOS and Linux the path seperator is a single forward-slash `/user/folder/somefile.csv`
 
 Use the `with` keyword when working with files - this ensures they are closed and is more succinct then `try-finally` blocks
-  * if not using the `with` keyword make sure to close files with the `file.close()` method
-  * garbage collection will eventually close the object, but when exactly depends on the Python implementation
+* the `with` statement is also called a `Context Manager`
+* if not using the `with` keyword make sure to close files with the `file.close()` method
+* garbage collection will eventually close the object, but when exactly depends on the Python implementation
 
 ``` python
 productList = open('products/product.csv', mode='r')
@@ -3147,6 +3079,21 @@ print(D.c)
 
 ## Generators
 
+Pros:
+* make infinite lists without worrying about memory
+* memory-efficient
+
+Cons:
+* can only be traversed serially
+* once you yield an item it is removed
+* cant get the length without yielding all items
+
+### Generator Expression
+A generator expression has very similiar syntax to a list comprehension, but it does not produce all the values upfront in favor of initializing them only when they are needed. This can lead to decreased memory cosumption.
+
+```python
+gen_iterable = (x**2 for x in range(100))
+```
 
 ## New Style Classes
 Source: [python docs new-style classes](https://www.python.org/doc/newstyle/)
@@ -3168,6 +3115,20 @@ class A:
 &nbsp;
 # Dunders
 Or magic methods are built-in methods that start and end with double underscores(dunders).
+
+|Dunder|Decscription|Signature|
+|------|------------|---------|
+|`__init__`|A constructor|`__init__(self, attr0, attrn)`|
+|`__new__`|Builds the `self` object before passing it to `__init__`|`__new__(cls, *args)`|
+|`__repr__`|Should return a string that can be evaluated to the constructor call that created the object|`__repr__(self)`|
+|`__str__`|Should return a string that describes the object, used implicitly by `print()`|`__str__(self)`|
+|`__iter__`|Return an iterable used implicitly when iterating over the class object|`__iter__(self)`|
+|`__next__`|How each value is produced when iterating over the class object|`__next__(self)`|
+|`__enter__`|Sets up the object for use in a Context Manager|`__enter__(self)`|
+|`__exit__`|Defines cleanup tasks once the object is released by the Context Manager|`__exit__(self, exc_type, exc_val, exc_tb)`|
+|`__getattr__`|Called when an attribute is read|`__getattr__(self, item)`|
+|`__setattr__`|Called when an attribute is mutated or assigned|`__setattr__(self, key, value)`|
+
 
 &nbsp;
 # Package Manager
@@ -3231,6 +3192,10 @@ Source: [tutorialspoint](https://www.tutorialspoint.com/python/python_reg_expres
 
 ```
 
+## Functools
+
+
+
 &nbsp;
 # Internet Access
 
@@ -3292,6 +3257,18 @@ Source:
 
 &nbsp;
 # Performance Measurement
+
+## Memory Consumption
+``` python
+from memory_profiler import profile, memory_usage
+
+arg1 = 5000
+arg2 = 10000
+snapshot_interval = 0.2 # seconds
+
+list_mem_usage = memory_usage((some_func,(arg1, arg2)), interval=snapshot_interval)
+gen_mem_usage = memory_usage((another_func,(arg1, arg2)), interval=snapshot_interval)
+```
 
 ## Execution Timing Decorator
 A simple decorator function for timeing a functions runtime.
@@ -3651,21 +3628,3 @@ Source: [official docs](https://docs.python.org/3/c-api/index.html)
 Source: [python glossary](https://docs.python.org/3/glossary.html#term-decorator)
 
 &nbsp;
-# Alternative Python version Install Python 3.7
-Steps to install python3.7 and configure it as the default python3 interpreter.
-
-1. Install the python3.7 package using apt-get
-`sudo apt-get install python3.7`
-`apt install python3.7`
-
-2. Add python3.6 & python3.7 to update-alternatives
-`sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1`
-`sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2`
-
-3. Update python3 to point to python3.7
-`sudo update-alternatives --config python3`
-Enter 2 for python3.7
-
-4. Test the version of python
-python3 -V
-Python 3.7.1

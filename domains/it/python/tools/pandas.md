@@ -1,55 +1,37 @@
-# Math and Data with Python
+# Pandas Reference
 
-Official tutorials:
-* [numpy](https://numpy.org/devdocs/user/quickstart.html#prerequisites)
-* [pandas](https://docs.python.org/3/contents.html)
-* [scipy](https://docs.python.org/3/contents.html)
-* [matplotlib](https://docs.python.org/3/contents.html)
-
-Useful:
-* [data-science-ipython-notebooks](https://github.com/donnemartin/data-science-ipython-notebooks#pandas)
-* [anaconda](http://quasiben.github.io/PyDataEMC/#/)
-
-Good reads:
-* [conda vs pip](https://www.anaconda.com/understanding-conda-and-pip/)
+Source:
+* [pandas docs](https://pandas.pydata.org/docs/)
 
 #### Table of contents
 
-* [Numpy](#numpy)
-* [Pandas](#pandas)
-  * [Optimizing](#optimizing)
-  * [Tricks](#ticks)
+* [Introduction](#introduction)
+* [Data Types](#data-types)
+* [Global Functions](#global-functions)
+* [DataFrames](#DataFrames)
+    * [Attributes](#attributes)
+    * [Iteration](#iteration)
+    * [Labels](#labels)
+* [Series](#series)
+    * [Attributes](#attributes-1)
+* [Optimizing](#optimizing)
+* [Tricks](#ticks)
     * [mixed dtypes](#mixed-dtypes)
-* [Scipy](#scipy)
-* [Matplotlib](#matplotlib)
-
-
-&nbsp;
-# Numpy
-Python library that facilitates working on large multi-dimensional arrays and matrices.
+* [HowTo](#howto)
+    * [Cleanup](#cleanup)
 
 &nbsp;
-## Basics
-The main object in numpy is an `array` which represents homogenous(single type) multidimensional collection of data.
-
-
-&nbsp;
-## Shape Manipulation
-
-
-
-&nbsp;
-# Pandas
+# Introduction
 Provides data structures and operations for manipulating numerical data sets. Is build on numpy and optimized for a high volume of data.
 
 Great choice for:
-* tabular data with heterogenously typed columns(arrays)
+* tabular data with heterogeneously typed columns(arrays)
 * time series data
 * matrices with indexed columns and rows
 
 The 2 main data structures are:
 * `Series` - a one-dimensional homogeneously-typed array
-* `DataFrame` - a matrice of potentially heterogenous data
+* `DataFrame` - a matrix of potentially heterogenous data
 
 Strongest features:
 * handling *missing data*
@@ -73,7 +55,7 @@ Strongest features:
 Pandas favors immutability - most methods produce new objects.
 
 &nbsp;
-## Data Types
+# Data Types
 Sources:
 * [dataquest.io](https://www.dataquest.io/blog/pandas-big-data/)
 
@@ -87,22 +69,23 @@ Under the hood all numeric value in pandas are stored as numpy ndarrays which ma
 |8 bytes|float64|	int64|	uint64|	datetime64		
 |variable|||||||object|
 
+
 &nbsp;
-## Global functions
+# Global Functions
 * `pd.to_numeric(downcast)` - convert a block of data to a numeric datatype
   * `downcast` - downcast to a lower-precision data type. Can take `unsigned` or specific data type string
 * `mem_usage(object)` - prints the memory footprint of a passed object
 
 
 &nbsp;
-## Data Frames
+# DataFrames
 A `DataFrame` is a matrix of data in which data is stored according to `labeled columns` and `indexed rows`. A single cell is called a `Block`. Data can be heterogenous. 
 
 Each column has a specific datatype and if it cannot be converted to a specific pandas datatype it is considered an `object` type which are usually memory intensive.
 
 DataFrame mutation will be reverted to avoid problems resulting do to mutation of previously referenced objects. If you want to persist changes make sure to copy it to a new DataFrame.
 
-### Attributes
+## Attributes
 Metadata:
 * `df.info()` - get basic information on dataframes size estimate, data types, columns and rows
   * `memory_usage=deep` - get exact size
@@ -139,14 +122,15 @@ df.select_dtypes(include=['object'])
 ```
 
 ## Iteration
-
 ```python
 for col in df.columns:
     series = df[col]
+
+for i, row in df.iterrows():
+    print(row)
 ```
 
 ## Labels
-
 Change column labels based on first column name and drop first row.
 ``` python
 df.rename(columns=df.iloc[0]).drop(df.index[0])
@@ -154,11 +138,10 @@ df.rename(columns=df.iloc[0]).drop(df.index[0])
 
 
 &nbsp;
-## Series
+# Series
 A 1-dimensional homogenous array with an immutable size.
 
-
-### Attributes
+## Attributes
 * `Series.value_counts` - calculates the memory size of a series. This can be a single column in a DataFrame as well
 
 &nbsp;
@@ -187,23 +170,13 @@ print(joined.select_dtypes(include=['object']).applymap(type))
 ```
 
 &nbsp;
-## This and that
+# HowTo
 Various useful things I found on the internet
 
-### Cleanup
+## Cleanup
 
 Drop duplicates based on column names:
 
 ``` python
 df = df.loc[:,~df.columns.duplicated()]
 ```
-
-
-&nbsp;
-# Scipy
-A collection of mathematical algorithms and convenience functions for manipulating and visualizing data.
-
-
-&nbsp;
-# Matplotlib
-Plotting library with a robust community used for data visualization.

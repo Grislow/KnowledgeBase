@@ -692,7 +692,7 @@ git revert [saved hash]
 git log
 # use the arrow keys to scroll up and down in history
 # once you've found your commit, save the hash
-git checkout [saved hash] -- path/to/file
+git checkout [saved hash] -- patqh/to/file
 # the old version of the file will be in your index
 git commit -m "Wow, you don't have to copy-paste to undo"
 ```
