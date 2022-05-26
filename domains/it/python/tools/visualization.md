@@ -9,6 +9,7 @@ Source:
 
 * [Dash](#dash)
 * [matplotlib](#matplotlib)
+* [Bokeh](#bokeh)
 
 &nbsp;
 # Dash

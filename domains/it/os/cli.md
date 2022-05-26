@@ -2,12 +2,15 @@
 
 #### Table of contents
 * [bash basics](#bash-basics)
+* [autojump](#autojump)
 * [awk](#awk)
+* [bat](#bat)
 * [bit](#bit)
 * [chattr](#chattr)
 * [chmod](#chmod)
 * [cron](#cron)
     * [crontab](#crontab)
+* [Fony](#fony)
 * [git and github](#git-and-github)
 * [ifconfig](#ifconfig)
 * [ping](#ping)
@@ -23,15 +26,53 @@
 * [stract](#strace)
 * [usermod](#usermod)
 * [misc](#misc)
+    * [get public ip](#get-public-ip)
 
 &nbsp;
 # bash basics
 Basic syntax of shell scripting: https://www.gnu.org/software/bash/manual/bash.html
 
 &nbsp;
+# autojump
+Source: [github/wting](https://github.com/wting/autojump)
+
+A utility for streamlining filesystem navigation. Stores which directories are visited and how often - provides a simple interface to the stored data, with which you can easily jump to directories you've visited in the past.
+
+``` shell
+# jump to directory containing 'logs' string and with highest visitation count
+j logs
+
+# jump to child directory
+jc backtest
+
+# open directory in file manager
+jo downloads
+
+# open /home/user/niha/logs when /home/user/repo/logs has higher count
+j n logs
+```
+
+&nbsp;
 # awk
 ```shell
 awk -F':' '{ print $1}' /etc/passwd
+```
+
+&nbsp;
+# bat
+Source: [github/sharkdp](https://github.com/sharkdp/bat)
+
+`cat` command with syntax highlighting based on file extension or shebang. Can also show non-printable characters and communicates with git to highlight changes. Pipes output to a pager like `less` if it does not fit the screen.
+
+``` shell
+# opens with markdown syntax highlighting 
+bat README.md
+
+# show non-printable characters
+bat -A test.txt
+
+# display multiple files
+bat src/*.rs
 ```
 
 &nbsp;
@@ -186,7 +227,19 @@ Crontab job definition:
 # redirect output to cron.log
 * * * * * cd /path/to/script && /path/to/script/test.sh >/path/to/logs/cron.log 2>&1
 ```
+&nbsp;
+# Fony
+Source: [captainsafia](https://github.com/captainsafia/fony)
 
+A dummy JSON data generator.
+
+``` shell
+# install
+npm install --global fony
+
+# generate 2 elements containing a random name string, age integer and address string
+fony -t '{"name": "name", "age": "age", "address": "address"}' -c 2
+```
 
 &nbsp;
 # git and github
@@ -531,6 +584,21 @@ free -m
 ps -o pid,user,%mem,command ax | sort -b -k3 -r | grep 'name'
 ```
 
-# 
+## get public ip
+Source: [cyberciti.biz](https://www.cyberciti.biz/faq/how-to-find-my-public-ip-address-from-command-line-on-a-linux/)
 
- awk -F':' '{ print $1}' /etc/passwd
+``` shell
+# SAFE METHODS
+dig +short myip.opendns.com @resolver1.opendns.com
+dig TXT +short o-o.myaddr.l.google.com @ns1.google.com
+host myip.opendns.com resolver1.opendns.com
+dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}'
+
+## UNSAFE METHODS - 3RD PARTY WEBSITES
+curl checkip.amazonaws.com
+curl ifconfig.me
+curl icanhazip.com
+curl ipecho.net/plain
+curl ifconfig.co
+server_ip="$(curl ifconfig.co)"
+```

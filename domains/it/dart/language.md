@@ -6,6 +6,8 @@ Source:
 #### Table of contents
 
 * [General](#general)
+* [Keywords](#keywords)
+* [Variables](#variables)
 
 &nbsp;
 # General
@@ -19,7 +21,7 @@ Dart concepts:
 * supports top-level and nested functions, static and instance methods
 * supports top-level, static and instance variables
 * there are no access control keywords
-* an identifier that starts with `_` it is **private** to its library
+* an identifier that starts with `_` is **private** to its library
 * an expression cannot contain a statement
 * supports **warning**, **run-time errors** which result in **exceptions** and **compile-time errors** which prevent from execution
 
@@ -47,8 +49,8 @@ Dart concepts:
 |`enum`|A class-like structure that represent a fixed number of constant values|
 |`export`|Specify packages that are to be made available for clients as part of a library|
 |`extends`|Declares the superclass during class definition|
-|`extension`|Declares an extension of an|
-|`external`||
+|`extension`|Declares an extension of a class that adds functionality on top of it|
+|`external`|Declares a function signature without the body which is supplied externally - like an abstract function|
 |`factory`||
 |`false`||
 |`final`|A variable that must be initialized where it is defined and its value cannot be changed|
@@ -88,3 +90,24 @@ Dart concepts:
 |`while`||
 |`with`||
 |`yield`||
+
+&nbsp;
+# Variables
+* store references
+* a type can be declared, inferred during compile time or run time
+* uninitialized variables have a `null` value assigned implicitly
+
+``` javascript
+// type declared
+String name = 'Bob';
+
+// type resolved during compile time
+var name = 'Bob';
+
+// type resolved during run time
+dynamic name = 'Bob';
+
+// default value is null
+var uninitialized;
+assert(uninitialized == null);
+```

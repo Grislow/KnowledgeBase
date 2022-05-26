@@ -1020,6 +1020,10 @@ Source: [wikipedia](https://en.wikipedia.org/wiki/Inter-process_communication#Re
 
 **Example**: a python script performs intensive calculations and sends the results to a backend application that persists them
 
+## IOPS
+Input/Output Operations per Second is an IO performance measurement used to measure the throughput of storage devices.
+
+
 &nbsp;
 # J
 
@@ -2199,6 +2203,7 @@ A coding principle stating that you shouldn't implement a functionality until yo
   * [Internet Protocol](#Internet-Protocol)
   * [Interpreter](#Interpreter)
   * [Inter-Process Communication(IPC)](#Inter-Process-Communication(IPC))
+  * [IOPS](#iops)
 * J
   * [JIRA](#JIRA)
   * [JSON](#JSON)

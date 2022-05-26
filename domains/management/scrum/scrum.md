@@ -195,7 +195,7 @@ __Characteristics__
 * __result__: 
     * revised Product Backlog
     * definition of Backlog items for next iteration
-    * potentail Backlog change do to revision 
+    * potential Backlog change do to revision 
 
 __Elements__
 * Scrum Team and stakeholders

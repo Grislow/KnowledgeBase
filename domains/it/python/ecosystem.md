@@ -8,6 +8,8 @@ Source:
 #### Table of contents
 
 * [Overview](#overview)
+* [Coding Style](#coding-style)
+* [Good Practices](#good-practices)
 * [PEP](#pep)
 * [PyPI](#pypi)
 * [Data Science](#data-science)
@@ -19,6 +21,94 @@ Source:
 # Overview
 
 
+&nbsp;
+# Coding Style
+The most popular coding style guide for python is [pep8](https://www.python.org/dev/peps/pep-0008/)
+
+You can format you code automatically to conform to pep8 standards with an auto-formatter: [autopep8](https://github.com/hhatto/autopep8)
+
+Most important points:
+* use 4-space indentation
+* use blank lines to separate functions, classes and larger code blocks within functions
+* put comments on a line of their own
+* use docstrings
+* use spaces around operators and after commas
+* name classes using `PascalCase`
+* name functions and methods using `lowercase_with_underscores`
+* use `self` as the first method argument
+* use UTF-8 encoding
+* don't use none-ASCII characters in identifiers
+
+&nbsp;
+# Good Practices
+Most good practices when it comes to coding style can be found in [pep8](https://www.python.org/dev/peps/pep-0008/).
+
+Another fun gem when it comes to good practices is the Zen of Python which you can see by typing `import this` in your interpreter. 
+
+```python
+>>> import this
+The Zen of Python, by Tim Peters
+
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.
+Special cases aren't special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you're Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it's a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let's do more of those!
+```
+
+An example file structure for a python program take from [dev.to](https://dev.to/codemouse92/dead-simple-python-project-structure-and-imports-38c6)
+
+```
+omission-git
+├── LICENSE.md
+├── omission
+│   ├── app.py
+│   ├── common
+│   │   ├── classproperty.py
+│   │   ├── constants.py
+│   │   ├── game_enums.py
+│   │   └── __init__.py
+│   ├── data
+│   │   ├── data_loader.py
+│   │   ├── game_round_settings.py
+│   │   ├── __init__.py
+│   │   ├── scoreboard.py
+│   │   └── settings.py
+│   ├── game
+│   │   ├── content_loader.py
+│   │   ├── game_item.py
+│   │   ├── game_round.py
+│   │   ├── __init__.py
+│   │   └── timer.py
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── resources
+│   └── tests
+│       ├── __init__.py
+│       ├── test_game_item.py
+│       ├── test_game_round_settings.py
+│       ├── test_scoreboard.py
+│       ├── test_settings.py
+│       ├── test_test.py
+│       └── test_timer.py
+├── pylintrc
+├── README.md
+└── .gitignore
+```
 
 &nbsp;
 # PEP
