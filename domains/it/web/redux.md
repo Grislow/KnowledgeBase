@@ -22,6 +22,7 @@ __Source__:
 * [Considerations](#considerations)
 * [Misc](#misc)
     * [Redux Form](#redux-form)
+* [At a glance](#at-a-glance)
 
 &nbsp;
 # Introduction
@@ -93,3 +94,40 @@ __Source__:
 # Misc
 
 ## Redux Form
+
+
+# Examples
+
+``` javascript
+import React from "react";
+import TodoItem from "./TodoItem";
+import { connect } from "react-redux";
+import { toggleTodo } from "./action";
+
+const TodoList = ({ todos, toggleTodo }) => (
+  <>
+    <h3>Todo list</h3>
+    <ul>
+      {todos.map((todo) => (
+        <TodoItem key={todo.id} onClick={() => toggleTodo(todo.id)} {...todo} />
+      ))}
+    </ul>
+  </>
+);
+
+const mapStateToProps = (state) => ({
+  todos: state.todos
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  toggleTodo: (id) => dispatch(toggleTodo(id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
+```
+
+# At a glance
+
+``` javascript
+
+```
