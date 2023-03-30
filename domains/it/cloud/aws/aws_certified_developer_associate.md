@@ -26,7 +26,6 @@ Source:
     * [AMI](#ami)
     * [EBS](#ebs)
     * [EFS](#efs)
-* [Amazon FSx](#amazon-fsx)
 * [Scalability & High Availability](#scalability-&-high-availability)
     * [ELB](#elb)
         * [ELB - Sticky Sessions](#elb---sticky-sessions)
