@@ -36,7 +36,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [ASG](#asg)
         * [ASG Scaling Policies](#asg-scaling-policies)
 * [RDS](#rds)
-    * [RDS - Custom for Oracle and MS SQL Server](#rds---custom-for-oracle-and-ms-sql-server)
+    * [RDS Custom - for Oracle and MS SQL Server](#rds-custom---for-oracle-and-ms-sql-server)
 * [Aurora](#aurora)
     * [Aurora - Advanced Concepts](#aurora---advanced-concepts)
 * [RDS & Aurora - Backup and Monitoring](#rds-&-aurora---backup-and-monitoring)
@@ -45,6 +45,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [Amazon MemoryDB for Redis](#amazon-memorydb-for-redis)
 * [DNS](#dns)
 * [Route 53](#route-53)
+* [Elastic Beanstalk](#elastic-beanstalk)
 * [S3](#S3)
     * [S3 Storage Classes](#s3-storage-classes)
     * [S3 Advanced Features](#s3-advanced-features)
@@ -69,6 +70,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [ECS](#ecs)
     * [ECR](#ecr)
     * [EKS](#eks)
+    * [AWS App Runner](#aws-app-runner)
 * [Serverless](#serverless)
     * [Lambda](#lambda)
         * [Lambda Limits and Best Practices](#lambda-limits-and-best-practices)
@@ -681,8 +683,21 @@ Tool for comparing instances: https://instances.vantage.sh
     * low-budget high availability: if instances dies, launch another one and attach the dead instances ENI to the new instance 
 
 ## EC2 - Hibernate
-
-
+* operations on instances:
+    * `stop` -> the data on disk (EBS) is kept intact in the next start
+    * `terminate` -> any EBS volumes (root) also set-up to be destroyed is lost
+    * `start` -> OS boots, EC2 User Data script is run, app starts, caches get warmed up -> can take time
+* **EC2 Hibernate** - the in-memory (RAM) state is preserved
+    * instance boot is much faster
+    * under the hood -> RAM state is written to a file in the root EBS volume
+    * root EBS volume must be encrypted, not instance store and large
+    * use cases: long running processing, saving the RAM state, services that take time to initialize
+    * *supported instance families*: C3, C4, C5, I3, M3, M4, R3, R4, T2, T3
+    * instance RAM size must be less than 150 GB
+    * not supported for bare metal instances
+    * **supported AMI**: Amazon Linux 2, Linux AMI, Ubuntu, RHEL, CentOS, Windows
+    * available in `On-Demand`, `Reserved`, `Spot` instances
+    * instance cannot be hibernated for more than `60 days`
 
 &nbsp;
 # EC2 Instance Storage
@@ -696,7 +711,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * backups use IPS, shouldnt run while application handling high traffic
         * root EBS volume for EC2 instance terminated by defualt (can disable)
     * **EFS**:
-        * network filesystem that can be attached to 100s of EC2 isntances
+        * network filesystem that can be attached to 100s of EC2 instances
         * not bound to AZ level
         * share files
         * only for Linux instances (POSIX)
@@ -732,6 +747,10 @@ Tool for comparing instances: https://instances.vantage.sh
     * *Recipe* - how source image is customized
     * *Infrastructure Configuration* - ec2 instance type and configs(like IAM)
     * *Distribution Settings* - what regions the AMI will be distributed to
+* **Instantiating Applications Quickly**
+    * **Golden AMI** - an AMI that serves as a bootstrap for all EC2 instances you use within a logical group(like for ECS Cluster, or ASG), contain all applications, OS dependencies etc
+    * **Bootstrap using User Data** - good for dynamic configurations like database URL
+    * **Hybrid** - mix Golden AMI and User Data to setup a fleet of EC2 instances quickly and reliably
 
 
 ## EBS
@@ -756,7 +775,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * Features:
         * *EBS Snapshot Archive* - allows moving to an "archive tier" that is 75% cheaper, takes 24-72h to restore
         * *Recycle Bin for EBS Snapshots* - rules to retain deleted snapshots, specify retention 1d-1y, find deleted snapshots
-        * *FSR* - Fast Snapshot Restore - force full initialization of snapshot for now latency on first use, cost extra, useful with very big snapshots if you need them available fast
+        * *FSR* - Fast Snapshot Restore - force full initialization of snapshot for low latency on first use, cost extra, useful with very big snapshots if you need them available fast
 * **Volume Types**
     * *gp2 / gp3 (SSD)* - general purpose SSD, balances price and performance for wide variaty of workloads
         * cost effective, low latency
@@ -767,7 +786,7 @@ Tool for comparing instances: https://instances.vantage.sh
             * can increase IOPS to 16000 and throughput to 1000 MiB/s independently
         * **gp2**:
             * small volumes can burst to 3000 IOPS
-            * size of volume and IOPS linked, 3 IOPSa per GB, max of 16000 IOPS at 5334 GB
+            * size of volume and IOPS linked, 3 IOPS per GB, max of 16000 IOPS at 5334 GB
     * *io1 / io2 (SSD)* - highest-performance SSD, mission-critical low-latency or high-throughput workloads
         * highest performance, throughput and lowest latency
         * **PIOPS** - provisioned IOPS SSD
@@ -786,7 +805,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * scenario for lowest cost
         * max throughput 250 MiB/s, max IOPS 250
     * **EBS Volumes** are characterized in Size / Throughput / IOPS
-    * only *gp2/gp3* and *io1/io2* can be used aas boot volumes
+    * only *gp2/gp3* and *io1/io2* can be used as boot volumes
 * **EBS Multi-Attach** -  attach same EBS volume to multiple EC2 instances in the same AZ
     * only compatible with io1/io2 volume types
     * each instance has read & write permissions
@@ -797,6 +816,16 @@ Tool for comparing instances: https://instances.vantage.sh
 
 
 ### EBS - Encryption
+* encrypting an EBS give the following:
+    * data at rest is encrypted
+    * data in flight moving between instance and volume is encrypted
+    * all snapshots are encrypted
+    * volumes created from snapshot are encrypted
+    * encryption - decryption is handled transparently (no extra work needed by you)
+    * minimal impact on latency
+    * leverages keys from KMS (AES-256)
+    * copying an unencrypted snapshot allows encryption
+    * can only encrypt during creation
 
 
 ## EFS
@@ -920,7 +949,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * ultra-high performance (millions of requests per second)
         * Static IP through Elastic IP
             * has one static IP per AZ
-            * Elastic IP is good foro whitelisting specific IP
+            * Elastic IP is good for whitelisting specific IP
         * not included in AWS Free Tier
         * Layer 4 (TCP/UDP)
         * for `protocols` TCP, TLS (secure TCP), UDP  
@@ -965,7 +994,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * `Application-based Cookies`:
             * Custom cookie
                 * generated by target
-                * can inlude custom attributes required by application
+                * can include custom attributes required by application
                 * cookie name specified individually for each target group
                 * *reserved cookie names*: AWSALB, AWSALBAPP, AWSALBTG (reserved by ELB)
             * Application cookie
@@ -981,7 +1010,7 @@ Tool for comparing instances: https://instances.vantage.sh
 
 ### ELB - Cross Zone Load Balancing
 * **Cross Zone Load Balancing** - allows LB to distirbute traffic evenly across all registered instances in all AZs
-    * without this traffic is distirbuted evenly amongs nodes of LB in all AZs (not targets)
+    * without this traffic is distributed evenly amongs nodes of LB in all AZs (not targets)
     * ALB:
         * enabled by default
         * can be disabled at Target Group level
@@ -1007,7 +1036,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * must specify default certificate
         * can add optional list of certs to support multiple domains
         * clients can use **SNI** (Server Name Indication) to specify hostname they reach
-            * solves problem of loading **multiple SSL cers onto one web server** to support multiple websites
+            * solves problem of loading **multiple SSL certs onto one web server** to support multiple websites
             * a newer protocol that requires client to indicate hostname of target server in the initial SSL handshake
             * server will then find correct cert or return default
             * only works for ALB & NLB, CloudFront
@@ -1022,7 +1051,7 @@ Tool for comparing instances: https://instances.vantage.sh
 
 
 ## ASG
-* **ASG** - **Auto Scaling Groups** - a group of EC2 isntances that is treated as a logical grouping for the purpose of automatically scalling
+* **ASG** - **Auto Scaling Groups** - a group of EC2 instances that is treated as a logical grouping for the purpose of automatically scalling
     * work hand in hand with [ELB](#elb)
 * the goal of an ASG is to:
     * *Scale out* - add instances to match increased load
@@ -1041,7 +1070,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * Security Groups
         * SSH Key Pair
         * `IAM roles` -> are attached to each instance
-    * *Mix Size* 
+    * *Min Size* 
     * *Max Size*
     * *Initial Capacity*
     * *Network + Subnets* information
@@ -1060,7 +1089,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * *Predictive Scaling* - use machine learning to scale ahead of time based on traffic forcasts
         * automatically provision based on prediction
         * useful when your load has predictable time-based patterns
-    * Good metrics: `CPUUtilization`, `RequestCOuntPerTarget`, `Average Network In / Out` (if app is network bound), `Custom Metrics` (push using CloudWatch)
+    * Good metrics: `CPUUtilization`, `RequestCountPerTarget`, `Average Network In / Out` (if app is network bound), `Custom Metrics` (push using CloudWatch)
     * **Scaling Cooldown** - after scaling activity happens a cooldown period is triggers (default 300s), ASG will not launch / terminate instances during the cooldown (this allows for metrics to stabilize)
         * **Advice** - use ready-to-use AMI to reduce cooldown period
 * **Clean-up** - delete ASG > delete ALB > delete EC2 instances
@@ -1149,7 +1178,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * replicas cant be encrypted if master isnt
     * automated backups
     * to encrypt an unecrypted DB: take a DB snapshot -> restore as encrypted
-    * encryption in flight using SSL by default -> use AWS TLS root cedrtificates provided on client-side
+    * encryption in flight using SSL by default -> use AWS TLS root certificates provided on client-side
     * possible to `authenticate using IAM roles` (only for open-source databases)
     * YOU configure Security Groups
     * YOU CAN'T SSH into it unless using RDS Custom service
@@ -1165,7 +1194,15 @@ Tool for comparing instances: https://instances.vantage.sh
     * can *enforce IAM Authenctication* for DB and securily store credentials in *AWS Secrets Manager*
     * only available in VPC (never public)
 
-## RDS - Custom for Oracle and MS SQL Server
+## RDS Custom - for Oracle and MS SQL Server
+* managed Oracle and Microsoft SQL Server Database with OS and database customization
+* RDS: automates setup, operation, scaling of database in AWS
+* Custom: full admin access to the underlying database and OS
+    * configure settings
+    * install patches
+    * enable native features
+    * access the underlying EC2 Instance using SSH or SSM Session Manager
+* de-activate automation mode to perform your customization -> good practice: table a DB snapshot before
 
 
 &nbsp;
@@ -1175,7 +1212,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * compatible with `MySQL` and `Postgres` (same drivers will work)
     * claims huge `performance` improvement:
         * 5x over MySQL on RDS
-        * 3x over Posgres on RDS
+        * 3x over Postgres on RDS
     * `Auto Expanding` - shared storage automatically grows from `10 GB` to `128 TB`
         * sysops dont need to monitor
     * `Self Replicating` can have `15 replicas` with `faster replication` process (sub 10ms replica lag)
@@ -1197,7 +1234,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * Up to 15 Aurora Read Replicas serve `reads`
         * a `read` replica can be transformed into a `master`
     * support for cross region replication
-* **Aurora DB Cluser**
+* **Aurora DB Cluster**
     * `Writer Endpoint` - DNS name that always points to the master, so client can maintain connection on failover
     * `Read Replicas` - 1 to 15 replicas that handle read operations, with Auto Scaling possible
     * `Reader Endpoint` - DNS name on top of a Connection Load Balancer that always point to the cluster of read replicas
@@ -1224,12 +1261,76 @@ Tool for comparing instances: https://instances.vantage.sh
     * YOU CAN'T SSH into it
 
 ## Aurora - Advanced Concepts
-
+* **Aurora Replicas - Auto Scaling** - can configure read replicas to scale automatically on heavy load. These new read replicas will be extended into the Reader Endpoint
+* **Custom Endpoints** - can configure a subset of Aurora Instances as Custom Endpoints
+    * for example run analytical queries on specific replicas (larger instances)
+    * Reader Endpoint is not used after defining Custom Endpoints - you would rather create multiple Custom Endpoints
+* **Aurora Serverless**
+    * automated database instantiation
+    * aito-scaling based on actual usage
+    * good for inrequent / intermittent / upredictable workloads
+    * no capacity planning needed
+    * pay per second - can be more cost-effective
+    * works because Client communicates with a **Proxy Fleet** that is managed by Aurora and has shared storage volume
+* **Aurora Multi-Master** - gives every node Read & Write capabilities which provides immediate failover for write node (HA)
+    * client has *Multiple DB Connection* for failover
+* **Global Aurora**
+    * `Aurora Cross Region Read Replicas` - useful for disaster recovery, simple to put in place
+    * `Aurora Global Database` - which in contrast to Aurora Cross Region Read Replicas:
+        * is recommended
+        * 1 primary region (read / write)
+        * up to 5 secondary regions (read-only), typical cross-region replication lag < 1s
+        * up to 16 Read Replicas per secondary region
+        * helps for decreasing latency
+        * promoting another region (for disaster recovery) has an RTO of < 1 min
+    * **RTO** - Recovery Time Object 
+* **Aurora Machine Learning** - enables adding ML-based predictions to your applications via SQL
+    * simple, optimized, secure integration of Aurora and AWS ML services
+    * done need ML experience
+    * supported services:
+        * `Amazon SageMaker` - any ML Model
+        * `Amazon Comprehend` - sentiment analysis
+    * use cases: fraud detection, ads targeting, sentiment analysis, product recommendations
 
 &nbsp;
 # RDS & Aurora - Backup and Monitoring
-
-
+* **RDS Backups**
+    * `Automated Backups`
+        * daily full backup of the db (during backup window)
+        * transaction logs are backed-up by RDS every 5 minutes
+        * ability to restore to any point in time (from oldest backup 5 minutes ago)
+        * 1 - 35 days of retention
+        * set retention to 0 to disable automated backups
+    * `Manual DB Snapshots`
+        * manually triggered by the user
+        * retention of backup for as long as you want
+    * `Trick` - if planning RDS to be down for a long time - take snapshot, terminate, restore when you need it
+* **Aurora Backups**
+    * `Automated Backups`
+        * 1-35 days
+        * cannot be disabled
+        * point-in-time recovery in that timeframe
+    * `Manual DB Snapshots`
+        * manually triggered by the user
+        * retention of backup for as long as you want
+* **Restore Options**
+    * restoring RDS / Aurora backup or a snapshot creates a new database
+    * can restore MySQL RDS database from S3
+        1. create a backup of your on-premises database
+        1. store it on Amazon S3
+        1. restore the backup file onto a new RDS instance running MySQL
+    * can restore MySQL Aurora cluster from S3
+        1. create a backup of your on-premises database using `Percona XtraBackup`
+        1. store the backup file on Amazon S3
+        1. restore the backup file onto a new Aurora cluster running MySQL
+* **Aurora Database Cloning**
+    * create a new Aurora DB Cluster from an existing on
+    * faster than snapshot & restore
+    * uses `copy-on-write` protocol
+        * initially new DB cluster uses same data volume as the original DB cluster
+        * when updates are made to the new DB cluster data, then additional storage is allocated and data is copied to be separated
+        * very fast & cost-effective
+        * use case: creating a `staging` db from `production` db without impacting the production database
 
 &nbsp;
 # ElastiCache
@@ -1289,7 +1390,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * *Is caching effective for that data?*
             * YES -> data changing slowly, few keys frequently needed
             * NO -> data changing rapidly, large key space frequently needed
-        * *Is data structure well for caching?*
+        * *Is data structure good for caching?*
             * YES -> key value caching, caching of aggregations results
     * **Caching Design Patters**
         * `Lazy Loading` / `Cache-Aside` / `Lazy Population` -> populate cache on cache miss only
@@ -1309,11 +1410,23 @@ Tool for comparing instances: https://instances.vantage.sh
             * TTL can range from few sec to hours / days
             * too many evictions means you need to scale up/out
             * ADVICE: setting TTL usually not a bad idea, except for Write-Through
+            * usefule for **Session Storage**
     * ADVICE: only cache data that makes sense (user profiles, blogs, etc)
 
 
 ## ElastiCache - Solution Architect
-
+* **Cache Security**
+    * supports IAM Autentication for Redis
+    * IAM policies on ElastiCache are only used for AWS API-level security
+    * `Redis AUTH`
+        * can set password / token when you create a Redis cluster
+        * an extra level of security for your cache (on top of securit groups)
+        * support SSL in flight encryption
+    * `Memchached`
+        * supports SASL-based authentication (advanced)
+* **Redis Use Case** - Gaming Leaderboards are computationally complex
+    * `Redis Sorted sets` - guarantee both uniqueness and element ordering
+    * each time a new element added its raned in real time, then added in correct order
 
 ## Amazon MemoryDB for Redis
 * Redis-compatible, durable, in-memory database service
@@ -1411,7 +1524,7 @@ Tool for comparing instances: https://instances.vantage.sh
             * DNS routing does not route traffic, just responds to queries
         * **TTL** - amount of time record is cached
             * if a DNS request is made the client caches this request for the amount of time specified in the TTL
-            * high TTl -> less traffic on Route 53, but possibly outdated records
+            * high TTL -> less traffic on Route 53, but possibly outdated records
             * low TTL -> high traffic on Route 53, but less possible to get outdated records
             * mandatory for all records, but Alias
 * **Hosted Zones** - a container for records that define how to route traffic to domain/subdomains
@@ -1432,7 +1545,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * latency is based on traffic between users and AWS Regions
         * can be associated with HC (failover capability)
         * create multiple records where an IP is mapped to a region
-    * **Failover Routing Policy** - configure a primary and failover host, in case of failed healthcheck on primary DNS record points to the failover
+    * **Failover Routing Policy** - configure a primary and failover host, in case of failed HC on primary DNS record points to the failover
     * **Geolocation Routing Policy** - routing based on user location
         * can specify locaiton by Continent, Country, US State
         * in case of overlapping most precise location is selected
@@ -1449,6 +1562,11 @@ Tool for comparing instances: https://instances.vantage.sh
             * Non-AWS resources (specify Latitude and Longitude)
         * must use **Route 53 Traffic Flow** to use this feature
         * useful to shift traffic from one region to another based on defined bias
+    * **IP-based Routing Policy** - route traffic based on clients IP addresses
+        * you provide a list of CIDRs for your clients
+        * map CIDR to endpoints/locations (user-IP-to-endpoint mappings)
+        * use cases: optimize performance, reduce network costs
+        * example: route end users from a particular ISP to a specific endpoint
     * **Multi-Value Routing Policy** - use to route traffic to multiple resources
         * Route 53 will return multiple values/resources and one will be chosen
         * can be associated with HC (only return values for healthy resources)
@@ -1460,7 +1578,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * configurations can be saved as *Traffic Flow Policy*
         * can be applied to different Hosted Zones
         * supports versioning
-* **Health Checks** - Route 53 healthchecks are only available for *public resources*. This provides automated DBS failover. 
+* **Health Checks** - Route 53 healthchecks are only available for *public resources*. This provides automated DNS failover. 
     * 3 types:
         * monitor an **endpoint** (app, server, other AWS resource)
             * 15 global health checkers check endpoint health
@@ -1488,10 +1606,184 @@ Tool for comparing instances: https://instances.vantage.sh
 
 
 &nbsp;
+# Elastic Beanstalk
+* **AWS Elastic Beanstalk** - a managed orchestration service for deploying applications allong with many AWS services and features
+    * developer problems on AWS include:
+        * managing infrastructure
+        * deploying code
+        * configuring DB, load balancers and other services
+        * scaling concerns
+        * most web apps have the same architecture
+        * just want to run code possibly, consistently across different applications and environments
+    * uses all popular AWS services such as EC2, ASG, ELB, RDS and more
+    * managed so:
+        * automatically handles capacity provisioning
+        * load balancing
+        * scaling
+        * application health monitoring
+        * instance configuration
+        * and more
+    * focus on the code but still have full control over configuraiton of services
+    * Elastic Beanstalk is free, but you pay for bundled services
+* **Components**
+    * **Application** - collection Elastic Beastalk components (env, versions, configurations,...)
+    * **Application Version** - iteration of application code
+    * **Environment** - collection of AWS resources running an application version 
+        * only one version per environment
+        * *Tiers*
+            * `Web Server Environment` - consists of ELB sending traffic to EC2 instances hosting web servers, controlled by ASG
+            * `Worker Environment` - consists of SQS queue coupled with EC2 instances hosting workers, controlled by ASG
+                * scales based on number of SQS messages
+                * can push messages to SQS queue from a Web Server Tier
+        * can create multiple environments
+* **Deployment Modes** - what environment is set up
+    * *Single Instance* - 1 Elastic IP, 1 EC2 Instance, 1 RDS Master
+        * good for dev env
+    * *High Availability with Load Balancer* - ALB, ASG with RDS Master and Standby
+        * good for production
+* **Process**
+    1. Create Application
+    1. Upload Version
+    1. Launch Environment
+    1. Manage Environments -> Upload Version
+* **Supported Platforms**
+    * Go
+    * Java SE
+    * Java with Tomcat
+    * .NET Core on Linux
+    * Node.js
+    * PHP
+    * Python
+    * Ruby
+    * Packet Builder
+    * Single Container Docker
+    * Multi-container Docker
+    * Preconfigured Docker
+    * if not supported you can write a custom platform (advanced)
+* **Deployment Options for Updates** - how Beansalk manages deploying updated versions
+    * *All at once* - fastest, but cause downtime
+        - stop -> update -> start
+        - no additional cost
+        - good for development
+    * *Rolling* - few at a time, move on to next element once previous is healthy
+        * `bucket` -> group of instances terminated and updated, can set(like 2 = 2 instances are brought down, started up, then another 2)
+        * application runs below capacity for some time
+        * no additional cost
+        * at some point there are 2 different versions running at the same time
+    * *Rolling with additional batches* - spins up new instances to move the batch 
+        * additional cost
+        * never below capacity
+        * running both versions simultanuously
+        * longer deployment
+        * good for prod
+        * can set `bucket` size
+        * zero downtime
+    * *Immutable* - spins up new instances in new ASG, deploys version to new instances, swaps instances when everything is healthy
+        * zero downtime
+        * new code deployed to new instances on temp ASG
+        * longest deployment
+        * high cost, double capacity
+        * quick rollback in case of failure
+        * great for prod
+    * *Blue Green* - create new environment and switch over when ready
+        * not a direct feature of Elastic Beanstalk
+        * zero downtime and release facility
+        * create new Beanstalk Environment -> deploy v2 there -> use Route 53 to weight some traffic to new env -> "swap URLs" using Beanstalk when done
+        * can swap environment urls from Beanstalk view (this takes some time)
+    * *Traffic Splitting* - canary testing - send small % fo traffic to temporary ASG for new deployment
+        * can configure to trigger automated rollbacak (very quick) on failed deployment
+        * no app downtime
+* **CLI** - a special CLI is available for Beanstalk called **EB CLI** 
+    *  Basic commands: `eb create`, `eb status`, `eb health`, `eb events`, `eb logs`, `eb open`, `eb deploy`, `eb config`, `eb terminate`
+    * helpful for automated deployment pipelines
+* **Deployment Process**:
+    * describe dependencies (package.json)
+    * package code as zip
+    * *Console* - upload zip file in AWS Console and deploy
+    * *CLI* - create new app version using CLI(uploads zip) an deploy
+    * Beanstalk takes zip and deploys to every EC2 instances and start the app
+* **Lifecycle Policy** - allows phasing out old application to make room for new ones
+    * Beanstalk can store at most 1000 application versions
+    * if you dont remove old versions, cant deploy new ones
+    * phase out based on:
+        * `Time` - old versions are removed
+        * `Space` - removes old versions if you exceed a threshold of app versions
+    * used versions arent deleted
+    * option not to delete source bundle from S3 to prevent data loss
+* **Extensions** - files containing code that define Beanstalk parameters that are normally configured in the UI
+    * requirements:
+        * code in the `.ebextensions/` diectory in root of source code
+        * YAML / JSON format
+        * file must end in `.config`
+        * can modify default settings using `option_settings` - like environment variables
+        * can add resources like `RDS`, `ElastiCache`, `DynamoDB`
+    * resource managed by .ebextensions are deleted if the Beanstalk Environment is deleted
+* **Beanstalk & CloudFormation** - ElasticBeanstalk relies on CloudFormatioin under the hood
+    * you can define CloudFormation resources in `.ebextensions`
+* **Beanstalk Cloning** - clone existing environment into new environment
+    * useful for deploying test version
+    * all configured resources are preserved (along with their configurations)
+    * can change settings after cloning
+* **Beanstalk Migrations**
+    * Elastic Load Balancer
+        * cannot change ELB type after creating environment(can only change config), need to migrate
+        * steps:
+            1. create new env with same configuration except LB (cant use clone, would also clone LB)
+            1. deploy application to new env
+            1. perform a CNAME swap or Route 53 update to point traffic to new env
+    * Decouple RDS
+        * RDS for prod environment should live outside of ElasticBeanstalk so that its lifecycle is not tied to environment lifecycle
+        * should create seperate RDS and provide connection string to EB app
+        * steps to decouple RDS from EB:
+            1. create snapshot of RDS DB (as safeguard)
+            1. Protect RDS from deletion in console
+            1. Create new EB, without RDS, point app to RDS
+            1. Shift traffic to new env using CNAME swap or Route 53 update
+            1. terminate old env
+            1. Delete CloudFormation stack in case of DELETE_FAILED state
+* **Beanstalk with Docker** - can run app as single docker container or multi docker container
+    * Single Docker Container
+        * options:
+            * `Dockerfile` - EB will build and run the Docker container
+            * `Dockerrun.aws.json (v1)` - describe where already build image is
+                * Image
+                * Ports
+                * Volumes
+                * Logging
+                * etc.
+        * Beanstalk in Single Docker Container does not use ECS
+    * Multi Docker Container
+        * run multiple container per ec2 instance in EB
+        * will create: ECS Cluster, ASG, EC2 Instances, Load Balancer, Task definition and execution
+        * requires a config: `Dockerrun.aws.json (v2)` at root of source code
+        * `Dockerrun.aws.json` used to generate ECS task definition
+        * Docker images must be prebuilt and stored in ECR
+        * maps beanstalk urls to container ports
+* **Advanced Concepts**
+    * **HTTPS with Beanstalk** - to load SSL cert onto LB in beanstalk
+        * from Console -> EB console, LB configuration
+        * from `.ecextensions/securelistener-alb.config`
+        * SSL Cert can be provisioned using ACM or CLI
+        * must ocnfigure SG that allows HTTPS
+    * **Beanstalk redirect HTTP to HTTPS** - configure instances to redirect or configure ALB with a rule
+        * make sure healthchecks arent redirected
+    * **Web Server vs Worker Environment** - if app performs tasks that take long to complete, offload to dedicated worker environment
+        * decouples app into two tiers
+        * use case: processing video, generating zip
+        * can define periodic tasks in `cron.yaml` file
+    * **Custom Platform** - can define from scratch OS, Additional Software, Scripts that Beanstalk runs on these platforms
+        * use case: app language is incompatible with Beanstalk & doesnt use Docker
+        * to create:
+            * define AMI using `Platform.yaml` file
+            * build that platform using the `Packet software` -> open source tool to create AMIs
+        * **Customer Image (AMI)** -> tweak an exisitng Beanstalk Platform
+
+
+&nbsp;
 # S3
 * **S3** - **Simple Cloud Storage** - infinitely scaling storage
 * one of the main building blocks of AWS
-* use cases: backup/storage/disaster recovery/archive/hybrid cloud storage/application hosting/media hosting/data lakes/big data analytics/software deleviry/static websites
+* use cases: backup/storage/disaster recovery/archive/hybrid cloud storage/application hosting/media hosting/data lakes/big data analytics/software delivery/static websites
 * buckets names are unique accross all AWS
 * **Buckets** - directories containing objects
 * **Objects** - files within buckets
@@ -1631,7 +1923,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * recommended for files > 100 MB
         * must use for files > 5GB
         * helps parallelize uploads
-    * **S3 Transfer Acceleration** - transfer to edge locationi which then forwards data to s3 bucket, compatible with multi-part upload, maximizes private AWS network traffic
+    * **S3 Transfer Acceleration** - transfer to edge locations which then forward data to s3 bucket, compatible with multi-part upload, maximizes private AWS network traffic
     * **S3 Byte-Range Fetches** - parallelize GETs by requesting specific byte ranges
         * better resilience in case of failures
         * use cases:
@@ -1646,13 +1938,34 @@ Tool for comparing instances: https://instances.vantage.sh
         * names must begin with `x-amz-meta-`
         * s3 stores keys in lowercase
         * metadata can be retrieved with object
-    * **S3 Object Tags** - key-value pairs for objecy in S3
+    * **S3 Object Tags** - key-value pairs for objects in S3
         * useful for fine-grained permissions
         * useful for analytics (use S3 Analytics to group by tags)
     * CANNOT SEARCH THE OBJECT METADATA OR OBJECT TAGS
     * to search using tags/metadata must use an external DB as search index such as DynamoDB
-* **S3 Requestor Pays** - 
-* **S3 Batch Operations** - 
+* **S3 Requestor Pays** - enable on bucket to offload request costs and networking costs for downloading data from S3 Bucket onto requestor
+    * helpful when sharing large data serts with other accounts
+    * requester must be authenticated in AWS
+* **S3 Batch Operations** - perform bulk operations on existing S3 objects with a single request
+    * features:
+        * manage retries
+        * track progress
+        * send completion notifications
+        * generate reports
+    * use:
+        1. `S3 Inventory` to get Object List Report
+        1. `S3 Select` to filter your inventory
+        1. `S3 Batch Operations` to process object - use can set operation and parameters
+    * use cases:
+        * modify object metadata & p roperties
+        * copy object between S3 buckets
+        * encrypt un-encrypted object
+        * modify ACLs, tags
+        * restore objects from S3 Glacier
+        * invoke Lambda function to perform custom action on each object
+
+![Transitions buckets between storage classes](./aws_saa_s3_lifecycle.png)
+
 
 
 ## S3 Advanced Security
@@ -1683,7 +1996,7 @@ Tool for comparing instances: https://instances.vantage.sh
         * two exposed S3 endpoints -> HTTP and HTTPS
         * HTTPS is encrypted and recommended
         * most clients use HTTPS by default
-    * you can force encruption using a bucket policy -> refuse API call PUT on S3 object without encryption headers(`SSE-KMS` or `SSE-C`)
+    * you can force encryption using a bucket policy -> refuse API call PUT on S3 object without encryption headers(`SSE-KMS` or `SSE-C`)
 * **S3 CORS** - web browser based mechanism to allow requests to other origins while visiting the main origin
     * *Origin* = scheme (protocol) + host (domain) + port
     * CORS stands for Cross-Origin Resource Sharing
@@ -1718,14 +2031,14 @@ Tool for comparing instances: https://instances.vantage.sh
         * allow user to upload file to specific location in bucket
         * allow dynamic list of users to download files by generating URLs dynamically
         * allow only logged-in users to download a premium video
-* **S3 Access Points** - an access point to specific prefix in S3 bucket that specifies permissionis to files with that prefix based on a policy that looks just like a bucket policy
+* **S3 Access Points** - an access point to specific prefix in S3 bucket that specifies permissions to files with that prefix based on a policy that looks just like a bucket policy
     * makes managing access to specific resources for specific groups of users easier
     * attach IAM policies to access points
     * access points simplify security management for S3 Buckets
     * each Access Point has:
         * own DNS name (Internet or VPC origin)
             * VPC origin:
-                *only accessible from within the VPC
+                * only accessible from within the VPC
                 * must create VPC Endpoint to access the Access Point (Gateway or Interface Endpoint)
                 * endpoint must allow access to target bucket and Access Point
         * access point policy
@@ -1734,7 +2047,23 @@ Tool for comparing instances: https://instances.vantage.sh
         * redacting or enriching data from S3 Bucket before it is sent to requesting application
         * adding watermarks
         * converting between data formats
-* **Glacier Vault Lock & S3 Object Lock** - 
+* **Glacier Vault Lock** - enforce a WORM (Write Once Read Many) model, where object cant be deleted by anyone
+    * requires a `Vault Lock Policy`
+    * lock the policy for future edits
+    * helpful for compliance and data retention
+* **S3 Object Lock** - adopt WORM model for object verision for a specified amount of time
+    * versioning must be enabled
+    * **Retention mode - Compliance**
+        * object version cant be verwritten or deleted by any user, including the root user
+        * objects retention modes cant be changed
+        * retention periods cant be shortened
+    * **Retention Mode - Governance**
+        * most cant delete / overwrite / alter lock settings of an object
+        * some users have special permissions to change the retention or delete the object
+    * **Retention Period** - must set in both modes, protect object for fixed period, can be extended
+    * **Legal Hold**
+        * protect the object indefinitely, independent from retention period
+        * can be freely placed and remove using the `s3:PutObjectLegalHold` IAM permission
 
 Example CORS configuration:
 ```json
@@ -1832,7 +2161,7 @@ Example CORS configuration:
             * `/*` -> default cache behavior
         * default cache behavior is always last to be processed and alwas `/*`
         * use cases: 
-            * authorize with auth service before getitng access to resources on S3 origin
+            * authorize with auth service before getting access to resources on S3 origin
             * maximize cache hits by separating static and dynamic distributions
 * **Signed URL** - allows giving access to individual files (one signed URL per file)
     * attach a policy with: `URL Expiration`, `IP Ranges to access data from`, `trusted signer` -> which AWS account can create signed URLS
@@ -1889,16 +2218,40 @@ Example CORS configuration:
 * improves global application *availability* and *performance* using the AWS global network
 * allows client to connect to edge locations which then connect with the target host using the AWS internal network
 * 2 **Anycast IP** are created for your app which are then used by the Edge Locations to identify your app location
-* **AWS Global Accelerator vs CLoudFront**
-    * both services integrate with AWS Shield for DDoS protection
+* **Terminology**
+    * `Unicast IP` -> one server holds one IP address
+    * `Anycast IP` -> all server hold the same IP address and the client is routed to the nearest one
+* **Integrations**
+    * `Elastic IP`
+    * `EC2 instances`
+    * `ALB`
+    * `NLB`
+    * can be public and private
+* benefits:
+    * `Consistent Performance`
+        * intelligent routing to lwest latency and fast regional failover
+        * no issue with client cache (ip doesnt change)
+        * internal AWS network
+    * `Health Checks`
+        * Global Accelerator performs a health check of your applications
+        * helps make your application global (failover less than 1 minute for unhealthy)
+        * great for DR
+    * `Security`
+        * only 2 external IP need to be whitelisted
+        * DDoS protection thank to AWS Shield
+* **AWS Global Accelerator vs CloudFront**
+    * both:
+        * services integrate with AWS Shield for DDoS protection
+        * use AWS Global network and its edge locations around the world
     * CloudFront
         * a CDN
-        * improves performance for cacheable content
+        * improves performance for cacheable content(static: images, videos; dynamic: API acceleration and dynamic site delivery)
         * content is *served at the edge*
     * Global Accelerator
         * no caching, *proxying packets* at the edge to applications running in one or more AWS Regions
-        * improves performance for a wide range of applications over TCP / UDDP
+        * improves performance for a wide range of applications over TCP / UDP
         * good for:
+            * non-HTTP use cases, like gaming (UDP), IoT (MQTT), Voice over IP
             * HTTP traffic that requires a static IP
             * HTTP traffic that requires deterministic, fast regional failover 
 * test at: https://speedtest.globalaccelerator.aws/#/
@@ -1907,11 +2260,20 @@ Example CORS configuration:
 &nbsp;
 # AWS Storage Extras
 Comparison of AWS Storage Options:
-* `AWS Snow Family`
-* `Amazon FSx`
-* `Storage Gateway`
-* `AWS Transfer Family`
-* `DataSync`
+* `S3` - Object Storage
+* `S3 Glacier` - Object Archival
+* `EBS volumes` - Network storage for one EC2 instance at a time
+* `Instance Storage` - physical storage for your EC2 instance (very high IOPS)
+* `EFS` - Network File System for Linux instances, POSIX filesystem
+* `FSx for Windows` - high performing NFS for Windows server 
+* `FSx for Lustre` - High Performance Computing Linux file system
+* `FSx for NetApp ONTAP` - High OS Compatiblity, high performance file system
+* `FSx for OpenZFS` - managed high performance ZFS file system
+* `Storage Gateway` - bridge between on-premise and AWS storage, S3 / FSx File Gateway / Volume Gateway (cached & stored) / Tape Gateway
+* `AWS Transfer Family` - FTP / FTPS / SFTP interface on top of Amazon S3 or AMazon EFS
+* `DataSync` - scheduled data sync from on-premise to AWS, or AWS to AWS
+* `AWS Snow Family` - move large amount of data to the cloud physically
+* `Database` - for specific workloads, usually with indexing and querying
 
 
 ## AWS Snow Family
@@ -1922,6 +2284,7 @@ Comparison of AWS Storage Options:
     * *Snowcone* - smaller portable computing, anywhere, rugged & secure, resistant to harsh environments
         * light -> 4.5 pounds, 2.1 kg
         * 2 CPUs, 4 GB RAM, wired/wireless access
+        * `Snowcone` - 8 TB, HDD ; `SNowcone SSD` - 14 TB, SSD
         * USB-C power or battery
         * used for edge computing, storage, data transfer
         * 8 TBs of usable storage
@@ -1963,54 +2326,163 @@ Comparison of AWS Storage Options:
     * launching/managing instances running on Snow Family Devices
     * monitor device metrics
     * launch AWS services on your devices
-
+* **Snowball into Glacier** - must use S3 first, in combination with a S3 lifecycle policy to transition into Glacier
 
 ## Amazon FSx
 * 3rd-party high performance file systems on AWS
 * fully managed services
 * options:
-    * *FSx for Lustre*
-        * full managed/high-performance/scalable file storage
+    * **FSx for Lustre**
+        * `Lustre` - type of parallel distributed file system, for large-scale computing
+        * fully managed/high-performance/scalable file storage
         * for High Performance Computing (HPC)
         * *Luster* -> Linux + Cluster
-        * good for Machine Learning/AnalyticsVideo Processing/Financial Modeling
+        * good for Machine Learning/Analytics/Video Processing/Financial Modeling
         * scales up to 100s GB/s, millions of IOPS, sub-ms latencies
-        * proxy that allows sharing data between corporate data center and AWS compute instances
+        * proxy that allows sharing data between corporate data center and AWS compute instances(VPN or Direct Connect)
         * stores data on AWS Storage services like S3
-    * *FSx for Windows File Server*
+        * **Storage Options**
+            * `SSD` - low latency, IOPS intensive workloads, small & random file operations
+            * `HDD` - throughput-intensive workloads, large & sequential file operations
+        * seamless integration with S3
+            * can read S3 as a file system (through FSx)
+            * can write the output of computation back to S3
+    * **FSx for Windows File Server**
         * fully managed/highly reliable/scalable/Windows native shared file system
         * built on Windows File Server
         * supports SMB protocol & Windows NTFS
         * can integrate with a windows client in a corporate data center and serves as a proxy that enables access for cloud resources(ec2)
         * integration with Microsoft Active Directory
-        * can be access from AWS resources and on-premise infrastructure
-    * FSx for NetApp ONTAP
+        * can be accessed from AWS resources and on-premise infrastructure - VPN or Direct Connect integration
+        * supports Microsofts Distributed File System (DFS) Namespaces (group files across multiple FS)
+        * scale up to 10s GB/s, millions IOPS, 100s PB of data
+        * **Storage Options**:
+            * `SSD` - latency sensitive workloads (databases, media processing, data analytics,...)
+            * `HDD` - broad spectrum of workloads (home directory, CMS, ...)
+        * can be configured to be Multi-AZ (HA)
+        * data is backed-up daily to S3 
+    * **FSx for NetApp ONTAP**
+        * managed NetApp ONTAP on AWS
+        * File System compatible with `NFS`, `SMB`, `iSCSI` protocol
+        * move workloads running on ONTAP or NAS to AWS
+        * works with:
+            * Linux
+            * Windows
+            * MacOS
+            * VMware Cloud on AWS
+            * Amazon Workspaces & AppStream 2.0
+            * Amazon EC2, ECS and EKS
+        * storage shrinks and grows automatically
+        * snapshots, replication, low-cost, compression and data de-duplication
+    *** FSx for OpenZFS**
+        * managed OpenZFS file system on AWS
+        * File System compatible with NFS (v3, v4, v4.1, v4.2)
+        * move workloads running on ZFS to AWS
+        * very performance - up to 1 000 000 IOPS, < 0.5 ms latency
+        * works with:
+            * Linux
+            * Windows
+            * MacOS
+            * VMware Cloud on AWS
+            * Amazon Workspaces & AppStream 2.0
+            * Amazon EC2, ECS, EKS
+        * snapshots, compression and low-cost
+        * `Point-in-time` instantaneous cloning (helpful testing new workloads)
+* **File System Deployment Options**
+    * `Scratch File System`
+        * temporary storage
+        * data is not replicated (doesnt replicate if file server fails)
+        * high burst (6x faster, 200 MBps per TiB)
+        * usage: short-term processing, optimize costs
+    * `Persistent File System`
+        * long-term storage
+        * data is replicated within same AZ
+        * replace failed files within minutes
+        * usage: long-term processing, sensitive data
 
 
 ## Amazon Storage Gateway
+* AWS is pushing for "hybrid cloud" due to:
+    * long cloud migrations
+    * security requirements
+    * compliance requirements
+    * IT strategy
+* storage types on AWS:
+    * `Block` - EBS, EC2 Instance Store
+    * `File` - Amazon EFS, Amazon FSx
+    * `Object` - Amazon S3, Amazon Glacier
 * **AWS Storage Gateway** - bridge between on-premise data and cloud data in S3 for use with hybrid cloud architecture
     * hybrid storage service to allow on-premises to seamlessly use AWS Cloud
     * uses Amazon EBS, Amazon S3, Amazon Glacier to achieve this
-    * use cases: disaster recivery, backup & resotre, tiered storage
+    * use cases: 
+        * disaster recovery
+        * backup & resotre
+        * tiered storage
+        * on-premises cache & low-latency files access
     * types:
-        * *File Gateway*
-        * *Volume Gateway*
-        * *Tape Gateway*
+        * **S3 File Gateway** - works as a proxy between on-premise application server and S3
+            * on-premise communciates with gateway using `NFS` / `SMB` protocols
+            * gateway translates NFS / SMB requests to HTTPS requests to S3
+            * most recently used data is cached in the file gateway
+            * supports: `S3 Standard`, `S3 Standard IA`, `S3 One Zone A`, `S3 Intelligent Tiering`
+            * transition to S3 Glacier using lifecycle policy
+            * control bucket access with IAM roles linked to each File Gateway
+            * SMB protocl has integration Active Directory for user authentication
+        * **FSx File Gateway** - provides native access to Amazon FSx for Window File Server
+            * useful for adding local cache for frequently accessed data
+            * windows native compatibility (SMB, NTFS, Active Directory, ...)
+            * useful for group fiel shares and home directories
+        * **Volume Gateway** - blobk storage using iSCSI protocol backed by S3
+            * backed by EBS snapshots which can help restore on-premises volumes
+            * **Cached volumes** -  low latency access to most recent data
+            * **Stored volumes** - entire dataset is on premise, scheduled backups to S3
+        * **Tape Gateway** - allows sing same processes as physical tape backups in the cloud
+            * `Virtual Tape Library (VTL)` backed by Amazon S3 and Glacier
+            * back up data using existing tape-based processes (and iSCSI interface)
+            * works with leading backup software vendors
+    * **Hardware appliance**
+        * usually storage gateway requires running the Gateway on your on-premises hardware
+        * `Storage Gateway Hardware Appliance` allows buying hardware for Storage Gateway from Amazon
+        * works with `File Gateway`, `Volume Gateway`, `Tape Gateway`
+        * has required CPU, memory, network, SSD cache resources
+        * helpful for daily NFS backups in small data centers
+
+![AWS Storage Gateway](./aws_saa_storage_gateway.png)
+
 
 ## AWS Transfer Family
+* a fully managed service for file transfers into and out of S3 or EFS using FTP protocol
+* supported protocols:
+    * `FTP` - File Transfer Protocol
+    * `FTPS` - FTP over SSL
+    * `SFTP` - Secure File Transfer Protocol
+* managed infrastructure, scalable, reliable, HA (multi-AZ)
+* pay per provisioned endpoint per hour + data transfers in GB
+* store and manage users credentials within the service
+* **security** - integrate with existing authentication systems (MS AD, LDAP, Okta, Amazon Cognito, custom)
+* use cases: sharing files, public datasets, CRM, ERP
 
 
 ## AWS DataSync
 * **AWS DataSync** - move large amounts of data from on-premises to AWS
-    * can synchronize to AWS S3, EFS, FSx for Windows
-    * replication can be scheduled hourly / daily / weekly
+    * can synchronize on-premise other-cloud to AWS (NFS, SMB, HDFS, S3 API,...) -> agent needed
+    * can synchronize AWS to AWS (different storage services) -> no agent needed
+    * can synchronize to:
+        * Amazon S3
+        * Amazon EFS
+        * Amazon FSx (Windows, Lustre, NetApp, OpenZFS)
+    * replication can be `scheduled` hourly / daily / weekly
     * replication tasks are **incremental** after the first full load
-    * setup: DC Server connects throu *AWS DataSync Agent* which conects to *AWS DataSync* which moves data into various AWS Storage Resources
+    * **Unique for this service** -> file permissions and metadata are preserved (NFS POSIX, SMB, ...)
+    * one agent task can use `10 Gbps`, can setup bandwidth limit
+    * setup: DC Server connects through *AWS DataSync Agent* which conects to *AWS DataSync* which moves data into various AWS Storage Resources
+    * `AWS Snowcone` has DataSync agent pre-installed
+
 
 
 &nbsp;
 # Integration & Messaging
-* **SQS** - fully managed queu service
+* **SQS** - fully managed queue service
     * consumer pull data
     * data is deleted after being consumed
     * can have as many consumers as we want
@@ -2040,9 +2512,9 @@ Comparison of AWS Storage Options:
     * oldest offering - over 10 years
     * unlimited throughput -> # of msgs in queue
     * default retention of messages -> 4days, max -> 14 days
-    * low latency -> <10 ms on publish and recieve
+    * low latency -> < 10 ms on publish and recieve
     * max 256KB per msg sent
-    * can have duplicate messages (at least once delivery, occasionally)
+    * can have duplicate messages (at least once delivery, occasionally duplicates)
     * can have out of order messages (best effort ordering)
 * **Messaging** - a method for peer-to-peer communication between software components. Communication can be:
     * *Synchronous* - when one application directly communicates with another
@@ -2060,6 +2532,7 @@ Comparison of AWS Storage Options:
         * deletes the messages using `DeleteMessage API` to make sure other Consumers dont poll it
         * can be integrated with [ASG](#asg)
             * scaling can be done based on metric controlled by CloudWatch -> `QueueLength` -> `ApproximateNumberOfMessages` which then uses a CloudWatch Alarm to scale the ASG
+            * useful for creating a buffer for example between an ASG and DBs: `ASG [Enqueue Message]` --> SQS --> `ASG [Deqeueue message]` -> insert
         * SQS is great for decoupling between application tiers
         * consumers receive and process messages in parallel -> increase throuput of processing by scaling out
     * a queue decouples producers from consumers
@@ -2104,7 +2577,7 @@ Comparison of AWS Storage Options:
                 * `Message Deduplication ID` - explicitly provide an ID and if same ID is encountered the duplicate is deleted
         * name must end in `.fifo`
         * `Message Grouping` -> if you specify the same value of `MessageGroupID` in an SQS FIFO message, only one consumer will handle a given `MessageGroupID`
-            * messages the share MessageGroupId will be in order within the group
+            * messages that share MessageGroupId will be in order within the group
             * each Group ID can have a different consumer (parallel processing)
             * ordering across group is not guarenteed
 * Concepts:
@@ -2235,7 +2708,7 @@ Comparison of AWS Storage Options:
     * deduplication using `Deduplication ID` or `Content Based Deduplication`
     * can only have SQS FIFO queues as subscribers
     * limited throughput(same as FIFO queues)
-* **Message Filtering** - JSON policy used to filter messages sewnt to SNS topics subscriptions
+* **Message Filtering** - JSON policy used to filter messages sent to SNS topics subscriptions
     * by default no policy is attached and subscribers receive all messages
     * can have separate filter policies for each consumer
 
@@ -2277,7 +2750,7 @@ Comparison of AWS Storage Options:
         * can be:
             * `Apps`, `Clients`, 
             * `SDK` - simple producer
-            * `KPL(Kinesis Producer Library)` - C++, JAva, batch, compression, retries
+            * `KPL(Kinesis Producer Library)` - C++, Java, batch, compression, retries
             * `Kinesis Agent` - monitor log files and stream into KDS
         * throughput: 1 MB /sec or 1000 msg/sec per shard
         * **Producer Records** - a piece of data produced by a Producer that contains a `PartitionKey` and `Data Blob`(up to 1MB)
@@ -2416,6 +2889,8 @@ Comparison of AWS Storage Options:
     * runs on server
     * can run in Multi-AZ with failover
     * has both queue and topic features
+    * **High Availability** - create an `Active` and `Standby`  MQ Broker in different AZ, connect with Amazon EFS(for storage) which can work cross-AZ. On failure the stanby MQ becomes active and gets the sama data as the previous one through EFS.
+
 
 &nbsp;
 # Docker in AWS
@@ -2482,7 +2957,7 @@ Comparison of AWS Storage Options:
 * **Load Balancer Integrations**
     * [Application Load Balancer](#elb) supports and works for most use cases
     * [Network Load Balancer](#elb) good for high throughput / high performance use cases, or to pair with AWS Private Link
-    * [Elastic Load Balancer](#elb) supported bu not recommended, no advanced features and doesn't work with [Fargate](#fargate)
+    * [Elastic Load Balancer](#elb) supported but not recommended, no advanced features and doesn't work with [Fargate](#fargate)
 * **Data Volumes (EFS)**
     * mount [EFS](#efs) file systems onto ECS tasks
     * works with both launch types
@@ -2492,18 +2967,18 @@ Comparison of AWS Storage Options:
         * FSx For Lustre is not supported
         * [S3](#s3) cannot be mounted as a file system
 * **Capacity Provider** - services responsible for provisioning servers for tasks
-    * FARGATE
-    * FARGATE_SPOT
-    * ASG
+    * `FARGATE` - launch a Fargate task
+    * `FARGATE_SPOT` - launch a Fargate task that will run on spot instances
+    * `ASG`
 * **ECS Service Auto Scaling** - autmatically increase / decrease number of ECS tasks
-    * uses AWS Application Auto Scaling
+    * uses `AWS Application Auto Scaling`
     * can use metrics like:
         * service average CPU utilization
         * average RAM 
         * ALB request count per target
     * types of Auto Scaling:
         * **Target Tracking** - based on value for CloudWatch metric
-        * **Step Scaling** - nased on CloudWatch Alarm
+        * **Step Scaling** - based on CloudWatch Alarm
         * **Scheduled Scaling** - based on specific date/time
     * ECS Service Auto Scaling (task level) != EC2 Auto Scaling (EC2 instance level)
     * Fargate Auto Scaling much easier to setup (Serverless)
@@ -2518,8 +2993,8 @@ Comparison of AWS Storage Options:
     * Scenario 1: min = 50%, max = 100% -> terminate 2, update 2, terminate 2, update 2 -> running at 100%
     * Scenario 2: min = 100%, max = 150% -> launch 2, terminate 2, update 2 -> running at 100%
 * **ECS - Solutions Architectures**
-    * *ECS Tasks Invoked by Event Bridge Event* -> ECS task role linked to EventBridge that runs tasks based on event. Fully serverless
-    * *ECS Tasks Invoked by Event Bridge Schedule* -> ECS task role linked to scheduled event that performs some operations at specified schedule. Fully serverless
+    * *ECS Tasks Invoked by Event Bridge Event* -> ECS task role linked to EventBridge that runs tasks based on event. Fully serverless. 
+    * *ECS Tasks Invoked by Event Bridge Schedule* -> ECS task role linked to scheduled event that performs some operations at specified schedule. Fully serverless. Good for batch processing
     * *SQS Queue Invoked* -> task are launched based on tasks in queue and can scale along with the number of messages
 * **Task Definitions** - metadata in JSON form telling ECS how to run a Docker container
     * Options:
@@ -2534,7 +3009,7 @@ Comparison of AWS Storage Options:
         * vCPU, RAM per task
         * OS
         * IAM Roles inherited by tasks
-        * bind mounts -> mount volumes to share data, allows containers to comunicate with eachother
+        * `bind mounts` -> mount volumes to share data, allows containers to comunicate with eachother
         * Ephemeral storage
         * logging configuration
         * data volumes -> to share data across volumes
@@ -2569,6 +3044,7 @@ Comparison of AWS Storage Options:
         * *memberOf* - place task on instances that satisfy an expression. Uses the **Cluster Query Language**
     * only applicable for ECS with EC2 (Fargate does this for you)
 
+
 **BinPack** Placement Strategy with **distinctInstance** Placement Constraint:
 ```json
 {
@@ -2596,14 +3072,14 @@ Comparison of AWS Storage Options:
     ],
     "placementConstraints": [
         {
-            "expression": "attribute:ecs.instance-type =~ t2.*"
-            "type": "memberfor"
+            "expression": "attribute:ecs.instance-type =~ t2.*",
+            "type": "memberOf"
         }
     ]
 }
 ```
 
-Spread Placement Strategy
+**Spread** Placement Strategy
 ```json
 {
     "placementStrategy": [
@@ -2657,6 +3133,20 @@ docker pull {aws_account_id}.dkr.ecr.{region}.amazonaws.com/demo:
         * EFS (works with Fargate)
         * FSx for Lustre
         * FSx for NetApp ONTAP
+
+
+## AWS App Runner
+* **AWS App Runner** - fully managed service that makes it easy to deploy web applications and APIs at scale
+    * no ifnrastructure experience required
+    * start with your sorce code or container image
+    * configure settings like vCPU / RAM / ASG / Health Checks
+    * automatically builds and deploy the web app
+    * automatic scaling, HA, load balancer, encryption
+    * VPC access support
+    * connect to database, cache, message queue services
+    * use case: web apps, APIs, microservices, rapid production deployment
+
+
 
 
 &nbsp;
@@ -2714,6 +3204,22 @@ docker pull {aws_account_id}.dkr.ecr.{region}.amazonaws.com/demo:
         * `SNS` - react to notifications in SNS
         * `SQS` - process messages from SQS
         * `Cognito` - react to AWS user actions
+        * `RDS` - invoke Lambda functions from within your DB instance
+            * allow you to process data events from within a database
+            * supported for RDS for PostgreSQL and Aurora MySQL
+            * must be configured from teh DB by connecting to it (not AWS console)
+            * must allow outbound traffic to your Lambda function from within your DB instance (Public, NAT GW, VPC ENdpoints)
+            * DB instance must have the required permission to invoke the Lmabda function (Lambda Resource-based Policy & IAM Policy)
+        * `RDS Event Notifications` - notifications that tells information about the DB instance itself
+            * no information about data
+            * can subscribe to categories:
+                * `DB instance`
+                * `DB snapshot`
+                * `DB Parameter Group`
+                * `DB Security Group`
+                * `RDS Proxy`
+                * `Custom Engine Version`
+            * near real-time events (up to 5 minutes)
     * pricing:
         * per calls: 1kk requests free, then $0.20 per 1kk requests
         * per duration: 400k GB/sec of compute time free, then $1.00 for 600k GB/sec in 1 ms increments
@@ -2891,10 +3397,6 @@ aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out -
 * CloudWatch logs work irrespective of Lambda network configurations
 
 
-## Lambda - RDS Invocation & Event Notifications
-
-
-
 
 ## DynamoDB
 * **DynamoDB** - fully managed, highly available NoSQL database with replication across 3 AZ
@@ -2903,9 +3405,11 @@ aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out -
     * fast and consistent in performance -> single-digit millisecond latency, low latency retrieval
     * integrated with IAM for security, auth, administration
     * low cost and autoscaling capabilities
+    * on demand backup capability
     * **Table Classes** - Standard / Infrequent Access (IA)
 * **Basic Building Blocks**
-    * tables - have primary keys, inifinite number of items, items have attributes, each item is max 400 KB
+    * **Tables** - have primary keys, inifinite number of items, items have attributes, each item is max 400 KB
+        * can copy tables into S3 from console
     * key/value
     * *Primary Key*
         * types of primary keys:
@@ -2926,6 +3430,7 @@ aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out -
 * no joins/relations
 * **Global Tables** -> way to make DynamoDB accessible with low latency in multiple regions by creating 2-way read-write replicas
     * *Active-Active* replication - read/write to any AWS Region
+    * requires `DynamoDB Streams` to be enabled -> generated `changelog` is ued to replicate data across replica tables in other regions
 * **NOSQL DB** - do not support joins or aggregations, but scale horizontally
 
 
@@ -3340,46 +3845,194 @@ CIP with CUP:
 
 &nbsp;
 # Databases
-Choosing the right database:
-* asda 
+* Take into consideration when choosing the right database:
+    * read-heavy / write-heavy / balanced `workload`
+    * `throughput` needs
+    * will it `change`
+    * does it need to `scale` or `fluctuate` during the day
+    * how much `storage` and how `long`
+    * average `object size`
+    * how will you `access the db`
+    * `durability`
+    * `source of truth` for data
+    * `latency` requirements
+    * `concurrent` users
+    * data `model`
+    * `access paterns` - how will you query data
+    * `structured` / unstructured
+    * strong `schema` vs `flexibility`
+    * `reporting`
+    * `search`
+    * `license costs`
+    * cloud native, managed or self-managed
 
 Databases in AWS:
 * **RDS**
     * managed postgreSQL / MySQL / Oracle / SQL Server / MariaDB / Custom
+    * `storage`: provisioned RDS Instance Size & EBS Volume Type & Size
+    * `scalability`: auto-scaling storage
+    * `performance`: 3 read replicas
+    * `DR`: Multi AZ
+    * `security`: IAM, SG, KMS, SSL in transit, IAM authenticates, integration with Secrets Manager
+    * `backup`: automated backup with PITR (up to 35 days), manual DB Snapshot for long term
+    * `maintenance`: managed and scheduled with downtime
+    * `customization`: RDS Custom for access to db and customize the unerlying instance(Oracle & SQL Server)
+    * **USE CASES**: store relational datasets (RDBMS / OLTP), perform SQL queries, transactions
 * **Aurora**
+    * compatible API for PostgreSQL / MySQL
+    * separation of storage and compute
+    * `scalability`: auto-scaling storage
+    * `performance`: cluster with custom endpoints for writer and reader DB instances, 6-15 replicas
+    * `DR`: 3 AZ, highly available, self-healing
+    * `security`: IAM, SG, KMS, SSL in transit, IAM authenticates, integration with Secrets Manager
+    * `backup`: automated backup with PITR (up to 35 days) that cant be disabled, manual DB Snapshot for long term, backup using `Percona XtraBackup` and restore for on-premise databases
+    * features:
+        * `cloning` option for quick setup of staging db
+        * `serverless` option for unpredictable / intermittent workloads, no capacity planning
+        * `multi-master` for continuous writes failover (high write availability)
+        * `global` option with up to 16 DB Read Instance in each region for < 1 s storage replication
+        * `machine learning` capabilities to perform ML using SageMaker & Comprehend on Aurora
+    * **USE CASES**: 
+        * store relational datasets (RDBMS / OLTP), perform SQL queries, transactions
+        * less maintenace, more flexibility, more performance, more features than RDS
 * **ElastiCache**
+    * managed Redis / Memchached
+    * in-memory data store
+    * `provisioning`: must provision EC2 instance type
+    * `performance`: sub ms latency, read replicas(sharding), clustering(Redis)
+    * `DR`: Multi AZ
+    * `security`: IAM, SG, KMS, Redis Auth
+    * `backup`: backup / snapshot / PITR
+    * `maintenance`: managed and cheduled maintenance
+    * requires application code changes to be leveraged
+    * **USE CASES**:
+        * key-value store, frequent reads, less write, cache DB query results, store session data for websites
+        * no sql feature
 * **DynamoDB**
+    * AWS proprietary technology, managed serverless NoSQL database, millisecond latency
+    * can replace ElastiCache as key-value store(with TTL feature)
+    * `capacity`: provisioned or on-demand capacity, optional auto-scaling
+    * `DR`: HA, Multi AZ by default
+    * `backup`: automated up to 35 days PITS(restore to new table) or on-demand backups
+    * great to `rapidly evolve schemas`
+    * features:
+        * transaction capabilities
+        * read and writes decoupled
+        * `DAX` cluster for read cache, microsecond read latency
+        * event processing: `DynamoDB Streams` -> `AWS Lambda` / `Kinesis Data Streams`
+        * `global table` -> active-active setup
+        * `export` to `S3` within PITR window without RCU
+        * `import` from `S3` without using WCU
+    * **USE CASES**:
+        * serverless applications development (small documents 100s KB)
+        * distributed serverless cache
 * **S3**
+    * key:value object storage
+    * great for big objects
+    * `performance`: multi-part upload, S3 Transfer Acceleration, S3 Select
+    * `provisioning`: serverless
+    * `scalability`: scales infinitely
+    * `limits`: max object size is 5TB
+    * `security`: IAM, Bucket Policies, ACL, Access Points, Object Lambda, CORS, Object/Vault Lock
+    * features:
+        * `versioning`
+        * `tiers`: S3 Standard, S3 IA, S3 Intelligent, S3 Glacier, lifecycle policy for transitioning between tiers
+        * `encryption`: SSE-S3, SSE-KMS, SSE-C, client-side, TLS in transit, default encryption
+        * `replication`
+        * `MFA-Delete`
+        * `access logs`
+        * `batch operations` -> on objects using `S3 Batch`, listing files using `S3 Inventory`
+    * **USE CASES**:
+        * `static files`
+        * key-value store for `big files`
+        * website hosting
+* **Glacier**
+    * object storage
+    * archives and backups
+    * very cheap
 * **DocumentDB**
     * proprietary cloud-optimized NoSQL database based on MongoDB
     * store, query, index JSON data
-    * fully managed, HA, replication across 3 AZ
-    * storage grows automatically in increments of 10 GB up to 64 TB
-    * automatically scales workloads to work with millions of requests per seconds
+    * `scalability`: 
+        * storage automatically grows in increments of 10 GB. up to 64 TB
+        * automatically scales workloads to work with millions of requests per seconds
+    * `maintenance`: fully managed
+    * `DR`: HA, replication across 3 AZ
+    * **USE CASES**:
+        * NoSQL
+        * MongoDB migration
 * **Neptune**
     * fully managed graph database
         * example graph dataset -> social network: interconnected nodes of users <-> friends <-> posts <-> comments <-> likes
-    * HA across 3 AZ, with 15 read replicas
-    * build and run applications working with highly connected datasets
-    * optimized for complex/hard graph db queries
-    * stores up to billions of relations
-    * query graph with ms latency
-    * use cases: knowledge graphs (ex. Wikipedia), fraud detection, recommendation engines, social networking
+    * `storage`: stores up to billions of relations
+    * `maintenance`: fully managed
+    * `performance`: 15 read replicas, optimized for complex/hard graph db queries, query graph with ms latency
+    * `DR`: HA across 3 AZ
+    * **USE CASES**:
+        * build and run applications working with highly connected datasets
+        * knowledge graphs (ex. Wikipedia)
+        * fraud detection
+        * recommendation engines
+        * social networking
 * **Keyspaces**
+    * managed Apache Cassandra-compatible database service
+    * `capacity`: on-demand or provisioned mode with auto-scaling
+    * `maintenance`: serverless, fully managed
+    * `scalability`: automatically scale tables up/down based on the app traffic
+    * `performance`: single-digit ms latency at any scale, 1000s of req / s
+    * `DR`: HA, tables replicated 3 times across multiple AZ
+    * `access patterns`: CQL (Cassandra Query Language)
+    * `encryption`
+    * `backup`: PITR up to 35 days
+    * **USE CASES**: 
+        * store IoT devices info
+        * time-series data
+        * migration from on-premise APache Cassandra
 * **QLDB**
-    * recording financial transactions
-    * fully managed
-    * HA -> replication across 3 AZ
-    * review all changes to application data over time
-    * **Immutable** - no entry can be removed or modified, cryptographically verifiable
-    * 2-3x better performance than common ledger blockchain frameworks
-    * manipulate data using **SQL**
-    * no decentralization -> central DB owned by Amazon
-    * in accordance with financial regulation rules 
+    * Quantum Ledger database responsible for recording financial transactions
+    * `maintenance`: fully managed
+    * `DR`: HA, replication across 3 AZ
+    * `performance`: 2-3x better performance than common ledger blockchain frameworks
+    * `audit`: 
+        * **Ledger** -> review all changes to application data over time
+        * **Immutable** -> no entry can be removed or modified, cryptographically verifiable
+        * in accordance with financial regulation rules 
+        * no decentralization -> central DB owned by Amazon
+    * `access patterns`: manipulate data using **SQL**
     * **How it works**
         * contains a **Journal** that is a sequence of modifications
         * whenever a modification is made a cryptographic hash is computed which guarentees immutability
+    * **USE CASES**:
+        * ledger for financial transactions
 * **Timestream**
+    * fully managed, fast, scalable, serverless time-series database
+    * `maintenance`: serverless, fully-managed
+    * `performance`: store / analyze trillins of events per day, 1000s time faster & 1/10th cost of RDBs
+    * `DR`:
+    * `scalability`: automatically scales up/down to adjust capacity
+    * `access patterns`: SQL compatibility
+    * `storage`: recent data in memory, historical data in cost-optimized storage
+    * `security`: encryption in transit and at rest
+    * features:
+        * scheduled queries
+        * multi-measure records
+        * built-in time series analytics functions (identify patterns in near real time)
+        * producer integrations: `AWS IoT`, `Kinesis Data Streams + AWS Lambda`, `Prometheus`, `telegraf`, `Kinesis Data Analytics for Apache Flink`
+        * consumer integrations: `Amazon QuickSight`, `Amazon SageMaker`, `Grafana`, `JDBC connection`
+    * **USE CASES**:
+        * IoT apps, operations applications, real-time analytics
+* **OpenSearch**
+    * JSON
+    * free text, unstructured searches
+    * **Good For**: searching in big dataset
+* **Redshift**
+    * OLAP
+    * **Good For** - data wharehousing for analytical purposes
+* **Athena**
+    * serverless query service to analyze data stored in Amazon S3
+    * **USE CASES**:
+        * `BI`, `Analytics`, `Reporting`, `Analyze & Query VPC Flow logs`, `ELB logs`, `CloudTrail trails`
+* **EMR**
 
 
 &nbsp;
@@ -3391,17 +4044,17 @@ Databases in AWS:
     * uses SQL (built on Presto)
     * supports `CSV`, `JSON`, `ORC`, `Avro`, and `Parquet` (built on Presto)
     * **pricing** - around $5.00 per TB of data scanned
-    * can build reporting / dashboards on top of Atherna through `Amazon QuickSight`
+    * can build reporting / dashboards on top of Athena through `Amazon QuickSight`
     * use cases include: `BI`, `Analytics`, `Reporting`, `Analyze & Query VPC Flow logs`, `ELB logs`, `CloudTrail trails` 
     * **Performance Improvement**
-        * use columnar data for cost-savings (less scan)
+        * use **columnar data** for cost-savings (less scan)
             * `Apache Parquet` or `ORC` recommended for huge performance improvement
             * use `Glue` to convert your data to Parquet or ORC
-        * compress data for smaller retrievals
+        * **compress** data for smaller retrievals
             * `bzip2`, `gzip`, `lz4`, `snappy`, `zlip`, `zstd`
-        * partition datasets in S3 for easy querying on virtual columns
-            * ex: `s3://athena-examples/flight/parquet/year=1991/month=1/day=1/
-        * use larger files ( > 128 MB) to minimize overhead
+        * **partition** datasets in S3 for easy querying on virtual columns
+            * ex: `s3://athena-examples/flight/parquet/year=1991/month=1/day=1/`
+        * use **larger files** ( > 128 MB) to minimize overhead
     * **Federated Query** - can query data anywhere 
         * including relational, non-relational, object, custom data sources, AWS and on-premises
         * uses `Data Souce Connectors` that run on AWS Lambda to run Federated Queries (e.g. CloudWatch Logs, DynamoDB, RDS, ...)
@@ -3409,7 +4062,7 @@ Databases in AWS:
 
 
 ## Redshift
-* **OLAP** (Online Analytical Processing) database based on PostgreSQL
+* **OLAP** - (Online Analytical Processing or OLAP) database based on PostgreSQL
     * used for analytics and data warehousing
     * load data once every hour
     * 10x better performance than other data warehouses
@@ -3420,6 +4073,35 @@ Databases in AWS:
     * SQL interface for querying
     * out-of-the-box integration with BI tools like AWS Quicksight or Tableau
 * not **OLTP** (Online Transaction Processing)
+* **vs Athena** - faster queries / joins / aggregations thank to indexes
+* **Redshift Cluster**
+    * `leader node` - for query planning, results aggregation
+    * `compute node` - perform queries,s end results to leader
+    * provision node size in advance
+    * can use `Reserved Instances` for cost savings
+* **DR**
+    * has multi-AZ mode for some clusters
+    * only possible with snapshots
+    * snapshot are PITR backups of a cluster, stored internally in S3
+    * snapshots are incremental (only changes saved)
+    * can restore snapshtos into a `new cluster`
+    * automated snapshots: every 8h / every 5 GB / or on schedule
+    * can set retention of snapshots
+    * manual snapshots for indefinite retention
+    * option to automatically or manually copy snapshots of a cluster to another AWS Region
+* **Data Producers for Redshift**
+    * large inserts much better
+    * `Amazon Kinesis Data Firehose` -> will autoamtically issue an S3 copy command to load data into Redshift
+    * `S3 COPY command` -> issue `copy customer from <bucket url> iam_role <redshift role>` - can do it through public internet or vpc(With Enhanced VPC Routing)
+    * `EC2 Instance - JDBC Driver` -> write batches of data into Redshift
+* **Redshift Spectrum**
+    * query data that is in S3 without loading it into Redshift
+    * must have a Redshift cluster available to start query
+    * query is submitted to thousands of Redshift Spectrum nodes
+    * allows leveraging a lot more prossesing power then what is available in a Redshift Cluster 
+
+
+![Redshift Spectrum](./aws_saa_redshift_spectrum.png)
 
 
 ## OpenSearch
