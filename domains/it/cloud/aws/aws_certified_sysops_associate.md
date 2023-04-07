@@ -20,9 +20,21 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [CloudWatch - Unified CloudWatch Agent](#cloudwatch---unified-cloudWatch-agent)
     * [EC2 - Instance Status Checks](#ec2---instance-status-checks)
     * [EC2 - Hibernate](#ec2---hibernate)
+* [AMI - Amazon Machine Image](#ami---amazon-machine-image)
+    * [AMI - No Reboot Option](#ami---no-reboot-option)
+    * [EC2 - Instance Migration using AMIs](#ec2---instance-migration-using-amis)
+    * [EC2 - Image Builder](#ec2---image-builder)
+    * [AMI in Production](#ami-in-production)
 * [Managing EC2 at Scale](#managing-ec2-at-scale)
-    * [Systems Manager](#systems-manager)
-    * [SSM Parameter Store](#ssm-parameter-store)
+    * [Systems Manager (SSM)](#systems-manager-(ssm))
+        * [SSM - Resource Groups](#ssm---resource-groups)
+        * [SSM - Documents](#ssm---documents)
+        * [SSM - Run Command](#ssm---run-command)
+        * [SSM - Automations](#ssm---automations)
+        * [SSM - Inventory](#ssm---inventory)
+        * [SSM - Patch Manager](#ssm---patch-manager)
+        * [SSM - Session Manager](#ssm---session-manager)
+        * [SSM - Parameter Store](#ssm---parameter-store)
     * [AWS OpsWorks](#aws-opsworks)
 * [EC2 - High Availability and Scalability](#ec2---high-availability-and-scalability)
     * [ELB](#elb)
@@ -82,7 +94,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [EFS - Operations](#efs---operations)
     * [EFS - CloudWatch Metrics](#efs---cloudwatch-metrics)
 * [S3](#s3)
-    * [S3 - Bucket Policy](#s3---bucket-policy)
+    * [S3 - Security](#s3---bucket-policy)
     * [S3 - Website](#s3---website)
     * [S3 - Versioning](#s3---versioning)
     * [S3 - Replication](#s3---replication)
@@ -201,16 +213,48 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 ## Launching an EC2
 
 
+
 ## Changing EC2 Instance Type
+
 
 
 ## Enhanced Networking
 
 
+
 ## EC2 - Placement Groups
+* defining placement groups gives control over EC2 Instance physical placement
+* **Placement Strategies**:
+    * `Cluster`
+        * clusters instances into a low-latency group in a single AZ on the same rack
+        * pros:
+            * great network (10 Gbps bandwidth between instances)
+        * cons:
+            * if rack fails, all instance fails at the same time
+        * use case: Big Data job that needs to complete fast, app that needs extremely low latency and high network throughput
+    * `Spread`
+        * spreads instances across underlying hardware
+        * max 7 instances per group per AZ
+        * pros:
+            * minimizes risk of simultaneous failure
+            * can span across AZ
+            * instances on different physical hardware
+        cons:
+            * limited to 7 instances per AZ per placement group
+        * use case: HA, critical applications where instances need isolation from each other
+    * `Partition`
+        * spreads instances across many different partitions, which rely on different server racks within an AZ
+        * scales to 100s of EC2 instances per group
+        * up to 7 partitions per AZ
+        * can span multiple AZs
+        * instances in a partition do not hsare rack with instances in other partition
+        * a partition failure can affect many EC2 but wont effect other partitions
+        * EC2 instances get acess to the partition information as metadata
+        * use case: Hadoop, Cassandra, Kafka, HBase, HDFS
 
 
 ## EC2 - Shutdown Behavior & Termination Protection
+
 
 
 ## EC2 - TroubleShooting
@@ -219,32 +263,177 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 
 
 ## EC2 - Instance Purchasing Options
+* **Tenancy** defines how EC2 instances are distributed across physical hardware and affect pricing
+* purchase options include:
+    * **On-Demand Instances** - short workload, predictable pricing, pay by second
+        * billing per second after first minute for Linux or Windows
+        * billing per hour for other OS
+        * *highest cost* but no *upfront payment*
+        * best if: 
+            * *short* workload
+            * *uninterrupted* workload
+            * *cant predict* application behavior
+    * **Reserved** (1 & 3 years)
+        * types:
+            * **Reservecd Instances** - long workloads
+            * **Convertible Reserved Instances** - long workloads with flexible instances
+        * Up to 72% discount compared to On-demand
+        * reserve specific instance attributes (Type, Region, Tenancy, OS)
+        * the higher the *reservation period* the higher the discount
+        * *payment options* - no upfront, partial upfront, all upfront
+        * *scope* - region or zonal
+        * can buy and sell in the `Reserved Instance Marketplace`
+        * best for:
+            * steady-state usage applications (like DB)
+    * **Savings Plan** (1 & 3 years) - commitment to an amount of usage
+        * discount based on long-term usage
+        * commit to a type of usage (like $/hour for 1 or 3 years)
+        * usage beyond Saving Plans is billed at On-Demand price
+        * **locked** to *instance family* and *AWS region*
+        * **flexible** across *instance size*, *os*, *tenancy*(Host, Dedicated, Default)
+    * **Spot Instances** - short workloads, can lose instances (less reliable)
+        * up to 90% disount compared to on-demand
+        * can lose at any point of time if your `max spot price` is less then `current spot price`
+            * in this scenario can choose to stop or terminate instance with a 2 minutes grace period
+        * *most cost-efficient* instances
+        * useful for workloads that are *resilient to failure* like:
+            * *batch jobs*
+            * *data analysis*
+            * *image processing*
+            * *distributed workkloads*
+            * *workloads with flexible start and end time*
+        * *not suitable* for critical jobs or databases
+    * **Dedicated Hosts** - book an entire **physical server**, control instance placement
+        * physical server with EC2 capacity fully dedicated to your use
+        * allows addressing *compliance requirements* and *existing server-bound software licenses*(per-socket, per-core, per-VM software licenses)
+        * purchasing options: *On-demand*, *Reserved (No Upfront, Partial Upfront, All Upfront)*
+        * characteristics:
+            * enables the use of dedicated physical servers
+            * per host billing
+            * visibility of sockets, cores, host ID
+            * affinity between a host and instance
+            * targeted or automatic instance placement
+            * add capacity using an allocation request
+    * **Dedicated Instances** - no other customers will share your hardware
+        * runs on **hardware* that is dedicated to you, but may share it with other instances you control
+        * you have no control over instance placement
+        * per instance billing (subject to 2$ per region fee)
+    * **Capacity Reservations** - reserve capacity in a specific AZ for any duration
+        * reserve On-Demand instances capacity in an AZ for any duration
+        * always have access to that capacity
+        * pay hourly rates even if you dont use it
+        * *not time commitment* and *no billing discounts*
+        * sutiable for *short-term uninterrupted workloads* that need to be in a specific AZ
 
 
 ## EC2 - Spot Instances & Spot Fleets
+* **Spot Instances** - short workloads, can lose instances (less reliable)
+    * up to 90% disount compared to on-demand
+    * can lose at any point of time if your `max spot price` is less then `current spot price`
+        * in this scenario can choose to stop or terminate instance with a 2 minutes grace period
+    * *most cost-efficient* instances
+    * useful for workloads that are *resilient to failure* like:
+        * *batch jobs*
+        * *data analysis*
+        * *image processing*
+        * *distributed workkloads*
+        * *workloads with flexible start and end time*
+    * *not suitable* for critical jobs or databases
+    * a **spot request** consists of:
+        * max price
+        * desired number of instances
+        * launch specification
+        * request type -> one-time | persistent
+        * valid from
+        * valid until
+* **Spot Fleets** - set of Spot Instance + optional On-Demand Instances
+    * will try to meet the target capacity with price constraints
+    * define possible launch pools: `instance type`, `OS`, `AZ`
+    * can have multiple launch pools (flee can choose)
+    * stop launching instances when cap reached or max cost
+    * strategies to allocate Spot Instances:
+        * `lowerPrice`: from the pool with lowest price (cost optimization, short workload)
+        * `diversified`: distributed across all pools (good for availability, long workloads)
+        * `capacityOptimized`: pool with optimal capacity for the number of instances
+    * benefit: Allows us to automatically request Spot Instances with the lowest price
 
 
 ## Burstable Instances
 
 
 ## Elastic IPs
+* `Elastic IP` -> allows setting a fixed public IPv4 IP to an EC2 instance
+    * wont change as long as you dont delete it
+    * can attach to one instance at a time
+    * allows masking the failure of an instance by rapidly remapping the address
+    * can only have 5 Elastic IP in your account (can ask AWS to increase)
+    * avoid using Elastic IP:
+        * often reflect poor architectural decisions
+        * instead -> use random public IP and register a DNS name to it
+        * can also use load balancer and not use public IP at all
 
 
 ## Cloudwatch Metrics for EC2
 
 
 ## CloudWatch - Unified CloudWatch Agent
+* need to run on EC2 or on-premises to push log files to CloudWatch
+* EC2 must have IAM permission to do this
+* comes in two flavors:
+    * **CloudWatch Logs Agent**
+        * old version
+        * only sends to CloudWatch Logs
+    * **CloudWatch Unified Agent**
+        * new version
+        * collect additional system-level metrics (RAM, processes, etc..)
+            * `CPU` - active / guest / idle / system / user / steal
+            * `Disk metrics` - free / used / total, Disk IO -> writes / reades / bytes / iops
+            * `RAM` - free / inactive / used / total / cached
+            * `Netstat` - TCP, UDP connection count / net packets / bytes
+            * `Processes` -  total / dead / bloqued / idle / running / sleep
+            * `Swap Space` - free / used / used %
+        * collect logs and send to CloudWatch logs
+        * centralized configuration using SSM Parameter Store
+    * out-of-the box metrics for EC2 -> disk, CPU, network (high level)
 
 
 ## EC2 - Instance Status Checks
 
 
 ## EC2 - Hibernate
+* operations on instances:
+    * `stop` -> the data on disk (EBS) is kept intact in the next start
+    * `terminate` -> any EBS volumes (root) also set-up to be destroyed is lost
+    * `start` -> OS boots, EC2 User Data script is run, app starts, caches get warmed up -> can take time
+* **EC2 Hibernate** - the in-memory (RAM) state is preserved
+    * instance boot is much faster
+    * under the hood -> RAM state is written to a file in the root EBS volume
+    * root EBS volume must be encrypted, not instance store and large
+    * use cases: long running processing, saving the RAM state, services that take time to initialize
+    * *supported instance families*: C3, C4, C5, I3, M3, M4, R3, R4, T2, T3
+    * instance RAM size must be less than 150 GB
+    * not supported for bare metal instances
+    * **supported AMI**: Amazon Linux 2, Linux AMI, Ubuntu, RHEL, CentOS, Windows
+    * available in `On-Demand`, `Reserved`, `Spot` instances
+    * instance cannot be hibernated for more than `60 days`
 
 
 &nbsp;
 # AMI - Amazon Machine Image
-
+* **AMI** - **Amazon Machine Image** - *customization* of an EC2 instance:
+    * add own software. configuration, OS, monitoring
+    * faster boot thx to pre-packaged software
+* region specific and can be copied across regions
+* you can launch EC2 instances from:
+    * *A public AMI* - provided by AWS
+    * *Your own AMI* - you make and maintain them
+    * *AWS Marketplace AMI* - an AMI someone else made and potentially sells
+* you can:
+    * build an AMI from an existing EC2 instance(which creates EBS snapshot)
+* **Instantiating Applications Quickly**
+    * **Golden AMI** - an AMI that serves as a bootstrap for all EC2 instances you use within a logical group(like for ECS Cluster, or ASG), contain all applications, OS dependencies etc
+    * **Bootstrap using User Data** - good for dynamic configurations like database URL
+    * **Hybrid** - mix Golden AMI and User Data to setup a fleet of EC2 instances quickly and reliably
 
 ## AMI - No Reboot Option
 
@@ -253,29 +442,159 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 
 
 ## EC2 - Image Builder
+* **EC2 Image Builder** - automate creation of VM or container images
+    * a regional service
+    * free service, only pay for underlying resources(EC2 instances, storage of AMI)
+    * automate the creation/maintenance/validation/testing of EC2 AMIs
+    * steps:
+        * creates a *Builder EC2 Instance* - build components applied like custom software
+        * creates a new AMI from the Builder EC2 instance
+        * creates a *Test EC2 Instance* from the AMI - runs test suite to check if its working/secure/app running
+        * distributes the AMI - allows distribution to multiple regions
+    * can run on a schedule like weekly/triggers(package updates)/manually
+    * *Recipe* - how source image is customized
+    * *Infrastructure Configuration* - ec2 instance type and configs(like IAM)
+    * *Distribution Settings* - what regions the AMI will be distributed to
 
 
 ## AMI in Production
 
 
+
 &nbsp;
 # Managing EC2 at Scale
 
-## Systems Manager
+## Systems Manager (SSM)
+* **AWS Systems Manager (SSM)** - helps manage EC2 and On-Premises systems at scale
+    * *Hybrid Service* - allows managing both AWS and On-Premises resources
+    * get operational insights about the state of your infrastructure
+    * suite of 10+ products:
+        * patching automation for enhanced compliance
+        * run commands across an entire fleet of servers
+        * store parameter configuration with the SSM Parameter Store
+    * works with Windows and Linux OS
 * **Start EC2 Instances with SSM** - 
+
+
+### SSM - Resource Groups
 * **AWS Tags** - 
-* **SSM Resource Groups** - 
-* **SSM Documents** -
-* **SSM Run Command** -
-* **SSM Automations** - 
-* **SSM Inventory** - 
+* **SSM - Resource Groups** - 
+
+
+### SSM - Documents
+* **SSM - Documents** -
+
+
+### SSM - Run Command
+* **SSM - Run Command** - execute document (script) or just run a command
+    * run command across multiple instances (using resource groups)
+    * no need for SSH
+    * Command Output can be:
+        * shown in the AWS Console
+        * sent to S3 Bucket
+        * sent to CloudWatch Logs
+    * send notifications to SNS about command status (In progress, Success, Failed)
+    * intergrated with IAM & CloudTrail
+    * can be invoked by EventBridge
+
+### SSM - Automations
+* **SSM - Automations** - simplifies common maintenance and deployment tasks of EC2 isntances and other AWS resources
+    * examples: restart instances, create an AMI, EBS snapshot
+    * `Automation Runbook` - SSM Documents to define actions performed on your EC2 isntances or AWS resources (pre-defined or custom)
+    * can be triggered using:
+        * manually using AWS Console, AWS CLI or SDK
+        * Amazon EventBridge
+        * on a schedule using maintenance windows
+        * by AWS Config for rules remediations
+
+### SSM - Inventory
+* **SSM - Inventory** - 
 * **State Manager** - 
-* **SSM Patch Manager**
-    * **Maintenance Windows** - 
-* **SSM Session Manager** - 
 
 
-## SSM Parameter Store
+### SSM - Patch Manager
+* **SSM - Patch Manager** - automates process of patching managed instances
+    * OS updates, applications updates, security updates
+    * supports EC2 instances and on-premises servers
+    * supports Linux, macOS, Windows
+    * patch on-demand or on a schedule using `Maintenance Windows`
+    * scan instances and generate patch compliance reports
+    * **Maintenance Windows**
+        * defines a schedule for when to perform actions on your isntances
+        * example: OS Patch, updating drivers, installing software
+        * mainten window contains:
+            * schedule
+            * duration
+            * set of registered instances
+            * set of registered tasks
+
+
+### SSM - Session Manager
+* **SSM - Session Manager** - 
+
+
+
+### SSM - Parameter Store
+* **SSM - Parameter Store** - secure storage for configuration and secrets
+    * optional seamless `encryption` using `KMS`
+    * serverless, scalable, durable
+    * easy SDK
+    * `version tracking` of configurations / secrets
+    * security through `IAM`
+    * notifications with `Amazon EventBridge`
+    * integration with `CloudFormation`
+    * enables hierarchical organization of keys:
+        * `/finance/`
+            * `app/`
+                * `dev/`
+                    * `db-url`
+                    * `db-password`
+                * `prod/`
+                    * `db-url`
+                    * `db-password`
+    * can access secrets in `Secrets Manager` through `/aws/reference/secretsmanager/secret_ID_in_Secrets_Manager`
+    * public parameters included by aws like `/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2`
+* **Tiers**
+    * `Standard`: 
+        * 10000 params allowed per account & region
+        * max 4 KB parameter size
+        * no parameter policies available
+        * no additional charge
+        * free storage
+    * `Advanced`:
+        * 100000 params allowed per account & region
+        * max 8 KB parameter size
+        * parameter policies available
+        * charges apply
+        * 0.05 $ per advanced parameter per month
+* **Parameter Policies**
+    * allow assigning a TTL to a parameter
+    * allows forcing updating or deleting sensitive data such as passwords
+    * can assign multiple policies at a time
+
+Expiration Parameter Policy example:
+```json
+{
+    "Type": "Expiration",
+    "Version": "1.0",
+    "Attributes": {
+        "Timestamp": "2020-12-02T21:34:33.000Z"
+    }
+}
+```
+
+Expiration Notification:
+```json
+{
+    "Type": "ExpirationNotification",
+    "Version": "1.0",
+    "Attributes": {
+        "Before": "15",
+        "Unit": "Days"
+    }
+        
+}
+```
 
 
 ## AWS OpsWorks
@@ -301,6 +620,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * *Scalibility* - ability to accommodate a larger load by making the hardware stronger, or by adding nodes
     * *Elasticity* - the system can automatically scale based on the load it is receiving 
     * *Agility* - how easily available new IT resources are ( 1 week, 1 minute, etc.)
+
 
 ## ELB
 * **Load Balances** - servers that forward traffic to multiple servers downstream. Used to:
@@ -559,6 +879,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 ## Auto Scaling
 
 
+
 &nbsp;
 # Elastic Beanstalk
 * **AWS Elastic Beanstalk** - a managed orchestration service for deploying applications allong with many AWS services and features
@@ -800,7 +1121,7 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * need admin account to create StackSets
     * trusted account to create / update / delete StackSets
     * updating one stack updates all stacks in set throughout all regions and account
-* **CloudFormation Drift** - tool for managing manual configuration changes to created resources which cause `drift`
+* **CloudFormation Drift** - tool for managing manual configuration changes to created resources which cause `Drift` status
     * Action -> Detect Drift -> checks resources for changes that dont adhere to YAML configuration
 * **CloudFormation Stack Policies** - a JSON document that defines the update actions allowed on specific resources during stack updates
     * by default update actions are allowed on all resources
@@ -896,6 +1217,7 @@ Mappings:
             Name: Value03
 ```
 
+
 ## CloudFormation Outputs
 * declare optional output values that, if exported, can be impoted by other stacks
 * outputs are available in AWS Console and through AWS CLI
@@ -926,6 +1248,7 @@ Resources:
                 - !ImportValue SSHSecurityGroup
 ```
 
+
 ## CloudFormation Conditions
 * conditions control creation of resources or output based on a condition
 * can be whatever you want but common ones are:
@@ -946,6 +1269,7 @@ Resources:
         Type: "AWS::EC2::VolumeAttachement"
         Condition: CreateProdResources
 ```
+
 
 ## CloudFormation Intrinsic Functions
 * available functions with a CF template:
@@ -1028,7 +1352,111 @@ Resources:
 
 
 ## Lambda
+* **AWS Lambda** - computing service that runs code in response to events and automatically provisions infrastructure required by that code
+    * virtual functions
+    * no servers to manage
+    * short executions -> limited by time
+    * run on demand
+    * scaling is automated
+    * benefits:
+        * pay per request and compute time
+        * very generous free-tier
+        * integrated with whole suite of AWS services
+        * integrated with many programming languages
+        * easy monitoring through CloudWatch
+        * easy to get more resources per function (up to 10GB of RAM)
+        * increasing RAM improves CPU and network
+    * compatible languages:
+        * `Node.js`
+        * `Python`
+        * `Java`
+        * `C# (.NET Core)`
+        * `C# / Powershell`
+        * `Golang`
+        * `Ruby`
+        * `Custom Runtime API` - community supported, like Rust
+        * `Lambda Container Image` - must implement the Lambda Runtime API, ECS / Fargate preffered for running arbitrary Docker images
+    * integrated services:
+        * `API Gateway` - to create REST API that invokes Lambda functions
+        * `Kinesis` - data transformations on the fly
+        * `DynamoDB` - create triggers that invoke Lambda functions on specific database operations
+        * `S3` - trigger Lambda functions on specific bucket operations
+        * `CloudFront` - Lmabda at edge computing
+        * `CloudWatch Events` - react to infrastructure specific events
+        * `CloudWatch Logs` - streaming logs
+        * `SNS` - react to notifications in SNS
+        * `SQS` - process messages from SQS
+        * `Cognito` - react to AWS user actions
+    * pricing:
+        * per calls: 1kk requests free, then $0.20 per 1kk requests
+        * per duration: 400k GB/sec of compute time free, then $1.00 for 600k GB/sec in 1 ms increments
+    * you can test your lambda withing the AWS console
+    * lambda settings:
+        * `Code` - contains the code that is run, allows making changes and deploying them
+            * information on the runtime
+            * the **Lambda Handler** which is the function within the code that is invoked when the lambda is run
+                * **Event Object** - an JSON-formatted document passed to the lambda handler function that contains data for the function to process
+                    * information on invoking service
+                    * based on the used runtime it is converted to an object
+                    * example: input arguments, invoking service arguments
+                * **Context Object** - a JSON-formatted document containing method / properties that provide information about the invocation / function / runtime environment
+                    * passed to function at runtime
+                    * example: `aws_request_id`, `function_name`, `memoty_limit_in_mb`
+        * `Test` - allows running the lambda with a preset input and presents output and metrics(runtime, memory used)
+        * `Monitor` - aggregated metrics presented on graphs, logs per invocation(stored in CloudWatch Logs), errors with stacktrace
+            * to make this possible make sure the assigned IAM Role has:
+                * `Allow: logs:CreateLogGroup`
+                * `Allow: logs:CreateLogStream`
+                * `Allow: logs:PutLogEvents`
+        * `Configuration` - allows setting max memory(CPU scales with memory), timeout(max 15min),  execution role(IAM role that defines function permissions)
+* **Synchronous Invocation** - direct invocation where you wait for the result
+    * services that use synchronous invocation:
+        * user invoked:
+            * ELB (Application Load Balancer)
+            * API Gateway
+            * Cloudfront
+            * Amazon S3 Batch
+            * CLI
+        * services invoked:
+            * Cognito
+            * Step Functions
+            * Amazon Lex
+            * Amazon Alexa
+            * Amazon Kinsesis Data Firehose
+            * SDK
+    * error handling must be done on client side (retries, exponential backoff, etc...)
+* **Asynchronous Invocations** - invocation based on events placed in an `Event Queue`
+    * services that use asynchronous invocation:
+        * S3
+        * SNS
+        * CloudWatch Events / EventBridge
+        * CodeCommit
+        * CodePipeline
+        * CloudWatch Logs (log processing)
+        * Amazon Simple Email Service
+        * AWS CloudFormation
+        * AWS Config
+        * AWS IoT
+        * AWS IoT Events
+    * Lambda retries 2 times on error
+        * 1 minute wait after 1st fail
+        * 2 minutes wait after 2nd fail
+    * Lambda function should be idempotent(in case of retries) - in case of retries the result is the same
+    * retries result in duplicate logs entries in CloudWatch Logs
+    * Can define a DLQ (dead-letter queue) - SNS or SQS - for failed processing
+        * this requires IAM permissions
+    * allows to speed up processing but running multiple lambdas in parallel
 
+``` bash
+# list lambda functions
+aws lambda list-functions
+
+# synchronous invocation
+aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out --payload '("some": "example payload)' --region eu-west-2 response.json
+
+# asynchronous invocation
+aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out --payload '("some": "example payload)' --invocation-type Event --region eu-west-2 response.json
+```
 
 ## Lambda - EventsBridge
 
@@ -1037,47 +1465,252 @@ Resources:
 
 
 ## Lambda - IAM Roles & Resource Policies
-
+* Lambda Execution Role: **IAM roles**:
+    * grants Lambda permission to invoke other services
+    * `AWSLambdaBasicExecutionRole` - upload logs to CloudWatch
+    * `AWSLambdaKinesisExecutionRole` - Read from Kinesis
+    * `AWSLambdaDynamoDBExecutionRole` - Read from DynamoDB Streams
+    * `AWSLambdaSQSQueueExecutionRole` - Read from SQS
+    * `AWSLambdaVPCAccessExecutionRole` - deploy lambda funciton in VPC
+    * `AWSXRayDaemonWriteAccess` - upload trace data to X-Ray
+    * using `event source mapping` to invoke Lambda functions, the execution role is used to read event data
+    * **best practice**: create one Lambda Execution Role per function
+* Lambda **Resource Based Policies**
+    * give account and services permission to use your Lambda
+    * an IAM principal can access Lambda:
+        * if policy attached to principal authorizes it(user access)
+        * if resource-based policy authorizes it(service access)
+    * when AWS Service like Amazon S3 calls your Lambda function, the resource based policy gives it access
 
 ## Lambda - X-Ray Tracing
+* all Lambda execution logs are stored in CloudWatch Logs if authorized by IAM policy in execution role
+* **CloudWatch Metrics**:
+    * Lambda metrics displayed in AWS CloudWatch Metrics
+    * metrics include: `Invocations`, `Durations`, `Concurrent Executions`, `Error count`, `Success Rates`, `Throttles`, `Async Delivery Failures`, `Iterator Age (Streams)`(lag time for stream reading)
+* **X-Ray**
+    * enable *Active Tracing* in Lambda Function
+    * runs X-Ray daemon for you
+    * use AWS X-Ray SDK in Code
+    * ensure Lambda Function has appropriate IAM Execution Role - `AWSXRayDaemonWriteAccess`
+    * if needed set environment variables to communicate with X-Ray:
+        * `_X_AMZN_TRACE_ID` - contains the tracing header
+        * `AWS_XRAY_CONTEXT_MISSING` - by default, LOG_ERROR
+        * `AWS_XRAY_DAEMON_ADDRESS` - the X-Ray Daemon IP_ADDRESS:PORT
 
 
 ## Lambda - Function Performance
+* **RAM**:
+    * from 128MB to 10GB in 1MB increments
+    * vCPU cannot be set separately, it scales with RAM
+    * at 1792 MB a function has the equivalent of one full VCPU
+    * after 1792 MB, you get more than one CPU and need to use multi-threading to benefit from it
+* **CPU**:
+    * if app is computation heavy(CPU-bound) must increase RAM
+* **Timeout**: by default 3 sec, with maximum of 900 sec(15minutes)
+    * its good to get this right to make sure you can retry and analyze error without using unnecessary compute power
+* **Lambda Execution Context**:
+    * temporary runtime env that initializes any external dependencies of your lambda code
+    * good for database connections, HTTP clients, SDK clients...
+    * is maintained in anticipation of another Lambda function invocation
+    * next function invocations can "re-use" an execution context improving performance
+    * execution context includes `/tmp` directory which is a space where you can write files accessible throughout executions
+    * **Best practice** - anything that takes time to initialize should be put *outside of the function handler*
+* **/tmp**
+    * if lambda function requires big files to work store here
+    * if disk space is required use `/tmp`
+    * max size is 512 MB
+    * directory content remains when execution context is frozen, providing transient cache
+    * for persistent storage use for example S3
 
+```python
+import os
+
+# this establishes the db connection once and reuses it accross invocations!!
+DB_URL = os.getenv("DB_URL")
+db_client = db.connect("DB_URL")
+
+def get_user_handler(event, context):
+    user = db_client.get(user_id = event["user_id"])
+    return user
+
+```
 
 ## Lambda - Concurrency
+* Concurrency limit by default 1000 for a region
+    * to get a higher limit you need to create a Support Ticket requesting it
+* **reserved concurrency** at function level is a limit for concurrent executions
+    * each invocation over the limit wil trigger a `Throttle`
+    * Throttle behavior:
+        * sync invocation -> return `ThrottleError` - `429`
+        * async invocation -> retry automatically and then go to DLQ
+* concurrency issues(if not reserved)
+    * sync: all executions reserved for one invoker, other invokers will get throttled
+    * async: 
+        * for throttling errors(429) and system errors(5**) lambda returns event to queue and attempts to run for up to 6h
+        * retry interval increases exponentially from 1s to up to 5min
+* **Cold Starts** - new instance, run for the first time
+    * code needs to be loaded and code outside the handler run(init)
+    * if init is large(deps, SDK, code) process can take some time
+    * first request served by new instances has higher latency then the rest
+* **Provisioned Concurrency**
+    * concurrency is allocated in advance
+    * cold start never happens and all invocations have low latency
+    * Application Auto Scaling can manage concurrency (schedule or target utilization)
+* Note: cold starts in VPC have been dramatically reduced in Oct & Nov 2019
 
 
 ## Lambda - Monitoring Extras
 
 
 
+
 &nbsp;
 # EC2 Storage and Data Management
-* `EFS` - 
-* `EBS` - 
+* **EBS** vs **EFS**
+    * **EBS**: 
+        * one instance (except io1/io2 multi-attach)
+        * locked at AZ level
+        * `gp2`: IOPS increases with disk size
+        * `io1`: provisioned IOPS
+        * to migrate across AZ take a snapshot and restore in other AZ
+        * backups use IPS, shouldnt run while application handling high traffic
+        * root EBS volume for EC2 instance terminated by defualt (can disable)
+    * **EFS**:
+        * network filesystem that can be attached to 100s of EC2 instances
+        * not bound to AZ level
+        * share files
+        * only for Linux instances (POSIX)
+        * higher price
+        * can leverage EFS-IA for cost savings
+
 
 ## EC2 - Instance Store
-
+* **EC2 Instance Store** - high-performance ephemeral storage connected directly to the EC2 hardware
+    * better IOPS performance than network drives
+    * losses storage on instance termination(ephemeral)
+    * good for buffer/cache/scratch data/temporary content
+    * risk of data loss if hardware fails -> Backup and Replication is your responsiblity
 
 
 ## EBS
+* **EBS** - **Elastic Block Store** - a network drive you can attach to an instance while they run
+    * persist data even when instance is terminated
+    * can only mount to 1 instance at a time (CCP level, CCA level "multi-attach" feature for some possible)
+    * bound to AZ
+        * to move across AZ first need to *snapshot* a volume
+    * think of them as *network USB stick*
+    * is a *network drive*:
+        * can cause latency
+        * easily attached and detached
+    * capacity(GB, IOPS) needs to be provisioned in advance
+* **parameters**
+    * *Delete on Termination* - deletes the EBS volume on EC2 instance termination
+        * by default `on` for root volumes
+        * by default `off` for non-root volumes
+        * use case: disable for root volume to preserve on ec2 termination
+* **EBS Snapshot** - a backup of an EBS volume at any point of time
+    * not necessary to detach volume (but recommended)
+    * can copy across AZ or Region
+    * Features:
+        * *EBS Snapshot Archive* - allows moving to an "archive tier" that is 75% cheaper, takes 24-72h to restore
+        * *Recycle Bin for EBS Snapshots* - rules to retain deleted snapshots, specify retention 1d-1y, find deleted snapshots
+        * *FSR* - Fast Snapshot Restore - force full initialization of snapshot for low latency on first use, cost extra, useful with very big snapshots if you need them available fast
 
 
 ### EBS - Volume Types
+* **Volume Types**
+    * *gp2 / gp3 (SSD)* - general purpose SSD, balances price and performance for wide variaty of workloads
+        * cost effective, low latency
+        * **use cases**: system boot, virtual desktops, development/test envs
+        * 1 GiB - 16 TiB
+        * **gp3**: 
+            * baseline of 3000 IOPS and throughput of 125 MiB/s
+            * can increase IOPS to 16000 and throughput to 1000 MiB/s independently
+        * **gp2**:
+            * small volumes can burst to 3000 IOPS
+            * size of volume and IOPS linked, 3 IOPS per GB, max of 16000 IOPS at 5334 GB
+    * *io1 / io2 (SSD)* - highest-performance SSD, mission-critical low-latency or high-throughput workloads
+        * highest performance, throughput and lowest latency
+        * **PIOPS** - provisioned IOPS SSD
+        * **use cases**: critical business applications, apps that need more than 16000 IOPS, database workloads
+        * 4 GiB - 16 TiB
+        * Max PIOPS -> 64000 for Nitro EC2 Instances, 32000 for other
+        * can increase PIOPS independently of storage size
+        * io2 -> more durability, more IOPS per GiB at same price as io1
+        * **io2 Block Express** - 4 GiB - 64 Gib, sub-ms latency, max PIOPS: 256000, IOPS:GIB ratio of 1000:1
+        * supports EBS Multi-Attch
+    * *st 1 (HDD)* - lowest costs HDD, designed for frequently accessed, throughput-intensive workloads
+        * 125 GiB to 16 TiB
+        * throughput optimized HDD: max throughput -> 500 MiB / s, max IOPS 500
+    * *sc1 (HDD)* - lowest cost HDD volume designed for less frequently accessed workloads
+        * Cold HDD
+        * scenario for lowest cost
+        * max throughput 250 MiB/s, max IOPS 250
+    * **EBS Volumes** are characterized in Size / Throughput / IOPS
+    * only *gp2/gp3* and *io1/io2* can be used as boot volumes
 
 
 ### EBS - Multi Attach
+* **EBS Multi-Attach** -  attach same EBS volume to multiple EC2 instances in the same AZ
+    * only compatible with io1/io2 volume types
+    * each instance has read & write permissions
+    * **use case** : 
+        * higher application availability in clustered Linux applications (ex: Teradata)
+        * applications must manage concurrent write operations
+    * **limitations**: same AZ, max of 16 EC2 Instances, must use cluster-aware file system(not XFS, EX4, etc...)
 
 
 ### EBS - Operations
 * **Volume Resizing** - 
 * **Sanpshots** - 
 * **Volume Migration** - 
-* **Volume Encryption** - 
+* **Volume Encryption** - encrypting an EBS give the following:
+    * data at rest is encrypted
+    * data in flight moving between instance and volume is encrypted
+    * all snapshots are encrypted
+    * volumes created from snapshot are encrypted
+    * encryption - decryption is handled transparently (no extra work needed by you)
+    * minimal impact on latency
+    * leverages keys from KMS (AES-256)
+    * copying an unencrypted snapshot allows encryption
+    * can only encrypt during creation
+    * `process`:
+        1. 
 
 
 ## EFS
+* **EFS** - **Elastic File System** - is a *managed NFS*(network file system) that can be mounted on many EC2(EFS mount targets)
+    * an EFS can work in multi-AZ (regional, for durability and availability)
+    * highly available, scalable, expensive, pay per use
+    * uses *NFSv4.1 protocol*
+    * access controlled by *security group*
+    * only compatible with Linux based AMI
+    * encryption at rest using KMS
+    * *POSIX* file system with a standard API
+    * scales automatically (no capacity planning!)
+* use cases:
+    * content management
+    * web serving
+    * data sharing
+    * wordpress
+* performance and storage classes:
+    * **Scale** - 1000s of concurrent NFS clients, 10 GB+ throughput, grow to Petabyte-scale NFS automatically
+    * **Performance mode** - set at EFS creation time:
+        * *General purpose* (default) - latency-sensitive use cases (web server, CMS, etc...)
+        * *Max I/O* - higher latency, throughput, highly parallel (big data, media processing)
+    * **Throughput mode** set at EFS creation time:
+        * *Bursting* - 1 TB = 50MiB/s + burst of up to 100MiB/s, the more space you use the more throughput
+        * *Provisioned* -  set throughput regardless of storage size
+* storage classes:
+    * **Storage Tiers** - lifecycle management features, can set to rules to transition between IA and out of it
+        * *Standard* - for frequently accessed files
+        * *Infrequent access* (EFS-IA) - cost to retrieve files, lower price to store 
+            * enable with a Lifecycle policy, which moves from standard automatically based on last access time 
+            * optimal for non-frequent access(up to 92% lower costs compared to standard)
+    * **Availability and Durability**
+        * *Regional* - multi-AZ, great for prod
+        * *One Zone* - one AZ, cheaper, compatible with IA (EFS One Zone-IA), backup enabled by default, good for dev
+* network access: setup groups of: `AZ` -> `Subnet ID` -> `IP address` -> `SG`
 
 
 ### EFS - Access Points
@@ -1089,24 +1722,130 @@ Resources:
 ### EFS - CloudWatch Metrics
 
 
+
+
 &nbsp;
 # S3
+* **S3** - **Simple Cloud Storage** - infinitely scaling storage
+* one of the main building blocks of AWS
+* use cases: backup/storage/disaster recovery/archive/hybrid cloud storage/application hosting/media hosting/data lakes/big data analytics/software delivery/static websites
+* buckets names are unique accross all AWS
+* **Buckets** - directories containing objects
+* **Objects** - files within buckets
+    * each one has a **key** which is the full path composed of *prefix* + *object name*. Example: 
+        * `s3://my-bucket/some_key.txt` -> some_key.txt
+        * `s3://my-bucket/some_folder/some_key.txt` -> some_folder/some_key.txt
+    * no directories, but objects can behave as directories
+    * **value** is the content of the body
+    * **type** is the objects mime type
+    * max size 5TB
+    * if uploading more than 5GB, must use `multi-part upload`
+    * **metadata** - list of text key/value pairs, system/user metadata
+    * **tags** - up to 10 unicode key/value pair, good for security/lifecycle
+    * **version id** - if versioning enabled
+    * a public url gives access to the S3 object, a pre-signed public url contains auth information on the user which is trying to view the object
+* buckets defined at region level
+* naming convention: no uppercase, no underscore, 3-62 chars, not an ip, starts with lowercase letter/number, no prefix xn--, no suffix -s3alias
 
 
-## S3 - Bucket Policy
+## S3 - Security
+* **User-Based** - IAM Policies
+    * an IAM principal can access S3 object if:
+        * user IAM perm ALLOW it OR resource policy ALLOWS it
+        * AND there's no explicit DENY
+    * IAM policies take precedence over S3 bucket policies
+* **Resource Based**
+    * **Bucket Policies** - bucket wide rules from the S3 console - allows cross account access
+        * used for:
+            * grant public access
+            * force object encryption on upload
+            * grant cross account access
+        * JSON document
+            * Resource -> buckets and objects
+            * Action -> allow or deny
+            * Actions -> set of api to allow or deny
+            * Principal -> the account or user to apply the policy to
+    * **Object Access Control List (ACL)** - finer grain (can be disabled)
+    * **Bucket Access Control List (ACL)** - less common (can be disabled)
+* **Encryption** - encrypt object using encryption keys. Different types of encryption available:
+    * **Server Side Encryption** - the server storing the object encrypts it after receiving it (encryption at rest)
+    * **Client Side Encryption** - file is encrypted before it is uploaded ( encryption in flight)
+* new buckets are configured by default to block all public access even if you allow it through a bucket policy - disable this in settings
 
 
 ## S3 - Website
+* **Static Webstie Hosting** - S3 can host static websites
+    * url examples:
+        * http://bucket-name.s3-website-aws-region.amazonaws.com
+        * http://bucket-name.s3-website.aws-region.amazonaws.com
+    * enable this in S3 settings
+    * bucket must be made public
 
 
 ## S3 - Versioning
+* **Versioning** - makes uploading objects with existing key create a new version without deleting the old version
+    * enabled at bucket level
+    * a good practice, easy to restore on delete, easy roll-back
+    * any file not versioned prior to enabling versioning has version `null`
+    * suspending versioning does not delete previous versions
+    * deleting a file does a soft delete by applying a `delete marker` to it, deleting a `delete marker` file type will permanently delete it
 
 
 ## S3 - Replication
+* **Replication** - allows replicating objects across buckets in the same or cross region
+    * must enable versioning on both source and destination buckets
+    * replication types:
+        * *Cross-Region Replication (CRR)* - compliance, lower latency access, replication across account
+        * *Same-Region Replication (SRR)* - log aggregation, live replication between prod and test accounts
+    * buckets can be in different AWS account
+    * copying is asynchronous
+    * requires proper IAM permissions on S3
+    * only new objects are replicated
+    * to replicate existing objects you must use S3 Batch Replication
+    * DELETE operations
+        * can replicate delete markers (optional)
+        * deletions with a version ID are not replicated
+    * no replication chaining -> bucket 1 replicates to bucket 2 and bucket 2 to bucket 3, then bucket 1 IS NOT replicated to bucket 3
 
 
 ## S3 - Storage Classes
-
+* **Durability** - how often objects can be lost
+    * S3 is highly durable - 99.999999999% across multiple AZs
+    * example: store 10,000,000, incur loss of 1 object once every 10000 years
+    * `same` for all storage classes
+* **Availability** - how readily available a service is
+    * S3 standard is 99.99% available, which means its not available 53 minutes a year
+    * `varies` depending on storage class
+* object storage classes can be changed: 
+    * manually or through *S3 Lifecycle configurations*
+* **Amazon S3 Standard**
+    * **General Purpose** - 99.99% availability, frequently accessed data, low latency, high throughput, sustains 2 concurrent facility failures
+        * use cases: big data analytics, mobile & gaming applications, content distribution
+    * **Infrequent Access (IA)** - less frequent acces, but requires rapid access when needed
+        * lower cost than standard
+        * 99.9% Availability
+        * use cases: disaster recovery, backups
+    * **One Zone-Infrequent Access** - high durability within a single AZ, data lost if AZ destroyed
+        * 99.5% Availability
+        * use cases: secondary backup copies of on-premise data, or data you can recreate
+* **Amazon S3 Glacier** - low-cost object storage meant for archiving / backup, price for storage + object retrieval
+    * **Instant Retrieval** - ms retreival, great for data accessed once a quarter, minimum 90 day storage duration
+    * **Flexible Retrieval** - minimum storage duration is 90 days. 3 flexibility options:
+        * Expedited -> retrieval in 1 to 5 min
+        * Standard -> retrieval in 3 to 5 h
+        * Bulk -> retrieval in 5 to 12 h, is free
+    * **Deep Archive** - min storage duration 180 days. 2 flexibility options:
+        * Standard -> retrieval in 12 h
+        * Bulk -> retrieval in 48 h
+* **Amazon S3 Intelligent Tiering** - move objects automatically between access tiers based on usage
+    * costs a small fee
+    * no retrieval charges
+    * tiers:
+        * *Frequent Access tier* - default tier, enabled automatically
+        * *Infrequent Access tier* - objects not accessed for 30 days, enabled automatically
+        * *Archive Instant Access tier* - objects not accessed for 90 days, enabled automatically
+        * *Archive Access tier* - objects not accessed for a configurable amount of 90 to 700+ days, enabled optionally
+        * *Deep Archive Access tier* - objects not accessed for a configurable amount of 180 to 700+ days, enabled optionally
 
 ## S3 - Lifecycle Rules
 
