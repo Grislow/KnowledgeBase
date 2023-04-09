@@ -2329,6 +2329,7 @@ Comparison of AWS Storage Options:
     * launch AWS services on your devices
 * **Snowball into Glacier** - must use S3 first, in combination with a S3 lifecycle policy to transition into Glacier
 
+
 ## Amazon FSx
 * 3rd-party high performance file systems on AWS
 * fully managed services
