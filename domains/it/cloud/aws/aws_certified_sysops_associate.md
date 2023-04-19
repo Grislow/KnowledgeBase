@@ -122,7 +122,6 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 * [CloudFront](#cloudfront)
     * [CloudFront - TroubleShooting](#cloudfront---troubleshooting)
     * [CloudFront - Caching](#cloudfront---caching)
-    * [CloudFront - ALB Sticky Sessions](#cloudfront---alb-sticky-sessions)
 * [Databases for SysOps](#databases-for-sysops)
     * [RDS](#rds)
         * [RDS - Multi-AZ vs Read Replicas](#rds---multi-az-vs-read-replicas)
@@ -189,7 +188,6 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [ACM](#acm)
     * [Secrets Manager](#secrets-manager)
         * [Secrets Manager - Monitoring & Troubleshooting](#secrets-manager---monitoring-&-troubleshooting)
-        * [Secrets Manager vs SSM](#secrets-manager-vs-ssm)
 * [Identity](#identity)
     * [IAM Security Tools](#iam-security-tools)
     * [IAM Access Analyzer](#iam-access-analyzer)
@@ -198,7 +196,28 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [Cognito User Pools](#cognito-user-pools)
     * [Cognito Identity Pools](#cognito-identity-pools)
     * [IAM Identity Center](#iam-identity-center)
-
+* [Route 53](#route-53)
+    * [Route 53 - S3 Website](#route-53---s3-website)
+    * [Route 53 - Resolvers](#route-53---resolvers)
+* [Networking - VPC](#networking---vpc)
+    * [VPC](#vpc)
+    * [Subnet](#subnet)
+    * [Internet Gateways & Route Tables](#internet-gateways-&-route-tables)
+    * [Bastion Hosts](#bastion-hosts)
+    * [NAT Instances](#nat-instances)
+    * [NAT Gateways](#nat-gateways)
+    * [NACL & Security Groups](#nacl-&-security-groups)
+    * [VPC Peering](#vpc-peering)
+    * [VPC Endpoints](#vpc-endpoints)
+    * [VPC Flow Logs](#vpc-flow-logs)
+    * [Site-to-Site VPN and Gateways](#site-to-site-vpn-and-gateways)
+    * [Direct Connect](#direct-connect)
+    * [Transit Gateway](#transit-gateway)
+    * [VPC Traffic Monitoring](#vpc-traffic-monitoring)
+    * [IPv6 for VPC](#ipv6-for-vpc)
+    * [Egress Only Internet Gateway](#egress-only-internet-gateway)
+    * [Networking Costs](#networking-costs)
+    * [AWS Network Firewall](#aws-network-firewall)
 * [Other Services](#other-services)
 
 
@@ -2631,13 +2650,30 @@ filter @message like /Task time out/
         * `lsblk` -> lists information about all available or the specified block devices
         * `df -h`-> displays disk space used in file system in human readable format
         * `sudo growpart <partition> 1` -> repartitions an EBS volume
-* **Sanpshots** - make a backup (snapshot) of your EBS volume at a point in time
+* **Snapshots** - make a backup (snapshot) of your EBS volume at a point in time
     * not necessary to detach volume, but recommended
     * can copy cross AZ or Region
     * **Data Lifecycle Manager**
         * automate the creation / retention / deletion of EBS snapshots and EBS-backed AMIs
         * schedule backups / cross-account snapshot copies / delete outdated backups ...
-* **Volume Migration** - 
+        * use resource tags to identify resources
+        * cant be used to manage snapshots / AMIs created outside of Data Lifecycle Manager
+    * **Fast Snapshot Restore (FSR)**
+        * `FSR` - create volume from a snapshot that is fully initialized at creation (no IO latency)
+        * underneath EBS snapshots are stored in S3
+        * by default there is a latency IO operations the first time each block is accessed
+        * very expensive $$$
+        * enabled for snapshot in particular AZ (billed per minute)
+        * can be enabled with `Data Lifecycle Manager`
+        * **solution**:
+            * force initialization of entire volume with `dd` or `fio` command
+            * enable `FSR`
+    * **EBS Snapshot Archive** - move snapshot to archive tier, 75% cheaper, 24-72h restore
+    * **Recycle Bin** - rules to retain deleted snapshots, specify retention 1d-1y, find deleted snapshots
+* **Volume Migration** - EBS Volumes are locked to AZ. To migrate:
+    1. Snapshot the volume
+    1. (optional) copy the volume to a different region
+    1. create a volume form the snaphsot in the new AZ
 * **Volume Encryption** - encrypting an EBS give the following:
     * data at rest is encrypted
     * data in flight moving between instance and volume is encrypted
@@ -2648,8 +2684,6 @@ filter @message like /Task time out/
     * leverages keys from KMS (AES-256)
     * copying an unencrypted snapshot allows encryption
     * can only encrypt during creation
-    * `process`:
-        1. 
 
 
 ## EFS
@@ -2681,6 +2715,7 @@ filter @message like /Task time out/
         * *Infrequent access* (EFS-IA) - cost to retrieve files, lower price to store 
             * enable with a Lifecycle policy, which moves from standard automatically based on last access time 
             * optimal for non-frequent access(up to 92% lower costs compared to standard)
+        * **EFS Lifecycle Management** - rules to automatically transition data between tiers
     * **Availability and Durability**
         * *Regional* - multi-AZ, great for prod
         * *One Zone* - one AZ, cheaper, compatible with IA (EFS One Zone-IA), backup enabled by default, good for dev
@@ -2688,13 +2723,32 @@ filter @message like /Task time out/
 
 
 ### EFS - Access Points
+* **EFS Access Points** - feature that make it easy to manage applications access to NFS environment
+    * create Access Point will give arn -> next attach it to ec2 isntances
+    * features:
+        * restrict access to a dir within FS
+        * optionally specify different root dir
+    * security:
+        * enforce a POSIX user and group to use when accessing the FS
+        * restrict access from NFS clients using IAM policies
 
 
 ### EFS - Operations
+* **EFS - Operations**
+    * `Can be done in place`
+        * Lifecycle Policy -> enable IA / change IA settings
+        * Throughput Mode
+        * Provisioned Throughput Numbers
+        * EFS Access  Points
+    * `Require Migration using DataSync`
+        * migration to encrypted EFS
+        * Performance Mode (e.g. Max IO)
 
 
 ### EFS - CloudWatch Metrics
-
+* `PercentIOLimit` -> how close FS to IO limit (General Purpose). If at 100% -> migrate to Max IO
+* `BurstCreditBalance` -> number of burst credits FS can use to achieve higher throughput levels
+* `StorageBytes` -> file systems size in bytes. Updated at 15 minutes interval. Dimensions: Standard, IA, Total (Standard + IA)
 
 
 
@@ -2739,12 +2793,89 @@ filter @message like /Task time out/
             * Action -> allow or deny
             * Actions -> set of api to allow or deny
             * Principal -> the account or user to apply the policy to
+        * apply conditioins on:
+            * Public IP or Elastic IP (not on Private IP)
+            * Source VPC or Source VPC Endpoint (not gateway)
+            * CloudFront Origin Identity
+            * MFA
     * **Object Access Control List (ACL)** - finer grain (can be disabled)
     * **Bucket Access Control List (ACL)** - less common (can be disabled)
 * **Encryption** - encrypt object using encryption keys. Different types of encryption available:
     * **Server Side Encryption** - the server storing the object encrypts it after receiving it (encryption at rest)
     * **Client Side Encryption** - file is encrypted before it is uploaded ( encryption in flight)
 * new buckets are configured by default to block all public access even if you allow it through a bucket policy - disable this in settings
+
+Bucket Policy - restrict access to only principals from AWS account inside an AWS Organization:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action":: [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mybucket/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalOrgId": ["o-exampleorgid"]
+                }
+            }
+        }
+    ]
+}
+```
+
+Bucket Policy - prevent upload of unencrypted objects
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action":: [
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mybucket/*"
+            ],
+            "Condition": {
+                "Null": {
+                    "s3:x-amz-server-side-encryption": true
+                }
+            }
+        }
+    ]
+}
+```
+
+Bukect Policy - only users with MFA
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action":: [
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mybucket/*"
+            ],
+            "Condition": {
+                "Bool": {
+                    "aws:MultiFractorAuthPresent": "true"
+                }
+            }
+        }
+    ]
+}
+```
 
 
 ## S3 - Website
@@ -2848,7 +2979,7 @@ filter @message like /Task time out/
     * events can take up to a minute or longer to propagate
     * all events end up in Amazon EventBridge from where they can be sent to 17 AWS services and destinations 
     * can send events to multiple destinations
-    * events come with all EventBridge capabilities like Archive, Replay Events, Reliability
+    * events come with all `EventBridge` capabilities like Archive, Replay Events, Reliability
 
 
 ## S3 - Performance
@@ -2860,7 +2991,7 @@ filter @message like /Task time out/
         * recommended for files > 100 MB
         * must use for files > 5GB
         * helps parallelize uploads
-    * **S3 Transfer Acceleration** - transfer to edge locationi which then forwards data to s3 bucket, compatible with multi-part upload, maximizes private AWS network traffic
+    * **S3 Transfer Acceleration** - transfer to edge locatioin which then forwards data to S3 bucket, compatible with multi-part upload, maximizes private AWS network traffic
     * **S3 Byte-Range Fetches** - parallelize GETs by requesting specific byte ranges
         * better resilience in case of failures
         * use cases:
@@ -2887,20 +3018,95 @@ filter @message like /Task time out/
         1. `S3 Select` to filter your inventory
         1. `S3 Batch Operations` to process object - use can set operation and parameters
     * use cases:
-        * modify object metadata & p roperties
+        * modify object metadata & properties
         * copy object between S3 buckets
         * encrypt un-encrypted object
         * modify ACLs, tags
         * restore objects from S3 Glacier
         * invoke Lambda function to perform custom action on each object
+* **Manifest** - a `manifest.json` or CSV file that specifies which objects from which buckets should be included in Batch Operation
+* **Operations** - must select what operation will be performed on the files specified in manifest
+    * `Copy`
+    * `Invoke AWS Lambda function`
+    * `Replace all object tags`
+    * `Delete all object tags`
+    * `Replace access control list (ACL)`
+    * `Restore` - initialize restore requests for archived objects
+    * `Object Lock retention` - set object lock for a fixed amount of time
+    * `Object Lock legal hold` - set object lock until legal hold is removed
+* **Completion Reports** - a report of the performed operations that can be stored in a S3 Bucket
+* need to manually run job from console - requires confirmation (`Run Job` button)
+
+Example CSV manifest:
+```csv
+some-example-bucket, object1.jpg
+some-example-bucket, object2.jpg
+some-example-bucket, object3.jpg
+some-example-bucket, object4.jpg
+```
 
 
 ## S3 - Inventory
-
+* **S3 Inventory** - list objects and metadata
+    * alternative to S3 List API operation
+    * usage:
+        * audit and report on replication and encryption status
+        * get number of object in S3 bucket
+        * identify total storage of previous object versions
+    * generate reports daily / weekly
+    * **output files**: CSV, ORC, Apache Parquet
+    * can query all data using:
+        * Amazon Athena, Redshift
+        * 3rd party: Presto, Hive, Spark
+    * can filter report using S3 Select
+    * use cases: Business / Compliance / Regulatory needs
 
 
 ## S3 - Glacier
-
+* `low-cost` object storage meant for archiving / backup
+* data retention for longer term - `10s of years`
+* alternative to on-premises `magnetic tape storage`
+* average annual durability -> 99.999999999%
+* cost per storage per month:
+    * `Standard` - $0.004 / GB
+    * `Deep Archive` - $0.00099 / GB
+* **Archive** - name for each item in Glacier - up to 40TB size
+* **Vaults** - where archives are stored
+* data encrypted at rest by default -> AES-256 -> keys managed by AWS
+* **Glacier Operations**
+    * **Vault Operations**
+        * `Create & Delete` - delete only when no archives in it
+        * `Retrieving Metadata` - creation date, number of archives, total size of all archives
+        * `Download Inventory` - list of archives in the vault (archive ID, creation data, size, ...)
+    * **Glacier Operations**
+        * `Upload` - single operation or by parts (MultiPart upload) for larger archives
+        * `Download`
+            1. initiate retrieval job
+            1. Glacier prepares download
+            1. user has limited time to download the data from staging server
+            1. can specify range or portion of bytes to retrieve
+        * `Delete` - use Glacier Rest API or AWS SDKs by specifying archive ID
+        * restore links have an expiry date
+    * **Retrieval Options**
+        * `Expedited` - 1 - 5 min retrieval - $0.03 per GB and $10 per 1000 requests
+        * `Standard` - 3 - 5h - $0.01 per GB and $0.03 per 1000 requests
+        * `Bulk` - 5 - 12h - $0.0025 per GB and $0.025 per 1000 requests
+* **Vault Policies & Vault Lock**
+    * each vault: `ONE` vault access policy and `ONE` vault lock policy
+    * `Vault Access Policy` - JSON document like bucket policy that specifies user / account permissions
+    * `Vault Lock Policy` - policy you lock for regulatory / compliance requirement
+        * policy is immutable - can never be changed
+        * example:
+            * implement WORM policy
+            * forbid deleting an archive if less than 1 year old
+* **Notifications for Restore Operations**
+    * `Vault Notificatioin Configuration`
+        * configure a vault so that when a job completes - message sent to SNS
+        * optionally specify SNS topic when you initiate a job
+    * `S3 Event Notifications`
+        * support for S3 Glacier storage class archive restoration into S3
+        * `s3:ObjectRestore:Post` -> notify when object restoration initiated
+        * `s3:ObjectRestore:Completed` -> notify when object restoration completed
 
 
 ## S3 - Glacier Vault Lock and Object Lock
@@ -2922,33 +3128,96 @@ filter @message like /Task time out/
         * protect the object indefinitely, independent from retention period
         * can be freely placed and remove using the `s3:PutObjectLegalHold` IAM permission
 
-Example CORS configuration:
+Example Vault Lock Policy
 ```json
-[
-    {
-        "AllowedHeaders": [
-            "Authorization"
-        ],
-        "AllowedMethods": [
-            "GET"
-        ],
-        "AllowedOrigins": [
-            "<url of some bucket without slash at the end>"
-        ],
-        "ExposeHeaders": [],
-        "MaxAgeSeconds": 3000
-    }
-]
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "deny-based-on-archive-age",
+            "Principal": "*",
+            "Effect": "Deny",
+            "Action": "glacier:DeleteArchive",
+            "Resource": [
+                "arn:aws:glacier:us-west-2:123456789012:vaults/examplevault"
+            ],
+            "Condition": {
+                "NumericLessThan": {
+                    "glacier:ArchiveAgeInDays": "365"
+                }
+            }
+        }
+    ]
+}
 ```
 
 
-
 ## S3 - Multi-Part Upload
+* upload large object in parts (any order)
+* recommended files > 100 MB, mandatory files > 5 GB
+* helps parallelize uploads (speed up transfers)
+* max parts: 10 000
+* **Failures** - restart uploading ONLY failed parts
+* **Lifecycle Policy** - can be used to delete old parts of unfinised upload after x days
+* upload using SDK or CLI
+* process:
+    1. initialize multi-part upload
+    1. file get split into chunks
+    1. each chunk is uploaded in parallel
+    1. after all chunks are uploaded a `COMPLETE` request is sent
+    1. chunks are concatenated
 
+```shell
+# generate a big file
+dd if=/dev/zero of=100MB.txt bs=1MB count=100
+
+# split into 3 parts of 35MB
+split -b 35m 100MB.txt 100MB_part_
+
+# initiate the multi-part upload
+aws s3api create-multipart-upload --bucket $BUCKET_NAME --key 100MB.txt
+
+# get the upload_id and insert into env var
+UPLOAD_ID=valueIsprovidedOnceTheMultiPartUploadIsInitializedInStepAbove
+
+# list existing multi part uploads
+aws s3api list-multipart-uploads --bucket $BUCKET_NAME
+
+# upload the parts
+#   -repeat below for each part
+aws s3api upload-part --bucket $BUCKET_NAME --key 100MB.txt 
+    --part-number 1 --body 100MB_part_aa --upload-id $UPLOAD_ID
+
+# list the parts
+aws s3api list-parts --upload-id $UPLOAD_ID --bucket $BUCKET_NAME --key 100MB.txt
+
+# complete multi-part upload
+aws s3api complete-multipart-upload --bucket $BUCKET_NAME \
+    --key 100MB.txt --upload-id $UPLOAD_ID \
+    --multipart-upload "stringified json that contains list of parts"
+```
 
 
 ## Athena
-
+* **Amazon Athena** - serverless query service to analyze data stored in Amazon S3
+    * uses SQL (built on Presto)
+    * supports `CSV`, `JSON`, `ORC`, `Avro`, and `Parquet` (built on Presto)
+    * **pricing** - around $5.00 per TB of data scanned
+    * can build reporting / dashboards on top of Athena through `Amazon QuickSight`
+    * use cases include: `BI`, `Analytics`, `Reporting`, `Analyze & Query VPC Flow logs`, `ELB logs`, `CloudTrail trails` 
+    * **Performance Improvement**
+        * use **columnar data** for cost-savings (less scan)
+            * `Apache Parquet` or `ORC` recommended for huge performance improvement
+            * use `Glue` to convert your data to Parquet or ORC
+        * **compress** data for smaller retrievals
+            * `bzip2`, `gzip`, `lz4`, `snappy`, `zlip`, `zstd`
+        * **partition** datasets in S3 for easy querying on virtual columns
+            * ex: `s3://athena-examples/flight/parquet/year=1991/month=1/day=1/`
+        * use **larger files** ( > 128 MB) to minimize overhead
+    * **Federated Query** - can query data anywhere 
+        * including relational, non-relational, object, custom data sources, AWS and on-premises
+        * uses `Data Source Connectors` that run on AWS Lambda to run Federated Queries (e.g. CloudWatch Logs, DynamoDB, RDS, ...)
+    * can store results of query in S3 Bucket
 
 
 ## S3 - Encryption
@@ -2995,6 +3264,25 @@ Example CORS configuration:
         1. **Web Server** return **preflight response** [`Access-Control-Allow-Origin`: https://www.example.com, `Access-Control-Allow-Methods`: GET, PUT, DELETE]
     * if client wants to make CORS request on S3 you need to enable correct CORS on S3
 
+Example CORS configuration:
+```json
+[
+    {
+        "AllowedHeaders": [
+            "Authorization"
+        ],
+        "AllowedMethods": [
+            "GET"
+        ],
+        "AllowedOrigins": [
+            "<url of some bucket without slash at the end>"
+        ],
+        "ExposeHeaders": [],
+        "MaxAgeSeconds": 3000
+    }
+]
+```
+
 
 ## S3 - MFA
 * **S3 MFA Delete** - way to force authenticating with a device before performing destructive S3 operations
@@ -3039,12 +3327,27 @@ Example CORS configuration:
                 * only accessible from within the VPC
                 * must create VPC Endpoint to access the Access Point (Gateway or Interface Endpoint)
                 * endpoint must allow access to target bucket and Access Point
+                * 3 layers of protection:
+                    1. VPC Endpoint Policy
+                    1. `Bucket Policy` -> enforce access to bucket only through access points
+                    1. `Access Point Policy` -> allow only specific user access to specific prefix
         * access point policy
-* **Multi-Region Access Points** - 
-
-
+* **Multi-Region Access Points** - provide global endpoint that span S3 buckets in multiple AWS regions
+    * dynamically route requests to the nearest S3 Bucket (lowest latency)
+    * bi-directional S3 bucket replication rules are created automatically to keep data in sync across regions
+    * **Failover Controls** - allows you to shift requests across S3 buckets in different AWS regions within minutes
+        * `Active-Active`
+        * or `Active-Passive`
+    * can define Multi-Region Access Point Access Policy
 
 ## S3 - VPC Endpoints
+* `Public Subnet` -> `IGW` -> `S3 Bucket`
+    * for example for www bucket
+    * can set bucket policy by `AWS:SourceIP` (public IP)
+* `Private Subnet` -> `VPC Endpoint Gateway` -> `S3 Bucket`
+    * can set bucket policy by `AWS:SourceVpce` for one or few endpoints
+    * can set bucket policy by `AWS:SourceVpc` - all possible VPC endpoints
+
 
 
 
@@ -3060,7 +3363,7 @@ Example CORS configuration:
     * *Snowcone* - smaller portable computing, anywhere, rugged & secure, resistant to harsh environments
         * light -> 4.5 pounds, 2.1 kg
         * 2 CPUs, 4 GB RAM, wired/wireless access
-        * `Snowcone` - 8 TB, HDD ; `SNowcone SSD` - 14 TB, SSD
+        * `Snowcone` - 8 TB, HDD ; `Snowcone SSD` - 14 TB, SSD
         * USB-C power or battery
         * used for edge computing, storage, data transfer
         * 8 TBs of usable storage
@@ -3155,7 +3458,7 @@ Example CORS configuration:
         * managed OpenZFS file system on AWS
         * File System compatible with NFS (v3, v4, v4.1, v4.2)
         * move workloads running on ZFS to AWS
-        * very performance - up to 1 000 000 IOPS, < 0.5 ms latency
+        * very performant - up to 1 000 000 IOPS, < 0.5 ms latency
         * works with:
             * Linux
             * Windows
@@ -3176,6 +3479,14 @@ Example CORS configuration:
         * data is replicated within same AZ
         * replace failed files within minutes
         * usage: long-term processing, sensitive data
+* **FSx for Sysops**
+    * `FSx for Windows - Single AZ`
+        * automatically replciates data within an AZ
+        * two generations: `Single-AZ 1 (SSD)`, `Signle-AZ 2 (SSD & HDD)`
+    * `FSx for Windows - Multi-AZ`
+        * automatically replicates data across AZs (synchronous)
+        * standby file server in a different AZ (automatic failover)
+        * always recommended!
 
 
 ## Storage Gateway
@@ -3193,7 +3504,7 @@ Example CORS configuration:
     * uses Amazon EBS, Amazon S3, Amazon Glacier to achieve this
     * use cases: 
         * disaster recovery
-        * backup & resotre
+        * backup & restore
         * tiered storage
         * on-premises cache & low-latency files access
     * types:
@@ -3204,18 +3515,18 @@ Example CORS configuration:
             * supports: `S3 Standard`, `S3 Standard IA`, `S3 One Zone A`, `S3 Intelligent Tiering`
             * transition to S3 Glacier using lifecycle policy
             * control bucket access with IAM roles linked to each File Gateway
-            * SMB protocl has integration Active Directory for user authentication
+            * SMB protocol has integration Active Directory for user authentication
         * **FSx File Gateway** - provides native access to Amazon FSx for Window File Server
             * useful for adding local cache for frequently accessed data
             * windows native compatibility (SMB, NTFS, Active Directory, ...)
-            * useful for group fiel shares and home directories
-        * **Volume Gateway** - blobk storage using iSCSI protocol backed by S3
+            * useful for group file shares and home directories
+        * **Volume Gateway** - block storage using `iSCSI` protocol backed by S3
             * backed by EBS snapshots which can help restore on-premises volumes
             * **Cached volumes** -  low latency access to most recent data
             * **Stored volumes** - entire dataset is on premise, scheduled backups to S3
-        * **Tape Gateway** - allows sing same processes as physical tape backups in the cloud
+        * **Tape Gateway** - allows using same processes as physical tape backups in the cloud
             * `Virtual Tape Library (VTL)` backed by Amazon S3 and Glacier
-            * back up data using existing tape-based processes (and iSCSI interface)
+            * back up data using existing tape-based processes (and `iSCSI` interface)
             * works with leading backup software vendors
     * **Hardware appliance**
         * usually storage gateway requires running the Gateway on your on-premises hardware
@@ -3223,6 +3534,30 @@ Example CORS configuration:
         * works with `File Gateway`, `Volume Gateway`, `Tape Gateway`
         * has required CPU, memory, network, SSD cache resources
         * helpful for daily NFS backups in small data centers
+* **Storage Gateway for SysOps**
+    * `File Gateway` -> POSIX compliant -> POSIX metadata ownership, permissions, timestamps stored in the objects metadata in S3
+    * `Reboot Storage Gateway VM` -> e.g. maintenance
+        * `File Gateway` -> restart the Storag Gateway VM
+        * `Volume and Tape Gateway`
+            * stop storage gateway service (AWS Console, VMI local Console, Storage Gateway API)
+            * reboot the storage gateway VM
+            * start storage gateway service
+    * **Storage Gateway - Activations**
+        * two ways to get Activation Key:
+            * using `Gateway VM CLI`
+            * make a web request to the `Gateway VM (port 80)`
+        * troubleshooting activation failures:
+            * mmake sure `Gateway VM` has port `80` opened
+            * edge case: check the `Gateway VM` has the correct time and synchronizing its time automatically to `Netowrk Time Protocol (NTP)` server
+    * **Volume Gateway Cache**
+        * `Cached mode` - only most recent data is stored
+        * cache efficiency:
+            * look at the `CacheHitPercent` metric - want it to be high
+            * look at `CachePercentUsed` - dont want it to be too high
+        * can create a larger cache disk:
+            * ise the cached volume to clone a new volume of a larger size
+            * select the new disk as the cached volume
+
 
 ![AWS Storage Gateway](./aws_saa_storage_gateway.png)
 
@@ -3248,15 +3583,18 @@ Example CORS configuration:
             * **OAI** - an IAM role for CloudFront origin
         * CloudFront as an ingress (to upload files to S3)
     * *Custom Origin (HTTP)* - can be anything that support HTTP
-        * ALB
+        * `ALB`
             * EC2 allows SG of ALB
             * ALB must be public
             * SG for ALB must allow public IP of edge locations - find all on https://d7uri8nf7uskq.cloudfront.net/tools/
-        * EC2
+            * to enable `ALB Stick Session` must forware / whitelist cookie that controll the session affinity to the origin
+                * `Client [Cookie: AWSALB=]` -> `CloudFront [Whitelisting on AWSALB cookie]` -> `ALB [forwarded AWSALB cookie]`
+                * for security set TTL to a value lesser than when the authentication cookie expires
+        * `EC2`
             * must be public
             * security group must allow IP of edge locations - find all on https://d7uri8nf7uskq.cloudfront.net/tools/list-cloudfront-ips
-        * S3 website - an S3 bucket enabled as a static S3 website
-        * any HTTP backend
+        * `S3 website` - an S3 bucket enabled as a static S3 website
+        * any `HTTP` backend
 * **How it works**
     * `Client` ---- `HTTP Request` ----> `CloudFront (Edge Location)`
     * `CloudFront (Edge Location)` ---- Forwards request with query strings / headers ----> `Origin`
@@ -3274,38 +3612,6 @@ Example CORS configuration:
         * read only
         * great for dynamic content that needs to be available at low-latency in few regions
 * **Caching** - a cache lives at each CloudFront Edge Location where objects are identified using a **Cache Key**
-    * you want to maximize Cache Hit ratio
-    * can invalidate part of cache using `CreateInvalidation` API
-    * **Cache Key** is a unique identifier for every cached object, by default `hostname + resource portion of the URL`
-    * **Caching Policies** - allows adding other elements like HTTP headers, cookies, query strings to cache keys
-        * use case: content that varies based on user/device/language/location
-        * options:
-            * *HTTP Headers*: None - Whitelist
-            * *Cookies*: None - Whitelist - Include All-Except-All
-            * *Query String*: None - Whitelist - Include All-Except - All
-        * control he TTL (0s-1year) by using `Cache-Control` or `Expires` header
-        * create own policies or use `Predefined Managed Policies`
-        * all HTTP HEADER/COOKIES/QUERY STRING in Cache Key are automatically included in origin requests. This means:
-            * *None* -> best caching performance cause no headers
-            * *Whitelist* -> only specified cache keys are included in the req to origin
-        * for performance you want to limit the amount of data sent in origin request - Caching Policies help with this
-        * **Origin Request Policy** - enables including values in origin req without including them in Cache Key
-            * *HTTP Headers*: None - Whitelist - All viewer headers options
-            * *Cookies*: None - Whitelist - All
-            * *Query String*: None - Whitelist - All
-            * can add CloudFront HTTP header and Custom header even if not included in viewer request
-        * **Caching Policy vs Origin Request Policy** - cache policy defines values needed for caching purposes, origin policy values needed by the origin to handle request(like User-Agent or Authorization headers)
-    * **Cache Invalidation** - allows bypassing the TTL to perform entire or partial cache refresh through **CloudFront Invalidation**
-        * patterns are `(*)` for all or `(/images/*)` for specific path
-    * **Cache Behaviors** - allows setting different origins/origin groups based on the content type or path pattern
-        * pattern examples:
-            * `/images/*` -> use S3 origin
-            * `/api/*` -> use ALB origin
-            * `/*` -> default cache behavior
-        * default cache behavior is always last to be processed and alwas `/*`
-        * use cases: 
-            * authorize with auth service before getting access to resources on S3 origin
-            * maximize cache hits by separating static and dynamic distributions
 * **Signed URL** - allows giving access to individual files (one signed URL per file)
     * attach a policy with: `URL Expiration`, `IP Ranges to access data from`, `trusted signer` -> which AWS account can create signed URLS
     * TTL for Url:
@@ -3357,15 +3663,72 @@ Example CORS configuration:
 
 
 ## CloudFront - TroubleShooting
-* **Reports** - 
-* **Logs** - 
-* **TroubleShooting** - 
+* **Reports** - create reports based on Access Logs. Do not need to send logs to S3 for reports to be generated
+    * `Cache Statistics Report`
+    * `Popular Objects Report`
+    * `Top Referrers Report`
+    * `Usage Reports`
+    * `Viewers Reports`
+* **Logs** - logs every request made to CF into a logging S3 Bucket 
+* **TroubleShooting**
+    * CF cache HTTP 4xx and 5xx status codes returned by S3 (or other origin server)
+    * 4xx - user doesnt have access to underlying bucket(403) or not found(404)
+    * 5xx - indicates Gsateway issues
 
 
 ## CloudFront - Caching
-
-
-## CloudFront - ALB Sticky Sessions
+* **Caching** - a cache lives at each CloudFront Edge Location where objects are identified using a **Cache Key**
+    * cache lives at each CloudFront Edge Location
+    * you want to maximize `Cache Hit ratio`
+        * monitor the CloudWatch metric `CacheHitRate`
+        * specify TTL on objecy `Cache-Control:max-age` header
+        * specify none or the minimally required headers
+        * specify none or the minimally required cookies
+        * specify none or the minimally required query string parameters
+        * separate static and dynamic distributions (two origins)
+    * can invalidate part of cache using `CreateInvalidation` API
+    * **Cache Key** is a unique identifier for every cached object, by default `hostname + resource portion of the URL`
+    * **Caching Policies** - allows adding other elements like HTTP headers, cookies, query strings to cache keys
+        * use case: content that varies based on user/device/language/location
+        * options:
+            * *HTTP Headers*: None - Whitelist
+            * *Cookies*: None - Whitelist - Include All-Except-All
+                * `default` - do not proces the cookies
+                    * caching is not based on cookies
+                    * cookies are not forwarded
+            * *Query String*: None - Whitelist - Include All-Except - All
+                * `default` - do not process query strings
+        * control the `TTL` (0s-1year) by using `Cache-Control` or `Expires` header
+        * create own policies or use `Predefined Managed Policies`
+        * all HTTP HEADER/COOKIES/QUERY STRING in Cache Key are automatically included in origin requests. This means:
+            * *None* -> best caching performance cause no headers
+            * *Whitelist* -> only specified cache keys are included in the req to origin
+        * for performance you want to limit the amount of data sent in origin request - Caching Policies help with this
+        * **Origin Request Policy** - enables including values in origin req without including them in Cache Key
+            * *HTTP Headers*: None - Whitelist - All viewer headers options
+            * *Cookies*: None - Whitelist - All
+            * *Query String*: None - Whitelist - All
+            * can add CloudFront HTTP header and Custom header even if not included in viewer request
+        * **Caching Policy vs Origin Request Policy** - cache policy defines values needed for caching purposes, origin policy values needed by the origin to handle request(like User-Agent or Authorization headers)
+    * **Cache Invalidation** - allows bypassing the TTL to perform entire or partial cache refresh through **CloudFront Invalidation**
+        * patterns are `(*)` for all or `(/images/*)` for specific path
+    * **Cache Behaviors** - allows setting different origins/origin groups based on the content type or path pattern
+        * contains whitelist of headers to forward
+        * **TTL**
+            * `Cache-Control:max-age` is preffered to `Expires` header
+            * if origin always sends back the header `Cache-Control` then you can set `TTL` to be controlled only by that header
+            * to set min / max boundaries, you cosse `customize` for the `Object Caching` setting
+            * if `Cache-Control` header is missing, it will default to `default value`
+        * pattern examples:
+            * `/images/*` -> use S3 origin
+            * `/api/*` -> use ALB origin
+            * `/*` -> default cache behavior
+        * default cache behavior is always last to be processed and alwas `/*`
+        * use cases: 
+            * authorize with auth service before getting access to resources on S3 origin
+            * maximize cache hits by separating static and dynamic distributions
+* **Origin Custom Headers** - origin-level setting, set a constant header / header value for all requests to origin, not used for caching
+* **Cookies** - specific header with multiple key-value pairs allowed
 
 
 &nbsp;
@@ -3437,7 +3800,15 @@ Example CORS configuration:
 
 
 ### RDS - Multi-AZ Failover Conditions
-
+* the primary DB instance:
+    * `failed`
+    * OS is undergoing `software patching`
+    * `unreachable` due to loss of network connectivity
+    * `modified` (e.g. DB isntance type changed)
+    * busy and `unresponsive`
+    * underlying `storage failure`
+* an `AZ outage`
+* a manual failover of the DB isntance was initiated using `Reboot with failover`
 
 
 ### RDS Proxy
@@ -3449,24 +3820,45 @@ Example CORS configuration:
     * supports RDS(MySQL, PostgreSQL, MariaDB) and Aurora (MySQL, PostgreSQL)
     * no code changes required
     * can *enforce IAM Authenctication* for DB and securily store credentials in *AWS Secrets Manager*
-    * only available in VPC (never public)
+    * only available in VPC
+    * helps avoid `TooManyConenctions` Error in Lambda
 
 
 ### RDS - Parameter Groups
+* **Parameter Groups** allow configuring the DB engine using a Parameter Group
+    * `dynamic` parameters are applied immediately
+    * `static` parameters are applied after reboot
+    * can modify parameter group associated with a DB (must reboot)
+    * list of DB parameters availabe in documentation
+    ***Important parameters**
+        * `rds.force_ssl=1` -> force SSL connections on PostgreSQL / SQL Server
+        * `require_secure_transport=1` -> force SSL connections on MySQL / MariaDB
 
 
 ### RDS - Backups and Snapshots
 * **RDS Backups**
     * `Automated Backups`
-        * daily full backup of the db (during backup window)
+        * continuous
+        * daily full backup of the db (during maintenance window)
+        * PITR (from oldest backup 5 minutes ago)
         * transaction logs are backed-up by RDS every 5 minutes
-        * ability to restore to any point in time (from oldest backup 5 minutes ago)
-        * 1 - 35 days of retention
-        * set retention to 0 to disable automated backups
+        * 0 - 35 days of retention
+        * can retain backups when deleting instance
+        * set retention to 0
     * `Manual DB Snapshots`
         * manually triggered by the user
-        * retention of backup for as long as you want
+        * snapshots do not expire
+        * takes IO
+        * can stop DB from seconds to minutes
+        * snapshots on Multi AZ DB are performed on standby - no impact on master
+        * are incremental -> after the first, full snapshot
+        * can take `final` snapshot when you delete
     * `Trick` - if planning RDS to be down for a long time - take snapshot, terminate, restore when you need it
+* **Snapshot Sharing**
+    * `Manual Snapshots` - can be shared with AWS accounts
+    * `Automated snapshots` - cant be shared, copy first
+    * can only share unencrypted snapshots and snapshtos encrypted with a customer managed key
+    * if sharing encrypted snapshot must also share customer managed keys
 * **Restore Options**
     * restoring RDS / Aurora backup or a snapshot creates a new database
     * can restore MySQL RDS database from S3
@@ -3480,12 +3872,49 @@ Example CORS configuration:
 
 
 ### RDS - Events and Logs
+* RDS keeps record of events related to:
+    * DB Instances
+    * Snapshots
+    * parameter groups
+    * security groups
+* **RDS Event Subscriptions**
+    * subscribe to event with SNS
+    * specify `Event Source` (instances, SGs, ...) and `Event Category`(creation, failover, ...)
+* RDS delivers events to `EventBridge`
+* **RDS Database Log Files**
+    * stores logs:
+        * general
+        * audit
+        * error
+        * slow query
+    * feeds logs into `CloudWatch`
+    * can filter using `CloudWatch Metric Filter`
+    * can integrate with `CloudWatch Alarms`
 
 
 ### RDS - CloudWatch
+* CloudWatch metrics associated with RDS(gathered from the hypervisor)
+    * `DatabaseConnections`
+    * `SwapUsage`
+    * `ReadIOPS / WriteIOPS` -> peaking, could mean you couldve reached max IPOS for EBS volume
+    * `ReadLatency` / `WriteLatency`
+    * `ReadThroughPut` / `WriteThroughPut`
+    * `DiskQueueDepth` - high could mean lots of operations waiting to be executed
+    * `FreeStorageSpace`
+* **Enhanced Monitoring** - gathered from an agent on the DB instance
+    * useful when you need to see how different processes or threads use the CPU
+    * access to over 50 new CPU / memory / file system / IO metrics 
 
 
 ### RDS - Performance Insights
+* visualize database performance and analyze and issues that affect it
+* visualize load / filter load:
+    * `By Waits` -> find resource that is the bottleneck (CPU, IO, lock, etc...)
+    * `By SQL statements` -> find the SQL statement that is the problem
+    * `By Hosts` -> find the server that is using the most of our DB
+    * `By User` -> find user that is using the most of our DB
+* `DBLoad` - number of active sessions for the DB engine
+* view the SQL queries that are putting load on your database
 
 
 
@@ -3542,11 +3971,16 @@ Example CORS configuration:
         * 1-35 days
         * cannot be disabled
         * point-in-time recovery in that timeframe
+        * restore to a new database cluster
     * `Manual DB Snapshots`
         * manually triggered by the user
         * retention of backup for as long as you want
+* **Aurora Backtracking**
+    * rewind the DB cluster back and forth in time (up to 72h)
+    * doesnt create a new DB cluster (in-place restore)
+    * supports Aurora MySQL only
 * **Aurora Database Cloning**
-    * create a new Aurora DB Cluster from an existing on
+    * create a new Aurora DB Cluster from an existing one
     * faster than snapshot & restore
     * uses `copy-on-write` protocol
         * initially new DB cluster uses same data volume as the original DB cluster
@@ -3556,6 +3990,19 @@ Example CORS configuration:
 
 
 ### Aurora - SysOps
+* can associate a prioirty tier (0-15) on each Read Replica
+    * controls the failover priority
+    * RDS will promote the Read Replica with the highest priority (lowest tier)
+    * if same priority -> RDS promotes the largest in size
+    * if same priority and size -> RDS promotes arbitrary replica
+* can migrate RDS MySQL snapshot to Aurora MySQL Cluster
+* Cloudwatch Metrics for Aurora:
+    * `AuroraReplicaLag` - amount of lag when replicating updates from primary instance
+    * `AuroraReplicaLagMaximum` - max amount of lag across instances in cluster
+    * `AuroraReplicaLagMinimum` - min amount of lag across instances in cluster
+    * if replica lag is high, that means user will gave different experience based on which replica they read from (eventual consistency)
+    * `DatabaseConnection` - current number of connections to a DB instance
+    * `InsertLatency` - average duration of insert operations
 
 
 ## RDS & Aurora Security
@@ -3605,14 +4052,97 @@ Example CORS configuration:
 
 ### ElastiCache - Redis Cluster Modes
 * **Cluster Mode**: enables replication across multiple shards for scalability and availability
-    * if disabled Redis will have single shard with one primary node and up to *5 replicas*
+    * data is partitioned across many shards
+    * helpful to scale writes
+    * each shard has a primary and up to 5 replica nodes
+    * Multi-AZ by default
+    * up to 500 nodes per cluster
+        * 500 shards with a single master
+        * 250 shards with 1 master and 1 replica
+        * 100 shards with 1 master and 4 replica
+        * 83 shards with 1 master and 5 replicas
+* **Cluster Mode Disabled** - if disabled Redis will have single shard with one primary node and up to *5 replicas*
+    * async replication
+    * primary node is used for read/write
+    * other nodes are read-only
+    * one shard -> all nodes have all data
+    * guard against data loss if node failure
+    * Multi-AZ enabled by default
+    * helpful to scale read performance
 * **Multi-AZ** - provide enhanced HA, automatic failover to read replica, cross AZs
 
 
 ### ElastiCache - Redis for SysOps
+* **Scaling**
+    * `Cluster Mode Disabled`
+        * **horizontal** -> add / remove read replicas
+        * **vertical** -> larger / smaller node type
+            * ElastiCache will itnernally create a new node group, then data replication and DNS update
+    * `Cluster Mode`
+        * two modes:
+            * `Online Scaling` -> continue service requests during the scaling process (no downtime, some degredation in performance)
+            * `Offline Scaling` -> unable to server requests during the scaling process (backup and restore)
+                * additional configurations supported like:
+                    * change node type
+                    * upgrade engine version
+        * **horizontal**:
+            * `Resharding` - scale out/in by adding/removing shards
+            * `Shard Rebalancing` - equally distribute the keyspaces among the shards as possible
+            * support Online and Offline Scaling
+        * **vertical**:
+            * change read/write capacity by setting larger/smaller node type
+            * support Online scaling
+* **Monitor**
+    * `Evictions` - number of non-expired items the cache evicted to allow space for new writes
+        * memory is overfilled
+        * solution:
+            * choose an eviction policy to evict expired items (evict least recently used LRU items)
+            * scale up to larger node type (more memory) or scale out by adding more nodes
+    * `CPUUtilization` - monitor CPU utilization for the entire host
+        * solution: scale up to larger node type(more memory) or scale out by adding more nodes
+    * `SwapUsage` - should not exceed 50MB
+        * Solution: verify that you have configured enough reserved memory
+    * `CurrConnections` - number of concurrent and active connections
+        * too high could mean app is not properly cleaning up dangling connections
+        * Solution: investigate application behavior to address the issue
+    * `DatabasememoryUsagePercentage` - the percentage of memory utilization
+    * `NetworkBytesIn/Out` & `NetworkPacketsIn/Out`
+    * `ReplicationBytes` - the volume of data being replicated
+    * `ReplicationLag` - how far behind the replica is from the primary node
 
 
 ### ElastiCache - Memcached for SysOps
+* **Scaling**
+    * cluster can have 1-40 nodes (soft limit)
+    * **horizontal**
+        * add / remove nodes from the cluster
+        * `auto-discovery` allow your app to find nodes
+    * **vertical**
+        * scale up/down to larger/smaller node type
+        * scale up process:
+            1. create new cluster with the new node type
+            1. update your application to use the new clusters endpoints
+            1. delete the old cluster
+        * memcached clusters / nodes start out empty
+* **Memcached Auto Discovery**
+    * typically you need to manually connect to individual cache nodes in the cluster using its DNS endpoints
+    * Auto Discovery automatically identifies all the nodes
+    * all the cache nodes in the cluster maintain a list of metadata about all other nodes
+    * this is seamless from a client perspective
+* **Monitor**
+    * `Evictions` - number of non-expired items the cache evicted to allow space for new writes
+        * memory is overfilled
+        * solution:
+            * choose an eviction policy to evict expired items (evict least recently used LRU items)
+            * scale up to larger node type (more memory) or scale out by adding more nodes
+    * `CPUUtilization` - monitor CPU utilization for the entire host
+        * solution: scale up to larger node type(more memory) or scale out by adding more nodes
+    * `SwapUsage` - should not exceed 50MB
+        * Solution: verify that you have configured enough reserved memory
+    * `CurrConnections` - number of concurrent and active connections
+        * too high could mean app is not properly cleaning up dangling connections
+        * Solution: investigate application behavior to address the issue
+    * `FreeableMemory` - amount of free memory on the host
 
 
 
@@ -3641,6 +4171,7 @@ Example CORS configuration:
     * have `timestamps`
     * belong to `namespaces`
     * **Dimensions** are an attribute of a metric (instance id, environment, etc)
+        * up to 30 dimensions per metric
     * can create a CloudWatch `dashboard` for Metrics
     * examples:
         * **EC2** - CPU Utilizations, Status Check, Network
@@ -3663,17 +4194,50 @@ Example CORS configuration:
     * **StorageResolution** - API parameter for metric resolution:
         * `Standard` - 1 minute sampling
         * `High Resolution` - 1/5/10/30 sec sampling - higher cost
-    * can use dimensions
-    * accepts metric data points *two weeks in the past* or *two hours in the future*
+    * can use dimensions(attributes) to segment metrics:
+        * `Instance.id`
+        * `Environment.name`
+    * **Important** - accepts metric data points *two weeks in the past* or *two hours in the future*
         * make sure to configure time in EC2 for integrity between CloudWatch data and EC2 data
+
+Example metric object:
+```json
+[
+    {
+        "MetricName": "New Posts",
+        "Timestamp": "Wednesday, June 12, 2013 8:28:20 PM",
+        "Value": 0.50,
+        "Unit": "Count"
+    }
+]
+```
 
 
 ## CloudWatch - Dashboards
+* great way to osetup cusotm dashboards for quick acces to key metrics and alarms
+* dashboards are global
+* dashboards can include graphs from different **AWS account and regions**
+* can change the time zone / time range of the dashboard
+* can setup automatic refresh (10s, 1m, 2m, 5m, 15m)
+* dashboard can be shared with people who dont have an AWS account
+    * public
+    * email address
+    * 3rd part SSO provider through Amazon Cognito
+* pricing:
+    * 3 dashboards - up to 50 metrics - FREE
+    * $3 / dashboard / month
 
 
 
 ## CloudWatch - Logs
 * **Logs** - collect, monitor, analyze, store log files
+    * **Log Groups** - arbitrary name, usually representing an application
+        * can create 2 subscription filters per log group
+    * **Log Stream** - instances within application / log files / containers
+    * enables `real-time` monitoring
+    * adjustable log `retention`
+        * by default logs never expire
+        * log retention policy can be defined at `Log Groups` level 
     * **Collect** from:
         * `SDK`
         * `Elastic Beanstalk` - collection from application
@@ -3715,13 +4279,6 @@ Example CORS configuration:
                 * `AWS Lambda`
                 * `OpenSearch`
             * can be used for `Multi-Account` / `Multi-Region` **Logs Aggregation**
-    * enables `real-time` monitoring
-    * adjustable log `retention`
-        * by default logs never expire
-        * log retention policy can be defined at `Log Groups` level
-    * **Log Groups** - arbitrary name, usually representing an application
-        * can create 2 subscription filters per log group
-    * **Log Stream** - instances within application / log files / containers
     * **Metric Filters** - use filter expression, mount CloudWatch alarms on the metric filters
         * do **not retroactively** filter data, only publish metric data for events that occur after filter was created
         * use cases: 
@@ -3826,26 +4383,178 @@ Resource-based policy:
 }
 ```
 
+
 ### EventBridge - Content Filtering
+* **Content Filtering** - set filters in JSON form to only react to specific types of events
+    * filter types:
+        * `prefix matching`
+        * `suffix matching`
+        * `anything-but-matching`
+        * `numeric matching`
+        * `IP address matching`
+        * `exists matching`
+        * `equals-ignore-case matching`
+        * combine filter types
+
+```json
+{
+    "source": ["aws.s3"],
+    "detail-type": "Object Created",
+    "detail": {
+        "bucket": {
+            "name": [ { "prefix": "mybucket" } ]
+        },
+        "object": {
+            "key": [ { "suffix": ".png" } ]
+        },
+        "source-ip-address": [ { "cidr": "10.0.0.0/24" } ]
+    }
+}
+```
 
 
 ### EventBridge - Input Transformation
+* allows transforming events based on a json schema
+* **Input Path** - create variables from input event
+    * `{ "timestamp": "$.time"}` - would take the `time` key in the root of the event and store it as `timestamp` to be made available in transformation scheme
+* **Template** - json template of the output of the transformation. Can use input path variables
+
+Example `Input Path`:
+```json
+{
+    "timestamp": "$.time",
+    "instance": "$.detail.instance-id",
+    "state": "$.detail.state",
+    "resource": "$.resources[0]"
+}
+```
+
+Example `Template`:
+```json
+{
+    "timestamp": <timestamp>,
+    "message": "<instance> is in state <state> at <timestamp>, with an arn <resource>."
+}
+```
 
 
 ## Service Quotas
+* service that notifies when your close to a service quota value threshold
+* from `Service Quotas` console:
+    * can request quota increase
+    * create `CloudWatch` alarms
+* example: Lambda concurrent executions -> if passes 900 -> trigger CW Alarm
+* useful: know when to request quota increase or shutdown resources before limit is reached
+* **alternative**: `Trusted Advisor` + `CloudWatch Alarms`
+    * only ~50 service limit checks in Trusted Advisor
+    * Trusted Advisor publishes check results to CloudWatch
+    * can create CloudWatch Alarm on service quota usage (Service Limits)
 
 
 ## CloudTrail
+* **AWS CloudTrail** - service that enables auditing, security monitoring, operational troubleshooting by tracking user activity and API usage
+    * provides:
+        * `governance`, `compliance` and `audit` for AWS Account
+        * is enabled by default
+        * get history of events / API calls made with your AWS Account:
+            * Console
+            * SDK
+            * CLI
+            * AWS Services
+        * put logs from CloudTrail into CloudWatch Logs or S3
+        * trails can be applied to all regions(by default) or a single region
+        * if a resource is deleted look into CloudTrails
+        * **CloudTrail Insights** which provide an automated analysis of your CloudTrail Events
+* **CloudTrails Events**
+    * **Management Events** - operations performed on resources in your AWS account
+        * examples: configuring security, rules for routing data, logging setup
+        * by default Trails are configured to log management events
+        * types:
+            * `Read Events` - events that don't modify resources
+            * `Write Events` - events that modify resources
+    * **Data Events**
+        * examples: S3 object level activity, AWS Lambda function execution activity
+        * by default data events are not logged(high volume)
+        * can seperate Read and Write Events
+    * **Insights Events** - detect unusual activity in your account
+        * requires enabling and is payed
+        * examples:
+            * inaccurate resource provisioning
+            * hitting service limits
+            * bursts of AWS IAM actions
+            * gaps in periodic maintenance activity
+        * analyzes normal management events to create a baseline
+        * after analysis continuously analyzes `WRITE` events to detect unusual patterns
+        * generates `Insights Events`
+        * `Insights` can be visible in `CloudTrail Console`, dumped to S3 Buckets or create an EventBridge event
+    * **Events Retention**
+        * by default 90 day event retention in CloudTrail
+        * to keep events for longer periods: Log to S3 and use Athena to analyze them
+* **Intercept API Calls** - combine with Amazon EventBridge and SNS to get notified of any destructive operations and quickly react
 
 
 ### CloudTrail - SysOps
+* **Log File Integrity Validation** - helps you validate whether the log file has been tampered with since it was written
+    * `Digest Files`
+        * references the log files for the last hour and contains a hash of each
+        * stored in the same S3 bucket as log files (different folder)
+        * hashing using SHA-256, Digital Signing using SHA-256 with RSA
+        * protect the S3 bucket using `bucket policy`, `versioning`, `MFA Delete protection`, `encryption`, `object lock`
+    * helps determine whether a log was modified / deleted after CloudTrail delivered it
+    * protect CloudTrail using IAM to make sure nobody disables Digest Files
+* **Integration with EventBridge**
+    * used to react to any API call being made in your account
+    * CloudTrail is not real-tiime:
+        * delivers an event within `15 min` of an API call
+        * delivers log files to an S3 bucket eveyr `5 min`
+* **Organization Trails**
+    * setup CloudTrail on organization level
+    * logs trails from all organizaitons accounts into a target S3 bucket
+    * log events for management and member accounts
+    * trail with the same will be created in every AWS account (IAM permissions)
+    * member accounts cant remove or modify the organization trail (view only)
 
 
 ## Config
+* **AWS Config** - service that records configurations and changes over time to help auditing compliance of your AWS resources
+    * provides a list of all changes that can be stored in S3, analyzed by Athena
+    * questions solved by Config:
+        * unrestricted SSH access to SGs
+        * do buckets have public access
+        * how ALB config changed over time
+    * receive alerts for changes -> SNS notifications
+    * per region service
+    * can combine logs from various regions in a single S3 bucket
+    * provides a *Configuration* timeline and *Compliance* timeline to easily visualize what changes where made at what point in time and how/when that effected compliance
+    * tags resources as compliant/non-compliant
+* **Config Rules**
+    * AWS managed (over 75)
+    * custom rules
+    * rules can be evaluated / triggered
+    * does not prevent actions from happening (no deny)
+* **Pricing** - no free tier, $0.003 per configuration item recorded per region, $0.001 per config rule evaluation per region
+* **Config Resource**
+    * view compliance of a resource over time
+    * view configuration of a resource over time
+    * view CloudTrail API calls of a resource over time
+* **Remediations** - automate remediation of non-compliant resource using SSM Automation Documents
+    * use AWS-Managed Automation Document or create custom Automation Document
+    * can invoke Lambda function from custom Automation Documents (and do pretty much anything)
+    * can set `Remediation Retries` up to 5 times if resource still non-compliant after auto-remediation
+* **Notifications**
+    * use EventBridge to trigger notifications
+    * ability to send configuration changes and compliance state notification to SNS(can filter using SNS Filtering or client-side filtering)
 
 
 ### Config - Aggregators
-
+* **Aggregators** - an Aggregator Account is one that centralizes all configurations from multiple accounts
+    * **Aggregated View** shows compliant & non-compliant resources across all accounts
+    * **Aggregator Account** - aggregator is created in a central Aggregator account, not on each account
+    * **Aggregator Rules** - set rules across account and regions
+    * no need for individual Authorization if using AWS Organizations
+    * if not using AWS Organizations must authorize Aggregator to collect data form each account individually
+    * rules are created in each individual source AWS account
+    * can deploy rules ot multiple target accounts using CloudFormation StackSets
 
 
 &nbsp;
@@ -3853,48 +4562,364 @@ Resource-based policy:
 
 
 ## Status Health Dashboard
-
+* **AWS Service Health Dashboard** - shows all regions and services health
+    * shows historical information
+    * has an RSS feed you can subscribe to
+    * https://status.aws.amazon.com
 
 
 ## Personal Health Dashboard
+* **AWS Health Dashboard** - provides alerts and `remediation` guidance when AWS is experiencing events that may impact you
+    * features:
+        * global
+        * list of issues / actions for remediatioin
+        * shows AWS maintenance events
+        * programatically accessible through the `AWS Health API`
+        * allows aggregating data from an entire AWS Organization
+    * previously called AWS Personal Health Dashboard
+    * information on performance/availability of AWS Services related to your Account
+    * displays relevant and timely information, proactive notifications to help plan scheduled activities
+    * show how AWS `outages` impact you directly
+* **Health Event Notifications** - use EventBridge to react to changes for AWS Health events
+    * example: receive email notifications when EC2 instances in your AWS account are scheduled for updates
+    * cant be used to return public events from the Service Health Dashboard
+
 
 
 ## Organizations
+* **AWS Organizations** - `global service` that allows managing multiple AWS Accounts by a `master account`
+    * `management account` - the master account
+    * `member accounts` - part of one organizatioinal unit
+    * Cost benefits:
+        * provides **consolidated billing** across all account that is payed by the `master account`
+        * price benefits from **combined usage** (volume discount fror EC2, S3)
+            * share volume pricing
+            * share savings plan discounts
+            * one bill for all AWS Accounts in Organization
+            * pooling of Reserved EC2 instances for optimal savings
+                * this can be turned of for any OU
+    * API available to automate account creation
+    * restrict account priviliges using **Service Control Policies (SCP)**
+* **Multi Account Strategy** - separate accounts for different departments
+    * better resource isolation
+    * separate per account service limits
+    * isolated account for logging
+* **Multi-VPC** - separate departments through VPCs instead of multi-accounts
+* can use tagging standards for billing purposes
+* GOOD PRACTICE: enable CloudTrail on all accounts, send logs to central S3 account
+* GOOD PRACTICE: send CloudWatch logs from all accounts to a central logging account
+* **Organization Untis (OU)** - a logical group that could be seperated into its own Account with an Organization. 
+    * strategies:
+        * `business unit` - master ou -> [sales ou, retail ou, finance ou]
+        * `environmental lifecycle` - master ou -> [dev ou, test ou, production ou]
+        * `project-based` - master ou -> [project 1 ou, project 2 ou, project 3 ou]
+        * https://aws.amazon.com/answers/account-management/aws-multi-account-billing-strategy
+* **Advantages**:
+    * multi account vs one account multi vpc
+    * use tagging standards for billing purposes
+    * enable CloudTrail on all account, send logs to central S3 account
+    * send CloudWatch Logs to central logging account
+    * establish cross account roles for admin purposes
+    * enhance security with Service Control Policies (SCP)
+* **Service Control Policies (SCP)** - allows whitelist/blacklist IAM actions on OU or Account
+    * does not apply to Master Account
+    * applied to all users/roles including the root
+    * does not apply to **Service Linked Roles** - roles that enable AWS services to integrate with AWS Organizations
+    * must have explicit ALLOW - by default does not allow anything
+    * use cases:
+        * restrict access to certain services
+        * enforce PCI compliance by explicitly disabling services which are not compliant
+    * DENY rules flow down the Organization Unit Hierarchy tree
+    * SCP looks just like an IAM Policy -> JSON with specific format
+    * you can easily check which policies are applied to which OU's in the AWS Console
+    * strategies:
+        * `Blocklist` - first allow all actions on all services, then block specific ones
+        * `Allowlist` - first block all actions on all services, then allow specific ones
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAllActions",
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "DenyDynamoDB",
+            "Effect": "Deny",
+            "Action": "danymodb:*",
+            "Resource": "*"
+        }        
+    ]
+}
+```
 
 
 ### Organizations - SysOps
+* **Reserved Instances Sharing**
+    * consolidated billing feature
+    * all OU can receive hourly cost benefit of Reserved Instances purchased by another OU
+    * payer account (master account) of organization can turn of Reserved Instance (RI) discount and Shavings Plans discount for any accounts in the organization
+    * both master account and target account must have hsaring turned on for RI or Savings Plans discount 
+* `aws:PrincipalOrgId` - condition key in your resource-based policies to restrict access to IAM principals from accounts in an AWS Organization
+    * easy to give access to whole organization and not one OU at a time
+* **Tag Policies** - helps standardize tags across resources in an AWS Organization
+    * ensure `consistent` tags, `audit` tagged resources, maintain proper resource `categorization`
+    * helps with `AWS Cost Allocatin Tags` and `Attribute based Access Control`
+    * prevent any non-comliant tagging operations on specified services and resources
+    * generate a report that lists all tagged/non-compliant resources
+
+Example tag policy:
+```json
+{
+    "tags" : {
+        "costcenter": {
+            "tag_key": {
+                "@@assign": "CostCenter"
+            },
+            "tag_value": {
+                "@@assign": ["100", "200"]
+            },
+            "enforce_for": {
+                "@@assign": ["secretsmanager:*"]
+            }
+        }
+    }
+}
+```
 
 
 ## AWS Control Tower
+* **AWS Control Tower** - easy way to setup(few clicks) and govern secure and compliant multi-account AWS environment based on best practices
+    * `automated setup` in few clicks
+    * `automated` ongoing `policy management` using Guardrails
+    * detect and remediate policy violations
+    * `monitor` compliance through interactive dashboard
+    * runs on top of AWS Organizations
+    * a Control Tower setup is called a **Landing Zone**
+* it sets up things such as:
+    * OUs
+    * shared accounts
+    * native cloud directory with preconfigured groups and SSO access
+    * preventive guardrails to enforce policies
+    * detective guardrails to detect configuration violations
+* **Guardrails** - rules that can be enabled on OUs to enforce policies or detect violations
+    * provides ongoing governance for your Control Tower environment
+    * `Preventive Guardrail - using SCPs` - example restrict regions across all your account
+    * `Detective Guardrail - using AWS Config` - identify untagged resources
 
 
 ## AWS Service Catalog
+* **AWS Service Catalog** - quick self-service portal to launch a set of authorized products pre-defined by admins
+    * helps users new to AWS to launch stacks that are compliant with rest of organization
+    * Admins do the following:
+        * **Product** - CloudFormation templates of resources that can be launched as part of Service Catalog
+            * ready to use
+            * properly configured
+            * properly tagged
+        * **Portfolio** - collection of products
+        * define IAM Permissions to Access Portfolios
+    * Users do the following:
+        * authorized by IAM
+        * launch provisioned products
+* **Sharing Catalogs**
+    * share portfolios with individual AWS accounts or AWS Organizations
+    * sharing options:
+        * share reference to portfolio -> import portfolio in recipient account -> stays in-sync with original portfolio
+        * deploy a copy of portfolio to recipient account -> must re-deploy updates
+    * can add products from imported portfolio to local portfolio
+* **TagOptions Library**
+    * easily manage tags on provisioned products
+    * **TagOption** - key-value pair managed in AWS Service Catalog, used to create an AWSTag
+    * can be associated with Portfolios and Products
+    * enforce proper resource tagging or defining allowed tags
+    * can be shared with AWS accounts and AWS Organizations
+
 
 
 ## AWS Billing Alarms
+* **Billing Alarms** - billing data metric is stored in CloudWatch `us-east-1`
+    * billing data are for overall worldwide AWS costs
+    * its for actual cost, not for projected costs
+    * intended a simple alarm
 
 
 ## AWS Cost Explorer
+* **Cost Explorer** - visualize, understand and manage AWS costs and usage over time
+    * create custom reports
+    * analyze data at high level - total costs over all accounts
+    * monthly/hourly resource level granularity
+    * choose an optimal Savings Plan
+    * forecast usage up to 12 months based on previous usage
 
 
 ## AWS Budgets
+* **AWS Budgets** - create budgets that send alarms when actual/forecasted costs exceed a threshold
+    * 4 types: Usage, Cost, Reservation, Savings Plan
+    * for RI:
+        * track utilization
+        * supports EC2, ElastiCache, RDS, Redshit
+    * up to 5 sns notification per budget
+    * can filter by:
+        * service
+        * linked account
+        * tag
+        * purchase option
+        * instance type
+        * region
+        * AZ
+        * API Operation
+        * more
+    * has same options as AWS Cost Explorer
+    * 2 budgets are free, then $0.02/day/budget
 
 
 ## AWS Cost Allocation Tags & Cost & Usage Reports
+* **AWS Billing Dashboard** -  shows forecasts, costs for month, summary of costs, free tier dashboard with usage per service and information if you will surpass the free tier
+* **Cost Allocation Tags** - use cost allocation tags to track your AWS costs on a detailed level
+    * tag types:
+        * `AWS generated tags` -> automatically applied to created resource, starts with prefix **aws:** (e.g. aws:createdBy)
+        * `User-defined tags` -> defined by the user, starts with prefix **user:**
+    * tags are used for organizing resources:
+        * EC2: instances, images, LB, SG
+        * RDS, VPC resources, Route 53, IAM users, etc
+        * resources created by CloudFormation are automatically tagged the same way
+        * free naming, like: `Name`, `Environment`, `Team`
+        * create **Resource Groups**(accessible under this name in console):
+            * create, maintain, view a collection of resources that share common tags
+            * manage these tags using the **Tag Editor**
+* **Cost and Usage Reports** - generate reports with comprehensive set of costs / usage
+    * most comprehensive set of AWS cost and usage data available
+    * includes additional metadata about AWS services, pricing, reservations
+    * lists AWS usage for each service category used by an account and its IAM users in hourly or daily line items
+    * includes tags that you have activated for cost allocation purposes
+    * can be integrated with Athena, Redshift or QuickSight
 
 
 ## AWS Compute Optimizer
+* **AWS Compute Optimizer** - reduce costs and improve performace by recommending optimal AWS resoruces for your workloads
+    * helps choose optimal configurations and right-size your workloads (over/under provisioned)
+    * uses ML to analyze your resources configurations and their utilization CloudWatch metrics
+    * supported: EC2 Instances, EC2 ASG, EBS volumes, Lambda functions
 
 
 &nbsp;
 # Disaster Recovery
+* **Concepts**
+    * `Disaster` - any event that has a negative impact on a companys business continuity or finances is a disaster
+    * `Disaster Recovery (DR)` - preparing for and recovering from a disaster
+    * `Kinds of DR`
+        * `On-premise => On-premise` - traditional DR, very expensive
+        * `On-premise => AWS Cloud` - hybrid recovery
+        * `AWS Cloud Region A => AWS Cloud Region B` - cloud native
+    * `RPO: Recovery Point Objective` - how much of a data loss are you willing to except in case of disaster - depends on backup frequency
+    * `RTO: Recovery Time Objective` - how much downtime are you willing to except between disaster and recovery
+* **Disaster Recovery Strategies**
+    * `Backup & Restore`
+        * cheapest
+        * highest RTO
+        * highest RPO 
+        * architecture:
+            * DC --> AWS Storage Gateway    --> S3      --> lifecycle   --> Glacier
+            * DC --> AWS Snowball           --> Glacier
+            * AWS Cloud EBS | Redshift | RDS --> regular snapshots
+            * restore EC2 from snapshot AMIs
+            * restore DB from RDS Snapshots
+        * example: backup all data to S3 and restore in case of disaster for on-premise
+    * `Pilot Light`
+        * cheap
+        * high RTO
+        * high RPO
+        * only core functions of app are in the cloud(on ec2 for example) and ready to scale
+        * in case of disaster of on-premise, enable all functions and scale up pilot light
+        * architecture:
+            * DC --> Data Replication --> AWS RDS
+            * DC --> failure --> Route 53 --> AWS EC2
+    * `Warm Standby`
+        * expensive
+        * low RTO
+        * low RPO
+        * full version of the app on cloud, but small scale
+        * in case of disaster, scale up cloud version to production load
+        * architecture:
+            * DC [Reverse Proxy] --> failure --> Route 53 --> AWS ELB
+            * DC [DB] --> Data Replication --> RDS Slave (running)
+            * DC [App Server] --> failure --> AWS EC2 ASG (low scale)
+    * `Multi-site / Hot-site`
+        * most expensive
+        * very low RTO
+        * very low RPO
+        * full version at production scale on cloud, in case of disaster, switch to cloud version
+        * architecture:
+            * DC [Reverse Proxy] --> failure --> Route 53 --> AWS ELB
+            * DC [DB] --> Data Replication --> RDS Slave (running)
+            * DC [App Server] --> failure --> AWS EC2 ASG (production scale)
+* **Disaster Recovery Tips**
+    * `Backup`
+        * EBS Snapshots, RDS automated backups / Snapshots
+        * Regular pushes to S3 / S3 IAM / Glacier / Lifecycle Policy / Cross-Region Replication
+        * From On-Premise: Snowball or Storage Gateway
+    * `High Availability`
+        * use Route53 to migrate DNS over Regions
+        * RDS Multi-AZ, ElastiCache Multi-AZ, EFS, S3
+        * Site to Site VPN as a recovery for Direct Connect
+    * `Replication`
+        * RDS Replication (Cross Region), AWS Aurora + Global Databases
+        * Database replication from on-premise to RDS
+        * Storage Gateway
+    * `Automation`
+        * CloudFormation / Elastic Beanstalk to re-create a whole new environment
+        * Recover / Reboot EC2 instances with CloudWatch if alarms fail
+        * AWS Lambda function for customized automations
+    * `Chaos`
+        * choas-monkey that randomly terminate EC2 instances in production to ensure the system is resilient
 
 
 ## AWS DataSync
+* **AWS DataSync** - move large amounts of data from on-premises to AWS
+    * can synchronize on-premise other-cloud to AWS (NFS, SMB, HDFS, S3 API,...) -> agent needed
+    * can synchronize AWS to AWS (different storage services) -> no agent needed
+    * can synchronize to:
+        * Amazon S3
+        * Amazon EFS
+        * Amazon FSx (Windows, Lustre, NetApp, OpenZFS)
+    * replication can be `scheduled` hourly / daily / weekly
+    * replication tasks are **incremental** after the first full load
+    * **Unique for this service** -> file permissions and metadata are preserved (NFS POSIX, SMB, ...)
+    * one agent task can use `10 Gbps`, can setup bandwidth limit
+    * setup: DC Server connects through *AWS DataSync Agent* which conects to *AWS DataSync* which moves data into various AWS Storage Resources
+    * `AWS Snowcone` has DataSync agent pre-installed
 
 
 ## AWS Backup
-
+* **AWS Backup** - fully-managed service to centrally manage and automate backups across AWS services
+    * no need to create custom scripts and manual processes for backup management
+    * **Backup Plans** - backup policies that define:
+        * backup frequency
+        * backup window
+        * transition to Cold Storage (Never, Days, Weeks, Months, Years)
+        * retention period
+        * tag-based backup policies
+    * capabilities:
+        * cross-region backups
+        * on-demand / schedule backups
+        * supports PITR ( Point-in-time Recovery)
+        * cross-account backup (using AWS Organizations)
+    * supported services:
+        * Amazon EC2 / Amazon EBS
+        * Amazon S3
+        * Amazon RDS (all DBs engines) / Amazon Aurora / Amazon DynamoDB
+        * Amazon DocumentDB / Amazon Neptune
+        * Amazon EFS / Amazon FSx (Listre & Windows File Server)
+        * AWS Storage Gateway (Volume Gateway)
+* **AWS Backup Vault Lock**
+    * enforce WORM (Write Once Read Many) state for all the backups that you store in your AWS Backup Vault
+    * additional layer of defense:
+        * inadvertent or malicious delete operations
+        * updates that shorten or alter retention periods
+    * even root use cannot delete backups when enabled
 
 
 &nbsp;
@@ -3902,58 +4927,543 @@ Resource-based policy:
 
 
 ## Shared Responsibility Model
+# AWS Shared Responsiblity
+* https://aws.amazon.com/compliance/shared-responsibility-model/
+* **Customer Responsiblity** - security `in` the cloud:
+    * customer data
+    * platform/applications/identity & access management
+    * operating system/network/firewall configuration
+    * client-side data encryption/data integrity authentication
+    * server-side encryption (file system/data)
+    * networking traffic protection (encryption/integrity/identity)
+    * **IAM**:
+        * users, groups, roles, policies management and monitoring
+        * enable MFA on all accounts
+        * rotate your keys often
+        * use IAM tools to apply appropriate permissions
+        * analyze access patterns & review permissions
+    * **EC2**:
+        * security groups rules
+        * O/S patches and updates
+        * software and utilities install on the EC2 instance
+        * IAM roles for EC2 & IAM user access management
+        * data security on instance - firewall / network configuration
+    * **EC2 Storage**:
+        * setting up backup / snapshot procedures
+        * setting up data encryption
+        * data on the drives
+        * risk of using EC2 Instance Store(ephemeral, hardware failure)
+    * **S3**:
+        * versioning
+        * bucket configuration
+        * bucket policies / public settings
+        * replication setup
+        * logging and monitoring
+        * optimal storage classes
+        * data encryption at rest and in transit
+        * IAM user and roles
+    * **Databases**
+        * if run on EC2 must handle all things that are done by AWS in managed db (see AWS database responsibility model)
+        * check the ports / IP / security group inbound rules in DB's SG
+        * in-database user creation and permissions
+        * creating a database with or without public access
+        * ensure parameter groups or DB is configured to only allow SSL connections
+* **AWS Responsiblity** - security `of` the cloud
+    * software - compute/storage/database/networking
+    * hardware/global infrastructure - regions/az/edge locations, global network security
+    * configuration and vulnerability analysis
+    * compliance validation
+    * **Security**:
+        * protecting infrastructure (hardware, sotware, facilities, networking) that runs all the AWS services
+        * protecting services like S3, DynamoDB, RDS, etc
+    * **EC2**:
+        * infrastructure (global network security)
+        * isolation on physical hosts
+        * replacing faulty hardware
+        * compliance validation
+    * **EC2 Storage**:
+        * infrastructure
+        * replication for data for EBS volumes/EFS drives
+        * replacing faulty hardware
+        * ensuring employees cannot access your data
+    * **S3**:
+        * infrastructure -> global security, durability, availability, sustain concurrent loss of data in two facilities
+        * configuration and vulnerability analysis
+        * compliance validation
+        * guarentee unlimied storage
+        * guarentee encryption
+        * ensure separation of data between different customers
+        * ensure AWS employees cant access your data
+    * **Databases**
+        * manage underlying EC2 instances, disable SSH access
+        * automated DB patching
+        * automated OS patching
+        * audit the underlying instance and disks & guarentee it functions
+        * offers to manage databases which makes them:
+            * quickly provisioned
+            * highly available
+            * fault tolerance
+            * easy vertical and horizontal scaling
+            * automated backup & restore
+            * automated operations / upgrades
+            * automated operating system patching
+            * monitoring/alerting out of the box
+* **Shared Responsibility**
+    * patch management
+    * configuration management
+    * awareness & training
 
 
 ## DDoS, AWS Shield and AWS WAF 
+* **AWS Shield** - comes in two flavors, **Standard** protects againast DDOS for website and applications for all customers at no additional costs and **Advanced** gives premium DDOS protection
+    * **AWS Shield Standard**
+        * free service
+        * activated for every AWS customer
+        * provides protection from attacks such as `SYN/UDP Floods`, `Reflection attack` and other `Layer 3/4 attacks`
+    * **AWS Shield Advanced**
+        * optional DDoS mitigation service (3 000 $ per month per organization)
+        * protect against more sophisticated attack on `EC2`, `ELB`, `CloudFront`, `AWS Global Accelerator`, `Route 53`
+        * 24/7 access to AWS DDoS response team (`DRP`)
+        * protect against higher fees during usage spikes due to DDoS
+* **AWS WAF** - the Web Application Firewall allows filtering specific requests based on rules
+    * protects from common web exploits (`Layer 7`)
+    * deploy to ALB, API Gateway, CloudFront
+    * define `Web ACL (Web Access Control List)`
+        * rules can include `IP addresses`, `HTTP headers`, `HTTP body` or `URI strings` 
+        * protects from common attacks like SQL Injection or Cross-Site Scripting (XSS)
+        * size constraints (make sure requests arent too big)
+        * geo-match (block countries)
+        * rate based rules (count occurrences of events) - for DDoS protection
+    * has built-in rules
+    * can create own rules
+    * **Web ACL rule capacity units** - cannot exceed 1500 rules because it would take too long to process
 
 
 ## Penetration Testing on AWS
+* **Penetration Testing** - attacking own infrastructure to test security
+* customers *ARE ALLOWED* to perform pentest for the following services:
+    * EC2
+    * NAT Gateways
+    * ELB
+    * RDS
+    * CloudFront
+    * Aurora
+    * API Gateways
+    * Lambda
+    * Lambda Edge Functions
+    * Lightsail resources
+    * Elastic Beanstalk environments
+* customer *ARE NOT ALLOWED**
+    * `DNS Zone` walking via Amazon Route 53 Hosted Zones
+    * `DoS` (Denial of Service), `DDoS`,`Simulated DoS`, `Simulated DDoS`
+    * `Port flooding`
+    * `Protocol flooding`
+    * `Request flooding` (login request flooding, API request flooding)
+    * these would look like real attacks and would result in counter-measures by AWS employees
 
 
 ## Amazon Inspector
+* **AWS Inspector** - service for running automated security assessments
+    * works on:
+        * `EC2 Instances` - leverages the `AWS SSM` agent to analyze against *unintended network accessibility* and analyzes the running OS for *vulnerabilities*
+        * `ECR container images` - assesses vulnerabilities as containers are pushed
+        * `Lambda Functions` - software vulnerabilities, package deps, works when deployed
+    * reporting & integration with [AWS Security Hub](#security-hub)
+    * can send finding to `AWS EventBridge`
+    * evaluates only:
+        * running EC2, Lambda Functions, Container Images
+        * scanning when needed
+    * looks at a database of vulnerabilities (EC2, ECR, Lambda) -> `database of CVE`
+        * runs again when CVE is updated
+    * network reachability (EC2)
+    * `risk score` is associated with all vulnerabilities for prioritization
 
 
 ## Logging in AWS
+* for compliance requirements -> AWS provides many service-specific security / audit logs:
+* **Service Logs**
+    * `CloudTrail trails` -> trace all API calls
+    * `Config Rules` -> for config & compliance over time
+    * `CloudWatch Logs` ->
+    * `VPC Flow Logs` -> 
+    * `ELB Access Logs` -> 
+    * `CloudFront Logs` ->
+    * `WAF Logs` ->
+* logs can be analyzed using AWS Athena if theyre stored in S3
+* should:
+    * encrypt logs in S3
+    * control access using IAM & Bucket Policies
+    * enable MFA
+* move logs to glacier for cost savings
 
 
 ## Amazon GuardDuty
+* **AWS GuardDuty** - intelligent threat discovery to protect AWS Account 
+    * uses ML, anomaly detection, 3rd party data
+    * 30 day trial
+    * enabling is only one click
+    * looks at:
+        * `CloudTrail Events Logs` - unusual API calls, unauthorized deployments
+            * `Cloudtrail Management Events` -> create VPC subnet, create trail, ...
+            * `CloudTrail S3 Data Events` -> get object, list object, delete object
+        * `VPC Flow Logs` - unusual traffic / ip address
+        * `DNS Logs` - compromised EC2 instances sending encoded data within DNS queries
+        * `Kubernetes Audit Logs` - suspicious activites / potential EKS cluster compromises
+    * can setup EventBridge rules to be notified in case of findings - target Lambda/SNS
+    * can protect against CryptoCurrency attacks (dedicated "finding" for it)
 
 
 ## Amazon Macie
+* **AWS Macie** - fully managed data security/privacy service that utilizes ML/pattern matching to discover and protect your sensitive data in AWS
+    * alerts about sensitive data like **Personally Identifiable Information (PII)**
+    * example flow: [S3 Bucket] --[analyze]--> [Macie] --[notify]--> [AWS EventBridge] --> [integrations]
+    * one click to enable
 
 
 ## Trusted Advisor
+# AWS Trusted Advisor
+* high level AWS account assessment
+* analyzes your AWS accounts and provides recommendation on 5 categories:
+    * **Cost optimization**
+        * low utilization EC2 instances
+        * idle load balancers
+        * under-utilized EBS volumes
+        * reserved instances & savings plans optimizations
+    * **Performance**
+        * high utilization EC2 instances
+        * CloudFront CDN optimizations
+        * EC2 to EBS throughput optimizations
+        * Alias records recommendations
+    * **Security**
+        * MFA enabled on Root Account
+        * IAM key rotation
+        * exposed Access Keys
+        * S3 Bucket Permissions for public access
+        * security groups with unrestricted ports
+    * **Fault Tolerance**
+        * EBS snapshots age
+        * AZ balance
+        * ASG Multi-AZ
+        * RDS Multi-AZ
+        * ELB configutation
+    * **Service limits**
+* **Support Plans**
+    * **7 Core Checks** -> Basic & Developer Support Plan (FREE)
+        * S3 Bucket Permissions
+        * SG - Specific Ports Unrestricted
+        * IAM Use (one IAM user minimum)
+        * MFA on Root Account
+        * EBS Public Snapshots
+        * RDS Public Snapshots
+        * Service Limits
+    * **Full checks** -> Business & Enterprise Support Plan (PAYED)
+        * full checks available on the 5 categories
+        * ability to set CloudWatch alarms when reaching limits
+        * Programmatic access using the AWS Support API
 
 
 ## Encryption
+* **Encryption**
+    * **Encryption in flight** - data is encrypted before sending and decrypted after receiving
+        * SSL certificates help with encryption (HTTPS)
+        * encryption in flight ensures no MITM (man in the middle attack) can happen 
+    * **Encryption at rest** - encryption by server after receiving the data
+        * data is decrypted before being sent
+        * stored in an encrypted form thanks to a key (usually a data key)
+        * the encryption / decryption keys must be managed somewhere and the server must have access to it
+    * **Client side encryption** - data is encrypted by the client and never decrypted by the server
+        * data will be decrypted by a receiving client
+        * the server should not be able to decrypt the data
+        * could leverage `Envelope Encryption`
 
 
 ## KMS
+* **Key Management Service (KMS)** -> AWS manages encryption keys, while user decides who/what has access to them
+    * `aws manages` encryption keys for us
+    * fully integrated with `IAM` for `authorization`
+    * can `audit` KMS Key usage using `CloudTrail`
+    * GOOD PRACTICE: never store secrets in plaintext, especially in code
+    * KMS Key Encryption available through `API calls` (SDK, CLI)
+        * can perform encryption using KMS in apps and scripts
+        * encrypted secrets can be stored in the code / environment variables
+    * encryption per AWS Service:
+        * `seamlessly integrated` into most AWS Services
+        * opt-in:
+            * EBS volumes
+            * RDS database
+            * S3 buckets
+            * Redshift database
+            * EFS drives
+        * automatically:
+            * CloudTrail logs
+            * S3 Glacier
+            * Storage Gateway
+* **Encryption types**
+    * *Data at rest* -> data stored on a device
+        * EFS, RDS, S3 Glacier Deep Archive
+    * *Data in transit* (or in motion) -> data that is being transferred on the `network` from a source to a target
+        * on-premises -> AWS, EC2 -> DynamoDB
+    * ideally we want to encrypt data in both states
+* **Encryption keys Types**
+    * `Symmetric (AES-256 keys)` - single encryption key that is used to Encrypt and Decrypt
+        * AWS services that are integrated with KMS use Symmetric CMKSs
+        * must call KMS API to use - never get access to the KMS Key unencrypted
+        * API:
+            * `Encrypt` - encrypt up to 4KB of data through KMS
+            * `GenerateDataKey` - generate unique symmetric data key (DEK)
+                * returns plaintext copy of DEK
+                * AND a copy that is encrypted under the CMK that you specify
+            * `GenerateDataKeyWithoutPlaintext` - generate DEK to use at some point and stores an encrypted DEK at CMK you specify
+            * `Decrypt` - decrypt up to 4 KB of data (include DEK)
+            * `GenerateRandom` - returns a random byte string
+    * `Asymmetric (RSA & ECC key pairs)` - use public key to encrypt and private key to eecrypt
+        * used for Encrypt / Decrypt, or Sign / Verify operations
+        * the public key is downloadable, but you cant access the Private Key unencrypted
+        * use case: encryption outside of AWS by users who cant call the KMS API
+* **Types of Encryption Keys within AWS** - various kinds of encryption keys available in AWS:
+    * `AWS Owned Keys` -> collection of CMKs that an AWS service owns and manages for multiple accounts
+        * are free
+        * include: `SSE-S3`, `SSE-SQS`, `SSE-DDB` (default key)
+        * aws can use to protect resources
+        * customer does not have access or any type of control over these keys
+    * `AWS Managed KMS Key` -> created/managed/used by AWS on the customer's behalf, only used by AWS services
+        * form: `aws/s3`, `aws/ebs`, `aws/redshift`
+        * free to use
+        * rotate automatically every 1 year
+    * `Customer Managed CMK` -> create/manage/used by client and can be enabled/disabled, define rotation policy, bring own key
+        * created in KMS cost; 1$ / month
+        * imported symmetric key: 1$ / month
+        * pay for API call to KMS: 0.03$ / 10000 calls
+        * if enabled automatic rotation every 1 year
+        * for imported keys only manual rotation possible using alias
+    * `CloudHSM Keys (custom keystore)` -> keys generated from own CloudHSM hardware device
+        * cryptographic operations happen within the CloudHSM cluster
+* **Copying Snapshots across regions**  
+    1. You have an EBS Volume Encrypted with KMS `KMS Key A`
+    1. Create a snapshot of the EBS, will also be encrypted with  KMS `KMS Key A`
+    1. Copy the snapshot and `ReEncrypt` with new key in new region `KMS Key B`
+    1. The same KMS Key cannot live in two regions
+* **Key Policies and IAM**
+    * control access to KMS keys use a Key Policy (like an S3 bucket policy)
+    * you cannot control access without them
+    * policy types:
+        * `Default KMS Key Policy`
+            * create if you dont provide a specific KMS Key Policy
+            * complete access to the key to the root user = entire AWS account
+        * `Custom KMS Key Policy`
+            * define users / roles that can access the KMS key
+            * define who can administer the key
+            * useful for cross-account access of your KMS Key
+    * **Principal Options** in Key Policy:
+        * `AWS Account and Root User`
+            * `"Principal": { "AWS": "123456789012" }`
+            * `"Principal": { "AWS": "arn:aws:iam::123456789012:root" }`
+        * `IAM Roles`
+            * `"Principal": { "AWS": "arn:aws:iam::123456789012:role/role-name" }`
+        * `IAM Role Sessions` - for assumed roles for Cognito Identity Pool or SAML
+            * `"Principal": { "AWS": "arn:aws:sts::123456789012:assumed-role/role-name/role-session-name" }`
+            * `"Principal": { "Federated": "cognito-identity.amazonaws.com" }`
+            * `"Principal": { "Federated": "arn:aws:iam::123456789012:saml-provider/provider-name" }`
+        * `IAM Users`
+            * * `"Principal": { "AWS": "arn:aws:iam::123456789012:user/user-name" }`
+        * `Federated User Sessions`
+            * `"Principal": { "AWS": "arn:aws:sts::123456789012:federated-user/user-name" }`
+        * `AWS Services`
+            * `"Principal": { "Service": ["ecs:amazonaws.com", "elasticloadbalancing.amazonaws.com"] }`
+        * `All Principals`
+            * `"Principal": "*"`
+            * `"Principal": { "AWS": "*"}`
+    * **Copying Snapshots across accounts**
+        1. create a Snapshot, encrypt with your own KMS Key (Customer Managed Key)
+        1. attach a KMS Key Policy to authorize cross-account access
+        1. share the encrypted snapshot
+        1. in target account create a copy of the snapshot
+        1. encrypt the copied snapshot with a CMK in target account
+        1. create a volume from the snapshot
+* **Encryption Patterns**:
+    * **Envelope Encryption** - encryption pattern used if you want to encrypt data that is more than 4 KB in size
+        * KMS Encrypt API call has a limit of 4 KB
+        * this encryption pattern uses `GenerateDataKey` API which can encrypt over 4 KB of data
+        * encryption process:
+            1. `GenerateDataKey` API call sends back a Plaintext DEK (Data Encryption Key) and Encrypted DEK
+            1. Encrypt big file client side using the `Plaintext DEK`
+            1. Build `Envelope` around file containing the Encrypted DEK and Encrypted File
+        * decryption process:
+            1. Call `Decrypt` API with Encrypted DEK
+            1. Returns `Plaintext DEK`
+            1. Decrypt Encrypted Data File using the `Plaintext DEK`
+        * `Encryption SDK` - implement Envelope Encryption, also exists as CLI, implements Java / Python / C / Javascript
+        * **Data Key Caching** - feature that allows caching and reusing the DEK across files
+            * lower security - reused DEK
+            * lower cost - less number of calls to KMS
+            * `LocalCryptoMaterialsCache` - defines attributes of the cached keys like, max age, max bytes, max number of messages encrypted by DEK before creating a new one
+* `ThrottlingException` - when exceeding KMS Request Quotas
+    * all cryptiographic operations share a quota - across regions, includes requests made by AWS(ex. SSE-KMS)
+    * quotas are different depending on region
+    * solutions:
+        * use exponential backoff
+        * for `GenerateDataKey` consider DEK caching
+        * can request a Request Quotas increase through API or AWS Support
+* **Integrations**
+    * **Lambda** - can encrypt environment variables and decrypt at runtime, provides easy to use snippet, IAM role must have permission to `Decrypt`
+    * **S3 Bucket Key** - new encryption setting for buckets using SSE-KMS encryption
+        * can decrease number of API calls to KMS from S3 by 99% 
+        * can decrease costs of KMS encryption on S3 by 99%
+        * leverages data keys - generates an `S3 bucket key` that is used to encrypt objects
+        * will see less KMS CloudTrail events
+    * **CloudWatch** - can encrypt CloudWatch logs with KMS keys
+        * enabled at log group level, by associating CMK
+        * can be done when creating log group or after creation
+        * can only be done using CloudWatch Logs API:
+            * `associate-kms-key` - if the log group exists
+            * `create-log-group` - if log group doesnt exist yet
 
 
 ### KMS - Key Rotation
+* **Automatic Rotation**
+    * can enable automatic key rotation for `CMK` (customer-managed key)
+    * if enabled -> key rotation happens `every 1 year`
+    * `previous key` is `kept active` so you can decrypt old data
+    * new key has the `same CMK ID` (only backing key is changed)
+* **Manual Rotation**
+    * if you want to rotate every 90 / 180 / etc days
+    * new key has a `different CMK ID`
+    * `keep` the `previous key` active so you can decrypt old data
+    * better to `use aliases` in this case (to hide change of key for the application)
+    * good solution to rotate CMK that are not eligible for automatic rotation (like asymetric CMK)
+* **KMS Alias Updating** - better to use aliases in this case - to hide the change of key for the application
 
 
 ### KMS - SysOps
+* **EBS KMS Key**
+    * cant change the encryption keys used by an EBS volume
+    * create an EBS snapshot and create a new EBS volume and specify the new KMS key
+* **RDS DB Snapshot Encrypted with KMS**
+    * can share encrypted RDS DB snapshots, but must first share KMS CMK using Key Policy
+* **KMS Key Deletion**
+    * schedule CMK deletion - waiting period of `7 - 30 days`
+    * CMK goes into status `Pending Deletion` while waiting
+    * during waiting -> CMK `cant` be used for `cryptographic operations`
+    * the key is `not rotated` even if planned
+    * can `cancel deletion`
+    * can use `CloudTrail` -> `CloudWatch Logs` -> `CloudWatch Alarms` -> `SNS` -> to be notified if someone tries to perform cryptographic operations with key in Pending Deletion state
 
 
 ## CloudHSM
+* **CloudHSM** -> AWS provisions encryption `hardware`, by providing dedicated hardware (HSM - Hardware Security Module)
+    * AWS manages the hardware
+    * you manage your own encryption keys
+    * HSM is tamper resistant (FIPS 140-2 level 3 compliance)
+    * compliant with `FIPS 140-2 Level 3` security standard
+    * the `AWS CloudHSM Service` communicates with an `AWS CloudHSM Client` through SSL to manage keys securely
+    * support both `symmetric` and `asymmetric` encryption (SSL / TLS keys)
+    * no free tier
+    * must use the `CloudHSM Client Software`
+    * Redshift support CloudHSM for database encryption and key management
+    * Good option to use with `SSE-C encryption` on top of S3 when managing own encryption keys
+    * if you want to import on-premise assymetric keys -> only possible through CloudHSM
+* access:
+    * `IAM permissions` - allow CRUD on HSM Cluster at a high level
+    * `CloudHSM Software` - manage keys, users, access to keys
+* **High Availability**
+    * CloudHSM clusters are spread across Multi AZ
+    * great for availability and durability
+* **Integration** - can intergrate with KMS, configure custom KMS Key Store with CloudHSM, AWS Service use HSM keys that are stored in AWS KMS
+* **CloudHSM vs KMS**
+    * `CloudHSM`
+        * `tenancy`: single-tenant
+        * `standard`: FIPS 140-2 Level 3
+        * `master keys`: Customer Managed CMK
+        * `key types`: Symmetric / Asymettric / digital signing / hashing
+        * `key accessiblity`: deployed / managed in VPC, can be shared across VPCs with VPC Peering(so across multiple regions)
+        * `cryptographic acceleration`: SSL / TLS Acceleration, Oracle TDE Acceleration
+        * `access & authentication`: you create users and manage permissions
+        * `high availability`: add multiple HSMs over AZs
+        * `audit capability`: CloudTrail, CloudWatch, MFA support
+        * `free tier`: no
+    * `KMS`:
+        * `tenancy`: multi-tenant
+        * `standard`: FIPS 140-2 Level 2
+        * `master keys`: AWS Owned / AWS Managed / Customer Managed CMK
+        * `key types`: Symmetric / Asymettric / digital signing
+        * `key accessiblity`: in multple regions
+        * `cryptographic acceleration`: none
+        * `access & authentication`: AWS IAM
+        * `high availability`: AWS Managed Service
+        * `audit capability`: CloudTrail, CloudWatch
+        * `free tier`: yes
 
 
 ## AWS Artifact
+* **Artifact** - portal that provides customers on-demand access to AWS compliance documentation and AWS agreements
+    * *Artifact Reports* - download AWS security/compliance documents from third-party auditors
+        * AWS ISO certifications
+        * Payment Card Industry (PCI)
+        * System and Organization Control (SOC)
+    * *Artifact Agreements* - review/accept/track status of AWS agreements
+        * Business Associate Addendum (BAA)
+        * Health Insurance Portability and Accountability Act (HIPAA)
+        * works for individual account or organization
+    * used to support internal audit or compliance
+    * global service
 
 
 ## ACM
+* service for easily provisioning/managing/deploying SSL/TLS certificates
+    * used to provide in-flight encryption for website HTTPs endpoints
+    * supoorts public and private TLS certs
+    * free of charge for public TLS certs
+    * automatic certificate renewal
+    * integrates with other services (loads the certificate):
+        * ELB
+        * CloudForm Distributions
+        * APIs on API Gateway
 
 
 ## Secrets Manager
+* **Secrets Manager** - newer service meant for storing secrets
+    * can force rotation of secrets every X days
+    * automate rotating of secrets
+    * integration with Amazon RDS
+    * secrets are encrypted using KMS
+    * mostly for RDS integration
+    * more expensive than SSM
+    * Lambda function provided for RDS, Redshift, DocumentDB
+* **Types of secrets**
+    * most consist of name and password and are used for *Databases*
+        * links the user and pass to the DB
+        * rotates 
+    * *Other type of secrets* are JSON files containing multiple key:value pairs
+* seamless integration with CloudFormation for RD & Aurora through `ManageMasterUserPassword` attribute in CF template
+
+Example CF template:
+```yml
+Resources:
+    MyCluster:
+        Type: AWS::RDS::DBCluster
+        Properties:
+            Engine: aurora-mysql
+            MasterUsername: masteruser
+            ManageMasterUserPassword: true
+
+Outputs:
+    Secret:
+        Value: !GetAtt MyCluster.MasterUserSecret.SecretArn
+```
 
 
 ### Secrets Manager - Monitoring & Troubleshooting
-
-
-### Secrets Manager vs SSM
-
+* **Monitoring**
+    * CloudTrail captures API calls to Secrets Manager API
+    * ClouTrail records these events as non-API service events:
+        * `RotationStarted` event
+        * `RotationSucceeded` event
+        * `RotationFailed` event
+        * `RotationAbandoned` event - manual change to a secret instead of automated rotation
+        * `StartSecretVersionDelete`
+        * `CancelSecretVersionDelete`
+        * `EndSecretVersionDelete`
+    * combine with CW Logs and CW Alarms for automations
 
 
 &nbsp;
@@ -3961,42 +5471,961 @@ Resource-based policy:
 
 
 ## IAM Security Tools
+* **IAM Security Tools** various tools for checking how secure your IAM configuration is:
+    * *IAM Credentials Report* - list of account's users and various credential status - `account level`
+    * *IAM Access Advisor* - list of service permissions granted to user and when they where last accessed. Very handy to revise policies assigned to user - `user level`
 
 
 ## IAM Access Analyzer
+* find out which resource are shared externally
+* resources include:
+    * `S3 Buckets`
+    * `IAM Roles`
+    * `KMS Keys`
+    * `Lambda Functions and Layers`
+    * `SQS queues`
+    * `Secrets Manager Secrets`
+* **Zone of Trust** - AWS Account or AWS Organization, findings outside of zone of trusts are flagged
 
 
 ## Identity Federation with SAML & Cognito
+* **Identity Federation** -  lets users outside of AWS to assume temporary role for accessing AWS resources
+    * these users assume identity provided access role
+    * federation assumes a form of 3rd party authentication:
+        * LDAP
+        * MS AD (~=SAML)
+        * Single Sign On
+        * Open ID
+        * Cognito
+    * using federation -> dont need to create IAM users (user management is outside of AWS)
+* **SAML Federation**
+    * for enterprises
+    * directly integrated with AWS
+    * to integrate `AD` / `ADFS` with AWS (or any `SAML 2.0`)
+    * provides acces to AWS Console or CLI (through temporary creds)
+    * no need to create an IAM user for each of your employees
+* **Custom Identity Broker Application**
+    * for enterprises that dont have identity provider compatible with SAML 2.0
+    * identity broker must determine the appropriate IAM policy
+    * identity broker needs to communicate with STS directly to get temporary creds
+* **AWS Cognito - Federated Identity Pools**
+    * for public applications
+    * `Goal`: Provide direct access to AWS Resources from the Client Side
+    * `How`:
+        * log in to federated identity provider - or remain anonymous
+        * get temporary AWS creds back from the Federate Identity Pool
+        * these credentials come with a pre-defined IAM policy stating their permissions
+    * `Example`: provide temp access to S3 bucket using Facebook Login
+    * `Note`: Web Identity Federation is an alternative to using Cognito but AWS recommends against it
 
 
 ## STS & Cross Account Access
+* **Security Token Service** - allow to grant limited and temporary access to AWS resources
+    * token is valid for up to one hour (must be refreshed)
+    * `AssumeRole` - API call to STS
+        * within your own account -> for enhanced security
+        * cross acount access -> assume role in target account to perform actions there
+    * `AssumeRoleWithSAML`
+        * return cred for users logged with SAML
+    * `AssumeRoleWithWebIdentity`
+        * return creds for users logged with and IdP (Facebook, Google, OIDC compatible)
+        * deprecated -> use Cognito instead
+    * `GetSessionToken`
+        * for MFA, from a user or AWS account root user
+* **Assume Role Process**
+    1. define IAM Role within your account or cross-account
+    1. define which principals can access this IAM Role
+    1. use AWS STS to retrieve creds and impersonate IAM Role you have access to (`AssumeRole API`)
+    1. temporary creds can be valid between 15min - 1h
+
 
 
 ## Cognito User Pools
+* **Cognito User Pools (CUP)** - sign in functionality for app users
+    * create a serverless database of users for your web & mobile apps
+    * users can:
+        * login using username(or email) and password
+        * reset password
+        * email & phone number verification
+        * set password requirements
+        * MFA
+        * `Federated identities`: users from Facebook, Google, SAML..., federation through 3rd party identity providers
+            * if you only need federated identities use Cognito Identity Pools
+        * block users if credentials are compromised elsewhere
+        * login sends back a JWT
+    * send emails through SNS or Cognito -> Cognito good for development, SNS is a must for production 
+    * **Integrations**:
+        * `API Gateway`
+        * `ALB`
+            * can securely authenticate users to LB
+            * apps can focus on business logic
+            * auth users through: 
+                * `Identity Provider(IdP)` -> OIDC compliant
+                * `Cognito User Pools` -> for social IdPs(like Amazon, Facebook, Google) or corporate identityes using SAML, LDAP, Microsoft AD
+            * must use an `HTTPS`(443) listener to set authenticate-oidc & authenticate-cognito rules
+            * `OnUnauthenticatedRequest` -> authenticate(default), deny, allow
+            * process for CUP auth:
+                1. create Cognito User Pool, Client and Domain
+                1. make sure an ID token is returned
+                1. add the social or corporate IdP if needed
+                1. several URL redirections are necessary
+                1. allow your Cognito User Pool Domain on your IdP apps callback URL
+                    * examples: 
+                        * `https://domain-prefix.auth.region.amazoncognito.com/saml2/idresponse`
+                        * `https://user-pool-domain/oauth2/idpresponse`
+            * process for IdP auth:
+                1. configure a `Client ID` & `Client Secret`
+                1. allow redirect from OIDC to your `ALB DNS name` (AWS provided) and `CNAME`(DNS Alias of app)
+                    * `https://DNS/oauth2/idpresponse`
+                    * `https://CNAME/oauth2/idpresponse`
+    * **Hosted Authentication Page** - optionally provides a hosted UI for authenticating users
+        * foundation for integration with social logins, OIDC, SAML
+        * can customize logo and custom CSS
+        * can host on custom domain:
+            * must create ACM certificate in `us-east-1`
+            * must be defined in the **App Integration** section during CUP configuration
+    * **Adaptive Authentication** - allows blocking sign-in or requiring MFA if login appears suspicious
+        * Cognito examines sign-in attempt and generates a `risk score`(low, medium, high) fir likeliness of malicious attacker
+        * user prompted for MFA only if risk is detected
+        * risk score is based on various factors:
+            * using same device
+            * location
+            * IP address
+            * more
+        * checks for compromised credentials, account takeover protection, phone and email verification
+        * integration with CloudWatch Logs
+    * **CUP JWT**
+        * Base64 encoded - easily transferred across network
+        * contains:
+            * `headers`
+            * `payload`
+            * `signature`
+        * the signature must be verified to ensure the JWT can be trusted
+        * payload will contain user information:
+            * `sub UUID` - User ID in Cognito DB
+            * `give_name`
+            * `email`
+            * `phone_number`
+            * `attributes`
+            * `expire` - when JWT expires
+            * `iat` - when JWT was issued
+            * more
+    * **Lambda Triggers** - can integrate with AWS Lambda to perform operations during different events within CUP
+        * synchronous invocation triggers:
+            * `Authentication Events`:
+                * `pre-auth` -> custom validation to accept/deny sign-in request
+                * `post-auth` -> event logging for custom analytics
+                * `pre token gen` -> augment or suppress token claims
+            * `Sign-up`:
+                * `pre sign-up` -> custom validation to accept/deny sign up
+                * `post confirmation` -> custom welcome messages or event logging for custom analytics
+                * `migrate user` -> migrate user from existing user directory to user pools
+            * `Messages` -> advanced customization and localization of messages
+            * `Token Creation` -> add/remove attributes in Id tokens
+
+![Cognito User Pools - ALB integration](./aws_da_cognito_alb_cup.png)
 
 
 ## Cognito Identity Pools
+* **Cognito Identity Pools** - provide AWS credentials to users so they can access AWS resources directly
+    * used to be called `Federated Identity`
+    * integrate with Cognito User Pools as an identity provider 
+    * get identities for "users" so they obtain temporary AWS credentials
+    * solves problems of:
+        * too many users to configure all with IAM
+        * limited trust
+        * need an auth mechanism that scales
+    * identity pool can include:
+        * `Public Providers` -> amazon, facebook, google, apple
+        * users in `Amazon Cognito User Pool` -> allows for unathenticated(`guest`) access
+        * `OpenID Connect` Providers & `SAML` Identity Providers
+        * `Developer Authenticated` Identities (custom login server)
+    * once identities are provided users can access AWS services from SDK / CLI / API Gateway
+    * obtained credentials are associated with `IAM policies` 
+        * defined in Cognito
+        * can be customized based on the user_id for fine grained control
+* **IAM Roles** - various options for mapping IAM roles to identified users
+    * `Default` -> setup default IAM role for authenticated and guest users
+    * `Rules` -> define rules to choose which role for each user based on users ID
+    * `Variables` -> partition users access using **policy variables**
+    * IAM credentials are obtained by Cognito Identity Pools through STS
+    * roles must have a `trust` policy of Cognito Identity Pools
+* **Options**
+    * `Push synchronization` -> if user settings change these changes can be pushed to all devices
+    * `Cognito Streams` -> push each dataset change to Kinesis stream you own in real time.
+    * `Cognito Events` -> run AWS Lambda function in response to important events in Cognito
+
+Example guest user policy:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action":: [
+                "s3:GetObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::mybucket/assets/my_picture.jpg"
+            ]
+        }
+    ]
+}
+```
+
+Policy variables on S3:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": ["s3:ListBucket"],
+            "Effect": "Allow",
+            "Resource": ["arn:aws:s3:::mybucket"],
+            "Condition": {
+                "StringLike": {"s3:prefix": ["${cognito-identity.amazonaws.com:sub}/*"]}
+            }
+        },
+        {
+            "Action":: [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Effect": "Allow",
+            "Resource": ["arn:aws:s3:::mybucket/${cognito-identity.amazonaws.com:sub}/*"]
+        }        
+    ]
+}
+```
+
+Policy variables on DynamoDB:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query",
+                "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem",
+                "dynamodb:BatchWriteItem"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:us-west-2:123456789012:table/MyTable"
+            ],
+            "Condition": {
+                "ForAllValues:StringEquals": {
+                    "dynamodb:LeadingKeys": [
+                        "${cognito-identity.amazonaws.com:sub}"
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
+    
+CIP with Public Providers:
+![Cognito Identity Pools - Public Provider](./aws_da_cognito_cip_public_provider.png)
+
+CIP with CUP:
+![Cognito Identity Pools - Cognito User Pools](./aws_da_cognito_cip_cup.png)
 
 
 ## IAM Identity Center
-
+* **IAM Identity Center** - SSO for multiple  AWS accounts & applications
+    * one login for all your:
+        * AWS Account in AWS Organizations
+        * Business cloud applications (e.g. Salesforce, Box, Microsoft 365,...)
+        * SAML2.0-enabled applications
+        * EC2 Windows Instances
+* **Identity providers**
+    * built-in identity store in IAM Identity Center
+    * 3rd party: AD, OneLogin, Okta,...
+* **Permission Sets** - specify which users have access to what
+* **Fine-grained Permissions and Assignments**
+    * `Multi-Account Permissions`
+        * manage access across AWS accounts in your AWS Organization
+        * permission sets - a collection of one or more IAM Policies assigned to users / groups to define AWS Access
+    * `Application Assignments`
+        * SSO access to many SAML 2.0 business applications
+    * `Attribute-Based Access Control (ABAC)`
+        * fine-grained permissions based on users attributes stored in IAM Identity Center Identity Store
+        * example: cost center, title, locale
+        * use case: define permissions once, then modify AWS access by changing the attributes
 
 
 &nbsp;
 # Route 53
+* **Route 53** - a highly available, scalable, fully managed and Authoritative DNS and Domain Registrar
+    * ability to check the health of resources
+    * only AWS service which provides 100% availability SLA
+    * *53* is a reference to traditional DNS port used by DNS services
+    * a global service
+* **Records** - define how you want to route traffic for a domain
+    * each record contains:
+        * *Domain/subdomain Name* - the domain or subdomain the rule is applied to
+        * *Record Type* - a key that represents a parameter of the DNS 
+            * `A` (must know) - maps a hostname to IPv4
+            * `AAAA` (must know) - maps a hostname to IPv6
+            * `CNAME` (must know) - maps a hostname to another hostname
+                * target domain name must have an A or AAAA record
+                * cant create CNAME for top node(root domain) of a DNS namespace like `example.com` (Zone Apex = root domain = top node)
+            * `NS` (must know) - Name Servers for the Hosted Zone, they can respond to your DNS querries
+                * controls how traffic is routed to domain
+            * `CAA` - specify which Certification Authorities (CA) are authorized to deliver SSL certificates for your domain
+            * `DS` - used to secure delegations
+            * `MX` - indicates what domain email messages in accordance with SMTP are routed to
+            * `NAPTR` - allows setting dynamic rules for how a website processes requests (useful for internet telecommunicatioin services)
+            * `PTR` - a piece of information attached to an email to verify that sender matches ip address it claims to be. Known as *reverse DNS lookup*
+            * `SOA` - *start of authority* record includes administrative information about your DNS zone
+            * `TXT` - contains text information for sources outside of your domain, that can be used in various ways
+            * `SPF` - contains list of all IP addresses that are permitted to send emails on behalf of your domain
+            * `SRV` - a resource record which is used to identify computers hosting specific services. Used to locate domain controller for Active Directory
+            * **Alias** - like CNAME allows a hostname to point to another hostname but:
+                * works for root domain and non root domain
+                * free of charge
+                * native health check
+                * maps hostname to AWS resource
+                * extension to DNS functionality
+                * automatically recognizes changes in the resources IP address
+                * always record of type A or AAAA
+                * use cases: ELB, CLoudFront Distributions, API Gateway, Elastic Beanstalk envs, S3 Websites, VPC Interface Endpoints, Global Accelerator accelerator, Route 53 in record in the same hosted zone
+                * CANNOT set ALIAS record for an EC2 DNS name
+        * *Value* - the value in the record
+        * *Routing Policy* - how Route 53 responds to DNS queries
+            * DNS routing does not route traffic, just responds to queries
+        * **TTL** - amount of time record is cached
+            * if a DNS request is made the client caches this request for the amount of time specified in the TTL
+            * high TTL -> less traffic on Route 53, but possibly outdated records
+            * low TTL -> high traffic on Route 53, but less possible to get outdated records
+            * mandatory for all records, but Alias
+* **Hosted Zones** - a container for records that define how to route traffic to domain/subdomains
+    * **Public Hosted Zones** - contain records that specify how to route internet traffic (public domain names)
+    * **Private Hosted Zones** - contain records the specify routing for traffic within VPC/s (private domain names)
+    * cost in AWS is $0.50 per month per hosted zone
+* **Routing Policies**
+    * **Simple Routing Policy** - no HC, route traffic to single resource
+        * can specify multiple values in single record -> a random one is chosen by client
+        * specify only one AWS resource in Alias
+    * **Weighted Routing Policy** - assign weights to host servers which determine the % of routed traffic that is redirected to each one. Allows health checks. Similiar to a load balancer
+        * traffic (%) = [weight for record] / [sum of all the weights for all records]
+        * weights dont need to sum up to 100
+        * records must have same name and type
+        * use cases: load balancing across regions, testing new application versions
+        * assign weight of 0 to a record to stop sending traffic to a resource
+    * **Latency Routing Policy** - routes traffic to the server with lowest latency
+        * latency is based on traffic between users and AWS Regions
+        * can be associated with HC (failover capability)
+        * create multiple records where an IP is mapped to a region
+    * **Failover Routing Policy** - configure a primary and failover host, in case of failed HC on primary DNS record points to the failover
+    * **Geolocation Routing Policy** - routing based on user location
+        * can specify locaiton by Continent, Country, US State
+        * in case of overlapping most precise location is selected
+        * should create **Default** record in case of no matching location
+        * use cases: website localization, restrict content distribution, load balancing,...
+        * can be associated with HC
+    * **Geoproximity Routing Policy** - route traffic to resources based on geographic location of users and resources
+        * shift more traffic to resources based on defined bias
+        * to change size of geographic region, specify bias values
+            * to expand (1 to 99) - more traffic to resource
+            * to shrink (-1 to -99) - less traffic to resource
+        * resources can be:
+            * AWS resources
+            * Non-AWS resources (specify Latitude and Longitude)
+        * must use **Route 53 Traffic Flow** to use this feature
+        * useful to shift traffic from one region to another based on defined bias
+    * **IP-based Routing Policy** - route traffic based on clients IP addresses
+        * you provide a list of CIDRs for your clients
+        * map CIDR to endpoints/locations (user-IP-to-endpoint mappings)
+        * use cases: optimize performance, reduce network costs
+        * example: route end users from a particular ISP to a specific endpoint
+    * **Multi-Value Routing Policy** - use to route traffic to multiple resources
+        * Route 53 will return multiple values/resources and one will be chosen
+        * can be associated with HC (only return values for healthy resources)
+        * up to 8 healthy records for each Multi-Value query
+        * not a substitute for ELB
+* **Route 53 Traffic Flow**
+    * visual editor to manage complex routing decision trees
+    * simplify creating and maintaining records in large complex configurations
+    * configurations can be saved as *Traffic Flow Policy*
+        * can be applied to different Hosted Zones
+        * supports versioning
+* **Health Checks** - Route 53 healthchecks are only available for *public resources*. This provides automated DNS failover. 
+    * 3 types:
+        * monitor an **endpoint** (app, server, other AWS resource)
+            * 15 global health checkers check endpoint health
+            * healthy/unhealthy `threshold` -> default = 3
+            * `interval` 30 sec (can set lower like 10s but higher cost)
+            * support HTTP, HTTPS, TCP
+            * if > 18% checkers report Healthy, then Route 53 considers it healthy
+            * can choose locations Route 53 uses for HC
+            * HC only pass if responds with 2xx and 3xx status codes
+            * HC can be setup to fail based on text in first 5120 bytes of response
+            * must configure router/firewall to allow incoming requests from Route 53 Health Checkers
+        * monitor other health checks (**calculated health checks)**
+            * combine result of multiple HC into a single HC
+            * allows OR, AND, NOT
+            * can monitor up to 256 child HC
+            * specify how many child HC need to pass for parent to pass
+            * usage: perform maintenance to website without causing all health check to fail
+        * monitor **CloudWatch Alarms** -> eg. throttles of DynamoDB, alarms on RDS, custom metrics (good for private resources)
+            * Route 53 is outside of VPC so cant access private endpoints
+            * can create CW metric, associate with CW Alarm, create HC for that alarm
+    * HC are integrated with CW metrics
+* **3rd Party Domains** -  you can use Route 53 as DNS Service for domains hosted by a different registrat then AWS Registrar
+    * setting up a Public Hosted Zone you get a collection of name servers associated -> change the nameservers of the 3rd party Domain to these to start using the domain in Route 53
+    * Domain Registrar != DNS Service
 
 
+## Route 53 - S3 Website
+* create an S3 Bucket with the same name as the target record (like `acme.example.com`)
+* enable S3 webiste on the bucket
+* enable S3 bucket public settings
+* create a Route 53 `Alias record` to the S3 website endpoint or type `A - IPv4` address
+    * example: **Alias Record** -> Record name: `acme.example.com` | type: `A` | Value: `s3-website.eu-central-1.amazonaws.com`
+* only works for HTTP traffic - for HTTPS use CloudFront
+
+
+## Route 53 - Resolvers
+* **Resolvers** - by default Route53 Resolver automatically answers DBS queries for:
+    * local domain names for EC2 instances
+    * records in Private Hosted Zones
+    * records in Public Name Servers
+* **Hybrid DNS** - allows resolving DNS queries between VPC (Route 53 Resolver) and your networks (other DNS Resolvers)
+    * networks can be:
+         * VPC itself / Peered VPC
+         * On-premises Network (connected through Direct Connect or AWS VPN)
+    * **Resolver Endpoints**
+        * `Inbound Endpoint`
+            * can forward DNS queries to Route 53 Resolver
+            * allow your DNS Resolvers to resolve domain names for:
+                * AWS resources (e.g. EC2 instances)
+                * records in Route 53 Private Hosted Zones
+        * `Outbound Endpoint`
+            * route 53 resolver conditionally forwards DNS queries to your DNS resolvers
+            * use `Resolver Rules` to forward DNS queries to your DNS Resolvers
+        * associated with one or more VPCs in the same region
+        * create in two AZs for HA
+        * each endpoint supports 10000 queries per second per IP address
+* **Resolver Rules** - control which DNS queries are forwarded to DNS Resolvers on your network
+    * `Conditional Forwarding Rules (Forwarding Rules)`
+        * forward DNS queries for a specified domain and all its subdomains to `target IP addresses`
+    * `System Rules`
+        * selectively overrides behavior defined in Forwarding Rules
+    * `Auto-defined System Rules`
+        * defines how DNS queries for selected domains are resolved
+    * if multiple rules matched - Route 53 Resolver chooses most spepcific match
+    * Resolver Rules can be shared across account using AWS RAM
+        * manage them centrally
+        * send dns queries from multiple VPC to the target IP defined in the rule
 
 
 &nbsp;
-# VPC
+# Networking - VPC
+* summary:
+    * `CIDR` -> IP range
+    * `VPC` -> Virtual Private Cloud -> we define a list of IPv4 & IPv6 CIDR
+    * `Subnets` -> tied to AZ, we define CIDR
+    * `Internet Gateway` -> at VPC level, provide IPv4 & IPv6 Internet Access
+    * `Route Tables` -> key to network flow within VPC, must be edited to add routes from subnets to the IGW, VPC Peering Connections, VPC Endpoitns, ...
+    * `Bastion Host` -> public EC2 instance to SSH into, that has SSH connectivity to EC2 instances in private subnets
+    * `NAT Instances` -> gives internet access to EC2 instances in private subnets, must be in public subnet, disable Source / Destination check flag
+    * `NAT Gateway` -> managed by AWS, provides scalable Internet access to private EC2 instances, IPv4 only
+    * `Private DNS + Route 53` -> enable DNS Resolution + DNS Hostname (VPC)
+    * `NACL` -> stateless, subnet rules for inbound and outbound, dont forget **Ephemeral Ports**
+    * `Security Groups` -> stateful, operate at the EC2 instance level
+    * `Reachability Analyzer` -> perform network connectivity testing between AWS resources
+    * `VPC Peering` -> connect two VPCs with non overlapping CIDR, non-transitive
+    * `VPC Endpoints` -> provide private access to AWS Services (S3, DynamoDB, CloudFormation, SSM) within a VPC
+    * `VPC Flow Logs` -> get logs from VPC / Subnet / ENI Level, identify attack, analyze using Athena or CloudWatch Logs Insights
+    * `Site-to-site VPN` -> setup Customer Gateway on DC, Vritual Private Gateway on CPV and site-to-site VPN over public internet
+    * `AWS VPN CloudHub` -> hub-and-spoke VPN model to connect your sites
+    * `Direct Connect` ->setup Virtual Private Gateway on VPC, establish direct private connection to an AWS Direct Connect Location, takes time to setup(1 month)
+    * `Direct Connect Gateway` -> setup Direct Connect to many VPCs in different AWS regions
+    * `AWS PrivateLink / VPC Endpoint Services` -> connect services privately, service VPC <-> customers VPC
+        * doesnt need VPC Peering, public Internet, NAT Gateway, Route Tables
+        * must be used with NLB & ENI
+    * `ClassicLink` -> connect EC2-Classic EC2 instances privately to your VPC
+    * `Transit Gateway` -> transitive peering connections for VPC, VPN & DX
+    * `Traffic Mirroring` -> copy network traffic from ENIs for further analysis
+    * `Egress-only Internet Gateway` -> like a NAT Gateway, but for IPv6
+* concepts:
+    * `CIDR` - Classless Inter-Domain Routing - a method for allocatin IP address
+        * used in Security Groups rules and AWS networking in general
+        * help fedine an IP address range
+        * ex.: 
+            * `WW.XX.YY.ZZ/32` -> one ip
+            * `0.0.0.0/0` -> all IPs
+            * `192.168.0.0/26` -> x.0 - .63 -> 64 IP addresses
+        * consist of two components:
+            * `Base IP` -> represents an IP contained in the range like `192.168.0.0`
+            * `Subnet Mask` -> defines how many bits can change in the IP like `/0`, `/24`
+            * can take two forms:
+                * `/8` -> 255.0.0.0
+                * `/16` -> 255.255.0.0
+                * `/24` -> 255.255.255.0
+                * `/32` -> 255.255.255.255
+        * **Subnet Mask** allows part of the underlying IP to get additional next value from the base IP
+            * `/32` allows for 2^0 = 1 IP -> 192.168.0.0
+            * `/31` allows for 2^1 = 2 IPs
+            * `/30` allows for 2^2 = 4 IPs -> 192.168.0.0 - 192.168.0.3
+            * `/28` allows for 2^4 = 16 IPs -> 192.168.0.0 - 192.168.0.15
+            * `/24` allows for 2^8 = 256 IPs -> 192.168.0.0 - 192.168.0.255
+            * `/16` allows for 2^16 = 65536 IPs -> 192.168.0.0 - 192.168.255.255
+            * `/0` allows for all IPs -> 0.0.0.0 - 255.255.255.255
+            * IP is comprised of 4 Octets:
+                * `/32` - no octet can change
+                * `/24` - last octet can change
+                * `/16` - last 2 octets can change
+                * `/8` - last 3 octets can change
+                * `/0` - all octets can change
+    * `IANA` - Internet Assigned Number AUthority established certain block of IPv4 addresses for the use of private (LAN) and public (internet) addresses
+    * `Private IP` - only allow certain values:
+        * `10.0.0.0 - 10.255.255.255` (10.0.0.0/8) -> big networks
+        * `172.16.0.0 - 172.31.255.255` (172.16.0.0/12) -> AWS default VPC in that range
+        * `192.168.0.0 - 192.168.255.255` (192.168.0.0/16) -> home networks, own devices
+    * `Public IP` - all other IP address on the Internet are Public
+
+
+## VPC
+* **VPC** - **Virtually Private Cloud** - provisions a logically isolated section of the AWS cloud network 
+    * a `private network` to deploy resources
+    * can have multiple in an AWS Region (soft limit of 5)
+    * max CIDR per VPC is 5
+        * min size: `/28` -> 16 IPs
+        * max size: `/16` -> 65536 IPs
+    * VPC is private -> only private IP ranges allowed:
+        * `10.0.0.0 - 10.255.255.255` (10.0.0.0/8) -> big networks
+        * `172.16.0.0 - 172.31.255.255` (172.16.0.0/12) -> AWS default VPC in that range
+        * `192.168.0.0 - 192.168.255.255` (192.168.0.0/16) -> home networks, own devices
+    * one and only one `default VPC` is created for each **region**
+    * VPC CIDR should NOT overlap with other networks
+* **Default VPC** - all new AWS account have a default VPC
+    * has internet connectivity
+    * all EC2 instances inside it have a public IPv4 address
+    * also get private IPv6 DNS names
+
+
+## Subnet
+* **Subnets** - allow partitioning your VPC network (**AZ resource**)into ranges of IP addresses using CIDR
+    * AWS reserves 5 IP addresses (`first 4 and last 1`) in each subnet. 
+        * example CIDR block `10.0.0.0/24`, then reserved IP addresses:
+            * `10.0.0.0` - Network Address
+            * `10.0.0.1` - for VPC Router
+            * `10.0.0.2` - for mapping to Amazon-provided DNS
+            * `10.0.0.3` - for future use by AWS
+            * `10.0.0.255` - Network Broadcast Address -> AWS does no support broadcast in a VPC, hence it is reserved
+    * `public subnet` - accessible from the internet
+        * you dont need that many IP address, just for client facing resources so a small ip range is good
+    * `private subnet` - not accessible from the internet
+
+
+## Internet Gateways & Route Tables
+* **Internet Gateways (IGW)** - allows resource within a VPC to connect with the public internet through a gateway
+    * two-way communication - inbound and outbound
+    * created separately from a VPC
+    * horizontally scaled, redundant, HA
+    * IGW on its own does not allow Internet access -> also needs Route Tables
+* **Route Tables** - define access to the internet and between subnets
+    * any CIDR within VPC is set on route table by default with target `local`
+    * link with IGW for CIDR of anything else then VPC CIDR -> `0.0.0.0/0`
+
+
+## Bastion Hosts
+* **Bastion Hosts** - an EC2 instance that is in a public subnet and works as a gateway for interacting with private subnets
+    * way to SSH into private resourcw
+    * should have own SG
+    * `Bastion SG` -> must allow `inbound` from the internet on port `22` from `restricted CIDR` (like public CIDR of your corporation)
+    * `Private EC2 SG` -> allow `private IP` of Bastion host
+
+
+## NAT Instances
+* **NAT Instance** - self-managed NAT that uses an EC2 instance
+    * must be created in `public subnet`
+    * must disable EC2 settings: `Source / destination Check`
+    * must have `Elastic IP` attached to it
+    * `Route Tables` must be configured to route traffic from private subnects to the NAT Instance
+    * characteristics:
+        * pre-configured Amazon linux AMI is available
+        * not HA / resilient setup out of the box
+            * need to create ASG in multi-AZ + resilient user-data script
+        * internet traffic bandwidth depends on EC2 iinstance type
+        * must manage Security Groups & rules
+            * `Inbound` - allow HTTP/S from private subnets, SSH from home network
+            * `Outbound` - allow HTTP / HTTPS traffic to the internet
+* **NAT** - Network Address Translation, allows EC2 isntances in private subnets to connect to the Internet
+
+
+## NAT Gateways
+* **NAT Gateways** - AWS-managed NAT that provide internet access to the internet for `private subnets` while allowing them to remain private
+    * pay per hour for usage and bandwidth
+    * NATGW is created in specific AZ
+    * uses an Elastic IP
+    * cant be used by EC2 in same subnet(only other subnets)
+    * requires an IGW ( Private Subnet => NATGW => IGW )
+    * 5 Gbps of bandwidth with automatic scaling up to 45 Gbps
+    * no SG to manage / required
+    * only resilient within a single AZ
+    * must create multiple NATGW in multiple AZs for fault-tolerance
+
+
+## NACL & Security Groups
+* **Security Groups** - firewall that controls traffic to and from an **ENI**(Elastic Network Interface) or an [EC2](#ec2) instance
+    * can only have `ALLOW` rules
+    * can reference ip addresses or other SG's
+    * general:
+        * `operates` at instance level
+        * `supports` allow rules only
+        * `stateful` - return traffic is automatically allowed
+        * `evaluate all rules` before deciding whether to allow traffic
+        * `applies` only if associated with specifically associated with instance
+* **Network ACL (NACL)** - a firewall which controls traffic from and to a subnet
+    * contains `ALLOW` and `DENY` rules
+    * are attached to **Subnets**
+    * 1 NACL per Subnet
+    * define **NACL Rules**:
+        * rules only include IP addresses
+        * rules have a number (1-32766) -> higher precenedence with a lower number
+        * last rule is asterisk and denies a request in case of no rule match
+        * AWS recommends adding rules by increment of 100
+        * newly created NACL will deny everything
+        * NACL are a great way of blocking a specific IP address at subnet level
+    * **Default NACL** - accepts everything inbound / outbound for associated subnet
+    * general:
+        * `operates` at subnet level
+        * `supports` allow and deny rules
+        * `stateless` - return traffic must be explicitly allowed by rules
+        * `evaluate rules in number order` before deciding whether to allow traffic
+        * `applies` automatically to all instances in subnet
+* rule evaluation:
+    * `Inbound`
+        1. Check NACL Inbound Rules for Allow
+        1. Check SG Inbound Rules for Allow
+        1. Check NACL Outbound Rules for Allow
+    * `Outbound`
+        1. Check SG Outbound Rules for Allow
+        1. Check NACL Outbound Rules for Allow
+        1. Check NACL Inbound Rules for Allow
+* **Ephemeral Ports**
+    * for any two endpoints to establish a connection - they must use ports
+    * clients connect to a `defined port` and expect a response on an `ephemeral port`
+    * the `ephemeral port` is a random port within a OS specific range that is allocated temporarily by the underlying OS for the connection
+    * different OS use different port ranges:
+        * `IANA & MS Windows 10` -> 49152 - 65535
+        * `Many Linux Kernels` -> 32768 - 60999
+    * **NACL & Ephemeral Ports** - must allow port ranges for ephemeral ports for each subnets CIDR when communicating between subnets
+
+
+## VPC Peering
+* **VPC Peering** - connect two VPC, privately using AWS network, to make them behave as if they where in the same network
+    * `must not` have overlapping CIDR (IP address range)
+    * `not transitive` - requires establishing for each VPC-to-VPC connection seperatly
+    * this can work `cross-region` & `cross-account`
+    * can reference SG in a peered VPC (works cross accounts / regions) - `HTTP -> TCP -> 80 -> 1234567890123/sg-ad71239asduai12`
+* to peer:
+    1. Create `Peering Connection`
+    1. Edit Route Table in both VPCs to allow eachothers CIDR block
+
+
+## VPC Endpoints
+* **VPC Endpoints** - allow to connect AWS Services using `private network` in place of public network
+    * enhanced security and lower latency for AWS services
+    * enables private access from within a VPC to AWS services
+    * `Amazon S3` and `DynamoDB` are the only services that have a `VPC Gateway Endpoint` - all the other services have `VPC Gateway Inteface (ENI)`(with a private IP)
+    * every service is publicly exposed (public URL)
+    * redundant and scale horizontally
+    * in case of issues:
+        * check DNS Settings Resolution in your VPC
+        * check Route Tables
+* **AWS PrivateLink** - allows establishing a private connection between a `Service VPC` that requires a `NLB` and a `Customer VPC` that requires an ENI
+    * does not require VPC peering, Internet Gateway, NAT, route tables
+    * most secure & scalable way to expose a service to 1000s of VPCs
+    * each new customer only has to create a new PrivateLink to the Service VPC which is easy
+* types of endpoints:
+    * **Interface Endpoints** - powered by PrivateLink
+        * provisions an ENI (private IP address) as an entry points (must attach SG)
+        * supports most AWS services
+        * $ per hour + $ per GB of data processed
+        * works for every service
+    * **Gateway Endpoints**
+        * provisions a gateway and must be used as a target in a route table (does not use SG)
+        * does not leverage IP
+        * supports both S3 and DynamoDB
+        * free
+    * gateway always preferrable over endpoints unless connecting from:
+        * `on-premises` (Site to site VPN / Direct Connect)
+        * different VPC
+        * different region
+
+
+## VPC Flow Logs
+* **VPC Flow Logs** - captures information about all IP traffic going into interfaces
+    * types:
+        * `VPC` Flow Logs
+        * `Subnet` Flow Logs
+        * `Elastic Network Interface` Flow Logs
+    * helps monitoring and troubleshooting connectivity issues
+        * subnets to internet
+        * subnets to subnets
+        * internet to subnets
+    * captures network information from AWS managed interfaces like: ELB, ElastiCache, RDS, Aurora, etc.
+    * logs can be sent to [S3](#s3), [CloudWatch](#cloudwatch) or `Kinesis Data Firehose`
+    * captures network information from AWS managed interfaces too: ELB, RDS, ElastiCache, Redshift, WorkSpaces, NATGW, Transit Gateway, ...
+* flow log syntax:
+    * example: `2 123456789010 eni-1235b8ca123456789 172.31.16.139 172.31.17.21 20641 22 6 20 4249 14148530010 1417890070 ACCEPT OK`
+    * from left to right in example:
+        * `2` -> **version** ->
+        * `123456789010` -> **account-id**
+        * `eni-1235b8ca123456789` -> **interface-id**
+        * `172.31.16.139` -> **srcaddr** - helps identify problematic IP
+        * `172.31.17.21` -> **dstaddr** - helps identify problematic IP
+        * `20641` -> **srcport** - helps identify problematic ports
+        * `22` -> **dstport** - helps identify problematic ports
+        * `6` -> **protocol**
+        * `20` -> **packets**
+        * `4249` -> **bytes**
+        * `1418530010` -> **start**
+        * `1418530070` -> **end**
+        * `ACCEPT` -> **action** - success or failure of the request due to SG / NACL
+            * INCOMING: inbound `REJECT` -> NACL or SG
+            * INCOMING: inbound `ACCEPT`, outbound `REJECT` -> NACL
+            * OUTGOING: outbound `REJECT` -> NACL or SG
+            * OUTGOING: outbound `ACCEPT`, inbound `REJECT` -> NACL
+        * `OK` -> **log-status**
+    * can be used for analytics on usage patterns, or malicious behavior
+    * `query VPC flow logs` using `Athena` on S3 or `CloudWatch Logs Insights`
+
+
+## Site-to-Site VPN and Gateways
+* **Site to Site VPN** - connect on-premise VPN to AWS
+    * *VPN* - automatically encrypted connection over the `public internet`
+    * does not have access to VPC Endpoints from VPN
+    * take away: `quick to establish but less security`
+    * to setup:
+        * **Customer Gateway (CGW)**
+            * software application or physcial device on the `customer side` of the VPN connection
+        * **Virtual Private Gateway (VGW)**
+            * VPN concentrator on the `AWS side` of the VPN connection
+            * VGW is created and attached to the VPC from which you want to create the Site-to-Site VPN connection
+            * possibility to customize the ASN (Autonomous System Number)
+        * once CGW and VGW are provisioned they can be connected via Site-to-Site VPN
+* **Connections**
+    * `Customer Gateway Device`
+        * use public internet-routable IP address for your Customer Gateway device
+        * if its behind a NAT devices thats enabled for NAt traversal (NAT-T) -> use publc IP of the NAT device
+    * **important step**: enable `Route Propagation` for the Virtual Private Gateway in the route table that is associated with your subnets
+    * if you need to ping EC2 - enable ICMP protocol on inbound SG
+* **AWS VPN CloudHub** - provide secure communication between multiple sites, if you have multiple VPN connections
+    * low cost `hub-and-spoke` model for priamry or secondary network connectivity between different locations (VPN only)
+    * goes over public internet
+    * to setup:
+        1. configure multiple VPN connections on the same `VGW`
+        1. setup dynamic routing
+        1. configure route tables
+![VPN CloudHub](./aws_sa_vpn_cloudhub.png)
+
+
+## Direct Connect
+* **Direct Connect (DX)**
+    * physical dedicated and private connection between on-premise network and AWS
+    * must be setup between DC and AWS Direct Connect locations
+    * must setup Virtual Private Gateway on your VPC
+    * does not have access to VPC Endpoints from DX
+    * features:
+        * access public (S3) and private (EC2) resources on same connection
+        * private, secure and fast
+        * over `private network`
+    * take away: `slow to establish but fast and secure`
+    * use cases:
+        * increase `bandwidth` throughput -> lower costs with large scale data sets
+        * more `consistent network` experience -> real-time data feeds
+        * hybrid environments
+    * **Connection Types**
+        * `Dedicated Connection` - 1Gbps / 10 Gbps / 100 Gbps capacity
+            * physical ehternet port dedicated to a customer
+            * request made to AWS first -> completed by AWS Direct Connect Partners
+        * `Hosted Connections` - 50 Mbps / 500 Mbps / 10 Gbps capacity
+            * connection requests made via AWS Direct Connect Partners
+            * capcity can be added or removed on demand
+            * 1, 2, 5, 10 Gbps available at select AWS Direct Connect Partners
+        * lead time often longer than 1 month to establish connection
+* **Direct Connect Gateway** - allows setup to one or more VPC in many different regions (same account)
+* **Encyrption**
+    * data in-transit not encrypted, but private
+    * AWS Direct Connect + VPN provides an IPsec-encrypted private connection
+        * good for an extra level of security, more complex to setup
+* **Resiliency**
+    * `High` -> one connection at multiple locations
+    * `Maximum` -> separate connections terminating on separate devices in more than one location
+* **Site-to-Site VPN Integration** - can setup Site-to-Site VPN connection as backup to DX
+
+![Direct Connect Setup](./aws_sa_dx.png)
+
+
+## Transit Gateway
+* **Transit Gateway** - a service that creates a transitive peering connection between thousands of VPC and on-premises networks
+    * `hub-and-spoke (star)` architecture - each network is connected through the AWS Transit Gateway
+        * star like architecture diagram with Transit Gateway in the middle
+    * enables scaling AWS Site-to-Site VPN beyon a single IPsec tunnels maximum limit of 1.25 GBps
+    * facilitates managing complicated network topology
+    * central place for networking configurations:
+        * `VPC Peering`
+        * `Site to Site VPN`
+        * `Transit Gateway`
+        * configure on Transit Gateway instead of between network components
+    * integrations: 
+        * Direct Connect Gateway
+        * VPN connections
+    * features:
+        * regional resource, can work cross-region
+        * share cross-account using `Resource Access Manager (RAM)`
+        * peer Transit Gateways across regions
+        * `Route Tables`: limit which VPC can talk with other VPC
+        * works with Direct Connect Gateway, VPN connections
+        * supports `IP Multicast` -> not supported by any other AWS service
+* **ECMP** - Equal-cost multi-path routing
+    * routing strategy to allow to forward packet over multiple best path
+    * use case: create multiple Site-to-Site VPN connection to increase the bandwitdh of your connection to AWS
+    * huge network throughput optimization -> but extra cost per ECMP
+
+![Share Direct Connect between multiple accounts](./aws_sa_share_dx.png)
+
+
+## VPC Traffic Monitoring
+* allows capturing and monitoring network traffic within VPC
+* route the traffic to security appliances that you manage
+* capture traffic:
+    * `From (Source)` -> ENIs
+    * `To (Targets)` -> ENI / NLB
+* capture:
+    * all packets
+    * packets of interest
+    * truncate packets
+* `Source` and `Target` can be in same VPC or different VPC
+* use cases:
+    * content inspection
+    * threat monitoring
+    * troubleshooting
+
+
+## IPv6 for VPC
+* `IPv4` designed to provide 4.3 Billion addresses
+    * cannot be disabled for VPC subnet
+* `IPv6` designed to proved 3.4 x 10 ^ 38 unique IP addresses
+    * every IPv6 address is public and internet-routable (no private range)
+    * **format**: `x.x.x.x.x.x.x.x` -> where `x` is hexadecimal, range can be from `0000` - `ffff`
+    * can be enabled in VPC to operate in `dual-stack mode`
+    * **dual-stack mode**
+        * EC2 instances will get at least a private internal IPv4 and a public IPv6
+        * they can communicate susing either IPv4 or IPv6 to the internet using `Internet Gateway`
+    * **troubleshooting**
+        * `Problem`: EC2 cant be launched because no available IPv4 in your subnet
+        * `Solution`: create new IPv4 CIDR in your subnet
+
+
+## Egress Only Internet Gateway
+* allows instances outbound IPv6 connection in VPC but blocks internet from initiating inbound IPv6 connection to VPC
+* similiar to a `NAT Gateway` but for IPv6
+* must update the `Route Tables` to make it work
+    * **Public Subnet** -> `Destination: ::/0` : `Target: igw-id`
+    * **Private Subnet** -> `Destination: ::/0` : `Target: eigw-id`
+* for `public` IPv6 use `Internet Gateway`, for `private` IPv6 use `Egress-only Internet Gateway`
+
+
+## Networking Costs
+* simplified overview
+* concepts:
+    * `egress traffic` -> outbound traffic from AWS to outside
+    * `ingress traffic` -> inbound traffic from outside to AWS
+* `FREE`
+    * incoming traffic -> VPC
+    * same AZ traffic using private IP
+    * S3 ingress
+    * S3 to CloudFront
+* `PRICED`
+    * cross-AZ over public IP / elastic IP -> `$0.02`
+    * cross-AZ over private IP -> `$0.01`
+    * cross-region -> `$0.02`
+    * S3 egress -> `$0.09 per GB`
+    * S3 Tranfer Acceleration -> `Data Transfer Pricing + $0.04 - $0.08 per GB`
+    * CloudFront to Internet -> `$0.085 / GB`
+        * slightly lower then S3 egress
+        * caching
+        * reduce costs associated with S3 Requests Pricing (7x cheaper with CloudFront)
+    * S3 Cross Region Replication: `$0.02 / GB`
+    * NAT Gateway -> `$0.045 / h` + `$0.045 / GB`
+    * VPC Endpoint -> `$0.01 data transfer in / out`
+* Cost saving:
+    * use private IP for cost saving
+    * use same AZ (at cost of HA)
+    * try to keep as much internet traffic within AWS
+    * choose Direct Connect location co-located in same AWS Region
+
+
+## AWS Network Firewall
+* for fine-grained protectection network on AWS:
+    * `NACL`
+    * `SG`
+    * `WAF`
+    * `Shield`
+    * `Firewall Manager` 
+* **Network Firewall** - sophisticated protection for entire Amazon VPC
+    * from Layer 3 - Layer 7
+    * any direction you can inspect
+        * VPC to VPC traffic
+        * Outbound to internet
+        * Inbound from internet
+        * To / from Direct Connect & Site-to-Site VPN
+    * internally uses AWS GLB
+    * rules can be centrally managed cross-account to apply to many VPCs
+    * support 1000s of rules:
+        * `IP & port` -  example: 10000s of IPs filtering
+        * `Protocol` - block SMB protocol for outbound communcations
+        * `Stateful domain list rule groups` - only allow outbound *.mycorp.com
+        * `General pattern matching using regex`
+    * **Traffic filtering** - allow / drop / alert for the traffic that matches rules
+    * **Active flow inspection** - protect against network threats with intrusion-prevention capabilities (like GLB but managed by AWS)
+    * send logs of rule matches to S3, CloudWatch Logs, Kinesis Data Firehose
 
 
 
 &nbsp;
 # Other Services
-* **OpenSearch** - 
-* **ES + Kibana** - 
-    * **Production Setup** - 
-* **X-Ray** - 
-* **AWS Amplify** -
+* **ElasticSearch**
+    * may be calle Amazon ES
+    * managed version of ElasticSearch (open source project)
+    * needs to run on servers (not serverless)
+    * use cases:
+        * Log Analytics
+        * Real Time app monitoring
+        * indexing
+        * security analytics
+        * full text search
+        * clickstream analytics
+    * **Access Policy** - `IP-based policies` used to restrict an ES domain to ip address or CIDR block, allows unsigned requests to an ES domain (curl, Kibana)
+    * **Production Setup**
+        * use 3 dedicated Master nodes -> 1 per AZ
+        * use at least 2 Data nodes per AZ (for replication)
+        * deploy domain across 3 AZ
+        * create at least one replica for each index in the cluster
+    * **Kibana Authentication** - doesnt natively support IAM users and roles
+        * can control access to Kibana using:
+            * `HTTP Basic Authentication` -> user db stored in ElasticSearch Index
+            * `SAML` -> 3rd party identity providers, support SAML 2.0
+            * `Amazon Cognito` -> easy for MS AD integration
+* **X-Ray** - tracing and visual analysis of our applications
+    * troubleshoot performance
+    * udnerstand dependencies in distributed system
+    * pinpoint service issues
+    * review request behavior
+    * find errors / exceptions
+    * where am i throttled
+    * are we meeting SLA
+    * identity users that are impacted
+* **AWS Amplify** - web and mobile app development tool
+    * set of tools to help develop / deploy scalable full stack web and mobile apps
+    * one place for Auth / storage / api / cicd / pubsub / analytics / ai/ml / monitoring
+    * connect to source code
+    * elastic beanstalk for web and mobile apps

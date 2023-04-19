@@ -282,6 +282,7 @@ https://infrastructure.aws/
     * configuration management
     * awareness & training
 
+
 &nbsp;
 # Ports List
 List of ports worth remembering:
@@ -5028,7 +5029,7 @@ IAM Permission Boundary:
 
 &nbsp;
 # AWS Security & Encryption
-* **Encryption** - 
+* **Encryption**
     * **Encryption in flight** - data is encrypted before sending and decrypted after receiving
         * SSL certificates help with encryption (HTTPS)
         * encryption in flight ensures no MITM (man in the middle attack) can happen 
@@ -5086,7 +5087,7 @@ IAM Permission Boundary:
             * `GenerateDataKeyWithoutPlaintext` - generate DEK to use at some point and stores an encrypted DEK at CMK you specify
             * `Decrypt` - decrypt up to 4 KB of data (include DEK)
             * `GenerateRandom` - returns a random byte string
-    * `Asymmetric (RSA & ECC key pairs)` - use public key to encrypt and private key to eecrypt
+    * `Asymmetric (RSA & ECC key pairs)` - use public key to encrypt and private key to decrypt
         * used for Encrypt / Decrypt, or Sign / Verify operations
         * the public key is downloadable, but you cant access the Private Key unencrypted
         * use case: encryption outside of AWS by users who cant call the KMS API
@@ -5434,8 +5435,6 @@ Outputs:
             * `Route 53` Resolver DNS Firewall
             * `Policies` are created at the region level
     * rules are applied to new resources as they are created (good for compliance) across all and future accounts in your organization
-
-
 
 
 ## DDOS Protection

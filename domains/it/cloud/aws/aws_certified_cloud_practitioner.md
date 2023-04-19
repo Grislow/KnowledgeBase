@@ -2683,6 +2683,7 @@ cache:
     * used to support internal audit or compliance
     * global service
 
+
 ## GuardDuty
 * **AWS GuardDuty** - intelligent threat discovery to protect AWS Account 
     * uses ML, anomaly detection, 3rd party data
@@ -2731,7 +2732,7 @@ cache:
     * one click to enable
 
 ## Security Hub
-* **AWS Security Hub** - central security tool to manage security over seeveral AWS account and automate security checks
+* **AWS Security Hub** - central security tool to manage security over several AWS account and automate security checks
     * provides automated dashboards to quickly provide information on security checks
     * aggregates reports in predefined or personal format from multiple AWS Services & AWS partner tools:
         * GuardDuty

@@ -4666,7 +4666,7 @@ values.json
 ```
 
 ### DynamoDB Indexes
-* indexing enables more efficient query operations on tables:
+* indexing enables more efficient query operations on tables
 * two flavors:
     * **Local Secondary Index (LSI)**
         * alternative sort key for your table
