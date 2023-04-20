@@ -2213,6 +2213,13 @@ aws lambda invoke --function-name {name} --cli-binary-format raw-in-base64-out -
 
 
 ## Amazon AppFlow
+* fully managed integration service that enables you to securely transfer data between `Software-as-a-Service` apps and AWS
+* `source`: Salesforce, SAP, Zendesk, Slack, ServiceNow
+* `destinations`: AWS services like Amazon S3, Amazon Redshift, non-AWS such as SnowFlake / SalesForce
+* `frequency`: on a schedule, in response to events or on demand
+* `data transformation`: capabilities like filtering and validation
+* `encrypted`: over public internet or privately over AWS PrivateLink
+* dont spend time writing the integrations - leverage APIs immediately
 
 
 &nbsp;
