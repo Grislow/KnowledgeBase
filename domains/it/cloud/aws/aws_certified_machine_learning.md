@@ -124,8 +124,6 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
     * [Lab - Tuning, Deploying & Predicting with Tensorflow on SageMaker](#lab---tuning,-deploying-&-predicting-with-tensorflow-on-sagemaker)
 
 
-
-
 &nbsp;
 # Data Engineering
 
