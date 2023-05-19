@@ -157,6 +157,17 @@ Amazon Web Services(AWS) is a leading cloud provider, meaning they provide you w
 
 &nbsp;
 # Collection
+* How to move data into AWS
+    * Real Time (Immediate)
+        * KDS
+        * SQS
+        * IoT
+    * Near-real time (Reactive)
+        * KDF
+        * DMS
+    * Batch (Historical Analysis)
+        * Snowball
+        * Data Pipeline
 
 
 ## Kinesis

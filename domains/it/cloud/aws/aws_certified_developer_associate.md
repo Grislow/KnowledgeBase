@@ -1722,7 +1722,7 @@ Tool for comparing instances: https://instances.vantage.sh
     * each Access Point has:
         * own DNS name (Internet or VPC origin)
             * VPC origin:
-                *only accessible from within the VPC
+                * only accessible from within the VPC
                 * must create VPC Endpoint to access the Access Point (Gateway or Interface Endpoint)
                 * endpoint must allow access to target bucket and Access Point
         * access point policy
@@ -6794,7 +6794,7 @@ Outputs:
         * `Amazon MSK` - 1 MB default, configure for higher(ex: 10MB), Kafka Topics with Partitions, to scale add partitions to topic, PLAINTEXT or TLS in-flight Encryption, KMS at-rest encryption, can keep data as long as you want
     * **Use Cases**
         * consume topics in `Kinesis Data Analytics for Apache Flink`
-        * consumer in `AWS Glue` for streaming ERL Jobs powered by Apache Spark Streaming
+        * consumer in `AWS Glue` for streaming ETL Jobs powered by Apache Spark Streaming
         * consume topics with `Lambda Function`
         * consume topics in applications running in `Amazon EC2`, `ECS`, `EKS`
 * **Amazon Certificate Manager (ACM)** - lets you easily provision / manage / deploy SSL / TLS certificates, support both public / private TLS certificates, free of charge for public TLS certs, automatic TLS cert renewal, integration with: `ELB`, `CloudFront Distributions`, APIs on `API Gateway`

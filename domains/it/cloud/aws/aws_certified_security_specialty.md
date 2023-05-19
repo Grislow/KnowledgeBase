@@ -245,7 +245,7 @@
     * **RDS**
         * `CredentailAccess:RDS/AnomalousBehavior.SuccessfulLogin`
     * **S3**
-        * `Policy:S3/AccountBLockPublicAccessDisabled`
+        * `Policy:S3/AccountBlockPublicAccessDisabled`
         * `PenTest:S3/KaliLinux`
 * **Trusted and Threat IP Lists**
     * works only for public IP address
@@ -4402,7 +4402,7 @@ Outputs:
         * HTTPS is encrypted and recommended
         * most clients use HTTPS by default
     * you can force encryption using a bucket policy -> refuse API call PUT on S3 object without encryption headers(`SSE-KMS` or `SSE-C`)
-    * **Galcier** - all data is AES-256 encrypted, key under AWS control
+    * **Glacier** - all data is AES-256 encrypted, key under AWS control
 
 
 ## S3 - Default Encryption
